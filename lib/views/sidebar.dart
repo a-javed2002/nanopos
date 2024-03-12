@@ -1,20 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nanopos/detail.dart';
+import 'package:nanopos/views/detail.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
-import 'package:nanopos/login.dart';
+import 'package:nanopos/views/login.dart';
 import 'package:nanopos/main.dart';
 
 class SideBarScreen extends StatefulWidget {
-  final String name;
-  final String email;
-  final String image;
+  final loginUser user;
   const SideBarScreen({
     Key? key,
-    required this.name,
-    required this.email,
-    required this.image,
+    required this.user
   }) : super(key: key);
   @override
   State<SideBarScreen> createState() => _SideBarScreenState();
@@ -507,18 +503,18 @@ class _SideBarScreenState extends State<SideBarScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(widget.image),
+                backgroundImage: NetworkImage(widget.user.image),
                 radius: 40,
               ),
               const SizedBox(height: 20),
               Text(
-                widget.name,
+                widget.user.name,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Text(
-                widget.email,
+                widget.user.email,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -545,7 +541,7 @@ class _SideBarScreenState extends State<SideBarScreen> {
                   borderRadius:
                       BorderRadius.circular(12), // Adjust the radius as needed
                 ),
-                foregroundColor: const Color(0xff2a407c),
+                foregroundColor: const Color(0xfff3b98a),
               ),
               onPressed: () {
                 Navigator.of(context).pop();

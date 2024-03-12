@@ -32,8 +32,8 @@
 //   }
 
 //   Stream<List<dynamic>> _fetchActiveTables() async* {
-//     print("Fetching Tables ${widget.token}");
-//     print(widget.token);
+//     print("Fetching Tables ${widget.user.token}");
+//     print(widget.user.token);
 //     while (true) {
 //       final response = await http.get(
 //         Uri.parse(
@@ -41,7 +41,7 @@
 //         headers: {
 //           'Content-Type': 'application/json; charset=UTF-8',
 //           'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-//           'Authorization': 'Bearer ${widget.token}',
+//           'Authorization': 'Bearer ${widget.user.token}',
 //         },
 //       );
 
@@ -75,7 +75,7 @@
 //             Padding(
 //               padding: const EdgeInsets.only(right: 10.0),
 //               child: CircleAvatar(
-//                 backgroundImage: NetworkImage(widget.image),
+//                 backgroundImage: NetworkImage(widget.user.image),
 //               ),
 //             ),
 //           ],
@@ -113,8 +113,8 @@
 //                     MaterialPageRoute(
 //                         builder: (context) => OrdersScreen(
 //                               id: table['id'].toString(),
-//                               token: widget.token,
-//                               image: widget.image,
+//                               token: widget.user.token,
+//                               image: widget.user.image,
 //                             )),
 //                   );
 //                     },
@@ -142,26 +142,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanopos/cashier.dart';
-import 'package:nanopos/login.dart';
+import 'package:nanopos/views/Todo/todos_Screen.dart';
+import 'package:nanopos/views/cashier.dart';
+import 'package:nanopos/views/login.dart';
 import 'dart:convert';
 
-import 'package:nanopos/order.dart';
+import 'package:nanopos/views/order.dart';
 
 class MyHomePage extends StatefulWidget {
-  final String name;
-  final String email;
-  final String image;
-  final int roleId;
-  final String token;
+  final loginUser user;
 
   MyHomePage(
       {Key? key,
-      required this.name,
-      required this.email,
-      required this.image,
-      required this.roleId,
-      required this.token})
+      required this.user})
       : super(key: key);
 
   @override
@@ -179,8 +172,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Stream<List<dynamic>> _fetchActiveTables() async* {
     if (kDebugMode) {
-      print("Fetching Tables ${widget.token}");
-      print(widget.token);
+      print("Fetching Tables ${widget.user.token}");
+      print(widget.user.token);
     }
     while (true) {
       final response = await http.get(
@@ -189,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-          'Authorization': 'Bearer ${widget.token}',
+          'Authorization': 'Bearer ${widget.user.token}',
         },
       );
 
@@ -220,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color(0xff2a407c),
+          backgroundColor: const Color(0xffa14716),
           title: const Text(
             "Dashboard",
             style: TextStyle(
@@ -237,7 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 10.0),
                 child: CircleAvatar(
-                  backgroundImage: NetworkImage(widget.image),
+                  backgroundImage: NetworkImage(widget.user.image),
                 ),
               ),
             ),
@@ -282,31 +275,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
                       onTap: () {
-                        if (widget.roleId == 7) {
+                        if (widget.user.roleId == 7) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => OrdersScreen(
+                                user: widget.user,
                                 id: table['id'].toString(),
-                                token: widget.token,
-                                image: widget.image,
                                 table: table['name'].toString(),
-                                name: widget.name,
-                                email: widget.email,
                               ),
                             ),
                           );
-                        } else if (widget.roleId == 6) {
+                        } else if (widget.user.roleId == 6) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => CashierScreen(
+                                user:widget.user,
                                 id: table['id'].toString(),
-                                token: widget.token,
-                                image: widget.image,
                                 table: table['name'].toString(),
-                                name: widget.name,
-                                email: widget.email,
                               ),
                             ),
                           );
@@ -315,12 +302,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => OrdersScreen(
+                                user: widget.user,
                                 id: table['id'].toString(),
-                                token: widget.token,
-                                image: widget.image,
                                 table: table['name'].toString(),
-                                name: widget.name,
-                                email: widget.email,
                               ),
                             ),
                           );
@@ -328,8 +312,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       child: Card(
                         color: table['isActive'] == true
-                            ? Color(0xff2a407c)
-                            : Color(0xFF6078B9),
+                            ? Color(0xffa14716)
+                            : Color(0xfff3b98a),
                         elevation: 4,
                         child: Stack(
                           children: [
@@ -337,7 +321,21 @@ class _MyHomePageState extends State<MyHomePage> {
                             Positioned(
                               bottom: 0,
                               right: 0,
-                              child: Image.asset(
+                              child: table['newOrders'] != 0
+                                      ?ColorFiltered(
+                                colorFilter: ColorFilter.matrix(<double>[
+                                  -1, 0, 0, 0, 255, // Red
+                                  0, -1, 0, 0, 255, // Green
+                                  0, 0, -1, 0, 255, // Blue
+                                  0, 0, 0, 1, 0, // Alpha
+                                ]),
+                                child: Image.asset(
+                                  "assets/icons/Restaurant_Table.png",
+                                  width: 75,
+                                  height: 75,
+                                  fit: BoxFit.cover,
+                                ),
+                              ):Image.asset(
                                 "assets/icons/Restaurant_Table.png",
                                 width: 75,
                                 height: 75,
@@ -353,14 +351,23 @@ class _MyHomePageState extends State<MyHomePage> {
                                   Text(
                                     table['name'].toString(),
                                     style: const TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
                                   ),
                                   Text(
                                     "${table['size']} Persons",
-                                    style: const TextStyle(fontSize: 18),
+                                    style: const TextStyle(
+                                        fontSize: 18, color: Colors.white),
                                   ),
+                                  table['newOrders'] != 0
+                                      ? Text(
+                                          "${table['newOrders']} Orders",
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white),
+                                        )
+                                      : Container(),
                                 ],
                               ),
                             ),
@@ -389,18 +396,18 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(widget.image),
+                backgroundImage: NetworkImage(widget.user.image),
                 radius: 40,
               ),
               const SizedBox(height: 20),
               Text(
-                widget.name,
+                widget.user.name,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Text(
-                widget.email,
+                widget.user.email,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -415,6 +422,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TodosScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add, size: 40, color: Colors.brown),
               )
             ],
           ),
@@ -427,7 +445,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   borderRadius:
                       BorderRadius.circular(12), // Adjust the radius as needed
                 ),
-                foregroundColor: const Color(0xff2a407c),
+                foregroundColor: const Color(0xfff3b98a),
               ),
               onPressed: () {
                 Navigator.of(context).pop();

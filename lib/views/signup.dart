@@ -2,19 +2,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:nanopos/home.dart';
-import 'package:nanopos/loader.dart';
-import 'package:nanopos/login.dart';
-import 'package:nanopos/sidebar.dart';
+import 'package:nanopos/views/home.dart';
+import 'package:nanopos/views/loader.dart';
+import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/sidebar.dart';
 
-class ForgetPasswordScreen extends StatefulWidget {
-  const ForgetPasswordScreen({Key? key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({Key? key});
 
   @override
-  _ForgetPasswordScreenState createState() => _ForgetPasswordScreenState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   bool _showPassword = false;
   bool isLoading = false;
 
@@ -26,6 +26,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController =
+        TextEditingController();
+    TextEditingController passwordController =
         TextEditingController();
 
     return SafeArea(
@@ -49,18 +51,26 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 children: [
                   Image.asset("assets/images/logo.png"),
                   const Text(
-                    "Forget Password",
+                    "Sign Up",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
-                  Center(
-                    child: const Text(
-                      "Enter you email associated with your account  and we'll send an email with instructions to reset your password e",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      hintText: 'Enter your name',
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black, // Border color
+                          width: 4.0, // Border width
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 5),
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
@@ -76,8 +86,36 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
+                  const SizedBox(height: 5),
+                  TextField(
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showPassword = !_showPassword;
+                          });
+                        },
+                      ),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.5),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black, // Border color
+                          width: 4.0, // Border width
+                        ),
+                      ),
+                    ),
+                    obscureText: !_showPassword,
                   ),
                   isLoading
                       ? CustomLoader()
@@ -99,7 +137,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               
                             },
                             child: const Text(
-                              "Send Link",
+                              "Sign up",
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,
@@ -130,7 +168,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                   );
                             },
                             child: const Text(
-                              "Back to Login",
+                              "Log in",
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,

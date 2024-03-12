@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanopos/forgetPassword.dart';
+import 'package:nanopos/views/forgetPassword.dart';
 import 'dart:convert';
-import 'package:nanopos/home.dart';
-import 'package:nanopos/loader.dart';
-import 'package:nanopos/sidebar.dart';
-import 'package:nanopos/signup.dart';
+import 'package:nanopos/views/home.dart';
+import 'package:nanopos/views/loader.dart';
+import 'package:nanopos/views/sidebar.dart';
+import 'package:nanopos/views/signup.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key});
@@ -123,13 +123,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           // Add logic for forgot password
                           Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ForgetPasswordScreen()
-                                    ),
-                                  );
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ForgetPasswordScreen()),
+                          );
                         },
-                        child: const Text('Forgot Password?',style: TextStyle(color: Colors.black),),
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ],
                   ),
@@ -192,10 +194,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 int role =
                                     int.parse(user['role_id'].toString());
 
-                                    setState(() {
-                                    isLoading =
-                                        false; // Set isLoading to true before signup
-                                  });
+                                setState(() {
+                                  isLoading =
+                                      false; // Set isLoading to true before signup
+                                });
 
                                 if (role == 7 || role == 6) {
                                   // Navigate to the next page
@@ -209,15 +211,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                   //     )
                                   //   ),
                                   // );
+                                  var obj = new loginUser(
+                                      email: email,
+                                      image: image,
+                                      name: username,
+                                      roleId: role,
+                                      token: token);
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MyHomePage(
-                                        name: username,
-                                        email: email,
-                                        image: image,
-                                        token: token,
-                                        roleId: role,
+                                        user:obj
                                       ),
                                     ),
                                   );
@@ -251,37 +255,36 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 45),
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    12), // Adjust the radius as needed
-                              ),
-                              backgroundColor: const Color(0xffa14716),
-                            ),
-                            onPressed: () async {
-                              Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SignupScreen()
-                                    ),
-                                  );
-                            },
-                            child: const Text(
-                              "Sign up",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 20,
-                                  color: Colors.white),
-                            ),
-                          ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 45),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              12), // Adjust the radius as needed
                         ),
+                        backgroundColor: const Color(0xffa14716),
+                      ),
+                      onPressed: () async {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SignupScreen()),
+                        );
+                      },
+                      child: const Text(
+                        "Sign up",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 20,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -333,4 +336,20 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
   }
+}
+
+class loginUser {
+  final String email;
+  final String image;
+  final String name;
+  final int roleId;
+  final String token;
+
+  loginUser({
+    required this.email,
+    required this.image,
+    required this.name,
+    required this.roleId,
+    required this.token,
+  });
 }

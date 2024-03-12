@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nanopos/OnBoarding/widgets.dart';
 import 'package:nanopos/consts/consts.dart';
-import 'package:nanopos/login.dart';
+import 'package:nanopos/views/login.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnBoardingScreen extends StatefulWidget {

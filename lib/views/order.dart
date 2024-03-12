@@ -154,8 +154,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:nanopos/login.dart';
-import 'package:nanopos/sidebar.dart';
+import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/payment_done.dart';
+import 'package:nanopos/views/sidebar.dart';
 
 class Order {
   final String id;
@@ -223,20 +224,14 @@ class OrderItems {
 }
 
 class OrdersScreen extends StatefulWidget {
-  final String name;
-  final String email;
-  final String id;
+  final loginUser user;
   final String table;
-  final String token;
-  final String image;
+  final String id;
 
   const OrdersScreen({
     Key? key,
-    required this.name,
-    required this.email,
     required this.id,
-    required this.token,
-    required this.image,
+    required this.user,
     required this.table,
   }) : super(key: key);
 
@@ -259,7 +254,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Stream<List<Order>> _fetchActiveOrders() async* {
     if (kDebugMode) {
-      print("Fetching orders ${widget.token}");
+      print("Fetching orders ${widget.user.token}");
     }
     while (true) {
       final response = await http.get(
@@ -268,7 +263,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-          'Authorization': 'Bearer ${widget.token}',
+          'Authorization': 'Bearer ${widget.user.token}',
         },
       );
       if (kDebugMode) {
@@ -287,7 +282,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
                 'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-                'Authorization': 'Bearer ${widget.token}',
+                'Authorization': 'Bearer ${widget.user.token}',
               },
             );
             if (kDebugMode) {
@@ -339,7 +334,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xff2a407c),
+        backgroundColor: const Color(0xffa14716),
         title: Text(
           widget.table,
           style: const TextStyle(
@@ -356,7 +351,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 10.0),
               child: CircleAvatar(
-                backgroundImage: NetworkImage(widget.image),
+                backgroundImage: NetworkImage(widget.user.image),
               ),
             ),
           ),
@@ -441,7 +436,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                       ),
                                                       backgroundColor:
                                                           const Color(
-                                                              0xff2a407c),
+                                                              0xffa14716),
                                                     ),
                                                     onPressed: () async {
                                                       setState(() {
@@ -467,7 +462,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                           'X-Api-Key':
                                                               'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
                                                           'Authorization':
-                                                              'Bearer ${widget.token}',
+                                                              'Bearer ${widget.user.token}',
                                                         },
                                                       );
                                                       if (kDebugMode) {
@@ -542,7 +537,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                           'X-Api-Key':
                                                               'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
                                                           'Authorization':
-                                                              'Bearer ${widget.token}',
+                                                              'Bearer ${widget.user.token}',
                                                         },
                                                       );
 
@@ -644,16 +639,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
         },
       ),
       bottomNavigationBar: Container(
-        color: const Color(0xff2a407c),
+        color: const Color(0xffa14716),
         width: double.infinity,
         height: 50.0,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xff2a407c),
+            backgroundColor: const Color(0xffa14716),
           ),
           onPressed: () {
             if (kDebugMode) {
               print("Merge Orders");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => PaymentPaidScreen(user: widget.user,)),
+              );
             }
           },
           child: const Text(
@@ -662,17 +661,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(child: Icon(Icons.add),onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => SideBarScreen(
-                    name: widget.name,
-                    email: widget.email,
-                    image: widget.image,
-                  )),
-        );
-      }),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SideBarScreen(
+                        user: widget.user,
+                      )),
+            );
+          }),
     ));
   }
 
@@ -687,18 +686,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(widget.image),
+                backgroundImage: NetworkImage(widget.user.image),
                 radius: 40,
               ),
               const SizedBox(height: 20),
               Text(
-                widget.name,
+                widget.user.name,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Text(
-                widget.email,
+                widget.user.email,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -725,7 +724,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   borderRadius:
                       BorderRadius.circular(12), // Adjust the radius as needed
                 ),
-                foregroundColor: const Color(0xff2a407c),
+                foregroundColor: const Color(0xffa14716),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -746,7 +745,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   //   return SafeArea(
   //     child: Scaffold(
   //       appBar: AppBar(
-  //         backgroundColor: Color(0xff2a407c),
+  //         backgroundColor: Color(0xffa14716),
   //         title: Text(widget.table,
   //           style: TextStyle(
   //             color: Colors.white, // Set text color to white

@@ -3,24 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:nanopos/login.dart';
-import 'package:nanopos/order.dart';
+import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/order.dart';
 
 class CashierScreen extends StatefulWidget {
-  final String name;
-  final String email;
-  final String id;
+  final loginUser user;
   final String table;
-  final String token;
-  final String image;
+  final String id;
 
   CashierScreen({
     Key? key,
-    required this.name,
-    required this.email,
     required this.id,
-    required this.token,
-    required this.image,
+    required this.user,
     required this.table,
   }) : super(key: key);
 
@@ -42,7 +36,7 @@ class _CashierScreenState extends State<CashierScreen> {
 
   Future<List<Order>> _fetchActiveOrders() async {
     if (kDebugMode) {
-      print("Fetching orders ${widget.token}");
+      print("Fetching orders ${widget.user.token}");
     }
     while (true) {
       final response = await http.get(
@@ -51,7 +45,7 @@ class _CashierScreenState extends State<CashierScreen> {
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-          'Authorization': 'Bearer ${widget.token}',
+          'Authorization': 'Bearer ${widget.user.token}',
         },
       );
       if (kDebugMode) {
@@ -71,7 +65,7 @@ class _CashierScreenState extends State<CashierScreen> {
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
                 'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-                'Authorization': 'Bearer ${widget.token}',
+                'Authorization': 'Bearer ${widget.user.token}',
               },
             );
             if (kDebugMode) {
@@ -164,7 +158,7 @@ class _CashierScreenState extends State<CashierScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 10.0),
                 child: CircleAvatar(
-                  backgroundImage: NetworkImage(widget.image),
+                  backgroundImage: NetworkImage(widget.user.image),
                 ),
               ),
             ),
@@ -267,18 +261,18 @@ class _CashierScreenState extends State<CashierScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(widget.image),
+                backgroundImage: NetworkImage(widget.user.image),
                 radius: 40,
               ),
               const SizedBox(height: 20),
               Text(
-                widget.name,
+                widget.user.name,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Text(
-                widget.email,
+                widget.user.email,
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
