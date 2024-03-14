@@ -146,16 +146,16 @@ import 'package:nanopos/views/Todo/todos_Screen.dart';
 import 'package:nanopos/views/cashier.dart';
 import 'package:nanopos/views/login.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 import 'package:nanopos/views/order.dart';
+import 'package:nanopos/views/ringtones.dart';
+import 'package:vibration/vibration.dart';
 
 class MyHomePage extends StatefulWidget {
   final loginUser user;
 
-  MyHomePage(
-      {Key? key,
-      required this.user})
-      : super(key: key);
+  MyHomePage({Key? key, required this.user}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -267,6 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   // table.sort(
                   //       (a, b) => b['isActive'].compareTo(a['isActive']),
                   //     );
+
                   if (kDebugMode) {
                     print(table);
                   } // Log the error for debugging
@@ -291,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => CashierScreen(
-                                user:widget.user,
+                                user: widget.user,
                                 id: table['id'].toString(),
                                 table: table['name'].toString(),
                               ),
@@ -318,30 +319,54 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Stack(
                           children: [
                             // Image at bottom right
+                            // Positioned(
+                            //   bottom: 0,
+                            //   right: 0,
+                            //   child: table['newOrders'] != 0
+                            //       ? ColorFiltered(
+                            //           colorFilter: ColorFilter.matrix(<double>[
+                            //             -1, 0, 0, 0, 255, // Red
+                            //             0, -1, 0, 0, 255, // Green
+                            //             0, 0, -1, 0, 255, // Blue
+                            //             0, 0, 0, 1, 0, // Alpha
+                            //           ]),
+                            //           child: Image.asset(
+                            //             "assets/icons/Restaurant_Table.png",
+                            //             width: 75,
+                            //             height: 75,
+                            //             fit: BoxFit.cover,
+                            //           ),
+                            //         )
+                            //       : Image.asset(
+                            //           "assets/icons/Restaurant_Table.png",
+                            //           width: 75,
+                            //           height: 75,
+                            //           fit: BoxFit.cover,
+                            //         ),
+                            // ),
                             Positioned(
                               bottom: 0,
                               right: 0,
-                              child: table['newOrders'] != 0
-                                      ?ColorFiltered(
-                                colorFilter: ColorFilter.matrix(<double>[
-                                  -1, 0, 0, 0, 255, // Red
-                                  0, -1, 0, 0, 255, // Green
-                                  0, 0, -1, 0, 255, // Blue
-                                  0, 0, 0, 1, 0, // Alpha
-                                ]),
-                                child: Image.asset(
-                                  "assets/icons/Restaurant_Table.png",
-                                  width: 75,
-                                  height: 75,
-                                  fit: BoxFit.cover,
-                                ),
-                              ):Image.asset(
-                                "assets/icons/Restaurant_Table.png",
-                                width: 75,
-                                height: 75,
-                                fit: BoxFit.cover,
-                              ),
+                              child: Image.asset(
+                                      "assets/icons/Restaurant_Table.png",
+                                      width: 75,
+                                      height: 75,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
+                           table['newOrders'] != 0? Positioned(
+                                top: 0,
+                                right: 5,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.red,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(6.0),
+                                    child: Text("${table['newOrders']}",style: TextStyle(color: Colors.white),),
+                                  ),
+                                )):Container(),
                             // Text aligned to the left according to image
                             Padding(
                               padding: const EdgeInsets.all(16.0),
@@ -360,14 +385,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                     style: const TextStyle(
                                         fontSize: 18, color: Colors.white),
                                   ),
-                                  table['newOrders'] != 0
-                                      ? Text(
-                                          "${table['newOrders']} Orders",
-                                          style: const TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.white),
-                                        )
-                                      : Container(),
+                                  // table['newOrders'] != 0
+                                  //     ? Text(
+                                  //         "${table['newOrders']} Orders",
+                                  //         style: const TextStyle(
+                                  //             fontSize: 18,
+                                  //             color: Colors.white),
+                                  //       )
+                                  //     : Container(),
                                 ],
                               ),
                             ),
@@ -423,16 +448,43 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),
               ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const TodosScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.add, size: 40, color: Colors.brown),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TodosScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add, size: 40, color: Colors.brown),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      HapticFeedback.vibrate();
+                    },
+                    icon: const Icon(Icons.calculate_outlined, size: 40, color: Colors.yellow),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Vibration.vibrate(duration: 2000);
+                    },
+                    icon: const Icon(Icons.soap, size: 40, color: Colors.yellow),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RingTonee(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.g_translate, size: 40, color: Colors.pink),
+                  ),
+                ],
               )
             ],
           ),

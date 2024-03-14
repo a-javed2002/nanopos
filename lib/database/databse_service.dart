@@ -14,7 +14,7 @@ class DatabaseService {
   }
 
   Future<String> get fullPath async {
-    const name = 'todo.db';
+    const name = 'nano.db';
     final path = await getDatabasesPath();
     return join(path, name);
   }

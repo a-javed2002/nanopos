@@ -17,12 +17,12 @@ class CustomLoader extends StatelessWidget {
           children: [
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
-                  Color(0xffffffff)),
+                  Color(0xFF000000)),
             ),
             SizedBox(height: 10.0),
             Text(
               'Loading...',
-              style: TextStyle(color: Color(0xffffffff)),
+              style: TextStyle(color: Color(0xFF000000)),
             ),
           ],
         ),

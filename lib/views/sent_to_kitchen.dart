@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/login.dart';
 
-class PaymentPaidScreen extends StatelessWidget {
+class SentToKitchen extends StatelessWidget {
   final loginUser user;
-  const PaymentPaidScreen({
+  const SentToKitchen({
     Key? key,
     required this.user
   }) : super(key: key);

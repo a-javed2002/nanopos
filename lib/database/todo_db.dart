@@ -53,4 +53,9 @@ SELECT * FROM $tablename WHERE id = ?
     final database = await DatabaseService().database;
     await database.rawDelete('''DELETE FROM $tablename WHERE id = ?''',[id]);
   }
+
+  Future<void> truncateTable() async {
+    final database = await DatabaseService().database;
+    await database.rawDelete('DELETE FROM $tablename');
+  }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:nanopos/views/cashPaymet.dart';
 import 'dart:convert';
 
 import 'package:nanopos/views/login.dart';
@@ -140,113 +142,253 @@ class _CashierScreenState extends State<CashierScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xff2a407c),
-          title: Text(
-            widget.table,
-            style: const TextStyle(
-              color: Colors.white, // Set text color to white
-              fontWeight: FontWeight.bold, // Make text bolder
-            ),
-          ),
-          iconTheme: const IconThemeData(color: Colors.white),
-          actions: [
-            InkWell(
-              onTap: () {
-                _showLogoutDialog();
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(right: 10.0),
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(widget.user.image),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            title: Center(
+              child: Text(
+                "Check out",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold, // Make text bolder
                 ),
               ),
             ),
-          ],
-          toolbarHeight: 70, // Increase the height of the AppBar
-        ),
-        body: FutureBuilder<List<Order>>(
-          future: _ordersFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              if (kDebugMode) {
-                print(snapshot.error);
-              }
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              // print(orderItems);
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                      8), // Adjust border radius as needed
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5), // Shadow color
-                      spreadRadius: 1, // Spread radius
-                      blurRadius: 5, // Blur radius
-                      offset:const Offset(0, 2), // Offset from the card
-                    ),
-                  ],
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              InkWell(
+                onTap: () {
+                  _showLogoutDialog();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(widget.user.image),
+                  ),
                 ),
-                child: Card(
-                  elevation: 0,
+              ),
+            ],
+            toolbarHeight: 70, // Increase the height of the AppBar
+          ),
+          body: Column(
+            children: [
+              Card.outlined(
+                surfaceTintColor: Colors.white,
+                shadowColor: Colors.black,
+                elevation: 4,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 15),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (orderItems != null)
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics:const  AlwaysScrollableScrollPhysics(),
-                          itemCount: orderItems.length,
-                          itemBuilder: (context, itemIndex) {
-                            final item = orderItems[itemIndex];
-                            // print(item);
-                            return ListTile(
-                              // title: Text("Item Name: ${item.item_name}"),
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.itemName.toString(),
-                                    style:
-                                        const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        "Qty: ",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(item.price),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        "Price: ",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(item.price),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              trailing: Image.network(item.itemImage),
-                            );
-                          },
-                        ),
+                      Row(
+                        children: [
+                          Image.asset("assets/images/receipt.png"),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Order Summary",
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("1x Dumplings"),
+                          Text("Rs. 500"),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("1x Ham Sandwich"),
+                          Text("Rs. 1500"),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("1x Nigri Sushi"),
+                          Text("Rs. 2500"),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              );
-            }
-          },
-        ),
-      ),
+              ),
+              Card.outlined(
+                surfaceTintColor: Colors.white,
+                shadowColor: Colors.black,
+                elevation: 4,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Subtotal"),
+                          Text("Rs. 4750"),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Tax"),
+                          Text("Rs. 7.99"),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Total"),
+                          Text("Rs. 4757.99"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Card.outlined(
+                surfaceTintColor: Colors.white,
+                shadowColor: Colors.black,
+                elevation: 4,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset("assets/images/credit_card.png"),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Payment method",
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Card.outlined(
+                        surfaceTintColor: Colors.white,
+                        shadowColor: Colors.black,
+                        elevation: 4,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 8),
+                          margin: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Card",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Image.asset(
+                                          "assets/images/MasterCard.png"),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    "**** **** 3356",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to the new screen when the card is tapped
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CashPayment(
+                                      id: widget.id,
+                                      table: widget.table,
+                                      total: 2345,
+                                      user: widget.user,
+                                    )),
+                          );
+                        },
+                        child: Card.outlined(
+                          surfaceTintColor: Colors.white,
+                          shadowColor: Colors.black,
+                          elevation: 4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            margin: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text(
+                                          "Cash",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Image.asset("assets/images/cash.png"),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      "Rs.4757",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )),
     );
   }
 

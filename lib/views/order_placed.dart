@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/login.dart';
 
-class PaymentPaidScreen extends StatelessWidget {
+class OrderPlaced extends StatelessWidget {
   final loginUser user;
-  const PaymentPaidScreen({
+  const OrderPlaced({
     Key? key,
     required this.user
   }) : super(key: key);
@@ -17,7 +17,7 @@ class PaymentPaidScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Image.asset("assets/images/order.png"),
+          Image.asset("assets/gifs/order.gif"),
           Text(
             "THANK YOU!",
             style: TextStyle(

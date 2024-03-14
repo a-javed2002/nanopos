@@ -1,161 +1,10 @@
-// import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
-
-// class OrdersScreen extends StatefulWidget {
-//   final String id;
-//   final String token;
-//   final String image;
-
-//   OrdersScreen(
-//       {Key? key, required this.id, required this.token, required this.image})
-//       : super(key: key);
-
-//   @override
-//   _OrdersScreenState createState() => _OrdersScreenState();
-// }
-
-// class _OrdersScreenState extends State<OrdersScreen> {
-//   late Stream<List<dynamic>> _ordersStream;
-//   final int orderType = 10;
-//   var firstTime = true;
-//   @override
-//   void initState() {
-//     super.initState();
-//     _ordersStream = _fetchActiveOrders();
-//   }
-
-//   Stream<List<dynamic>> _fetchActiveOrders() async* {
-//     print("Fetching orders ${widget.token}");
-//     while (true) {
-//       final response = await http.get(
-//         Uri.parse(
-//             'https://restaurant.nanosystems.com.pk/api/admin/table-order?dining_table_id=${widget.id}&payment_status=10'),
-//         headers: {
-//           'Content-Type': 'application/json; charset=UTF-8',
-//           'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-//           'Authorization': 'Bearer ${widget.token}',
-//         },
-//       );
-
-//       print(response.statusCode);
-
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         final Map<String, dynamic> responseData = jsonDecode(response.body);
-//         final List<dynamic>? ordersData =
-//             responseData['data']; // Extracting the list of orders
-//         if (ordersData != null) {
-//           yield ordersData;
-//           break;
-//         } else {
-//           throw Exception('Failed to parse order data');
-//         }
-//       } else {
-//         throw Exception('Failed to load active orders');
-//       }
-
-//       // Delay before fetching orders again
-//       await Future.delayed(Duration(seconds: 5));
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SafeArea(
-//       child: Scaffold(
-//         appBar: AppBar(
-//           title: Text("order-${widget.id} Detail"),
-//           actions: [
-//             Padding(
-//               padding: const EdgeInsets.only(right: 10.0),
-//               child: CircleAvatar(
-//                 backgroundImage: NetworkImage(widget.image),
-//               ),
-//             ),
-//           ],
-//         ),
-//         body: StreamBuilder<List<dynamic>>(
-//           stream: _ordersStream,
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
-//               return Center(child: CircularProgressIndicator());
-//             } else if (snapshot.hasError) {
-//               print(snapshot.error);
-//               return Center(child: Text('Error: ${snapshot.error}'));
-//             } else {
-//               final List<dynamic> orders = snapshot.data ?? [];
-//               return GridView.builder(
-//                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//                   crossAxisCount: 1,
-//                   crossAxisSpacing: 10.0,
-//                   mainAxisSpacing: 10.0,
-//                 ),
-//                 itemCount: orders.length,
-//                 itemBuilder: (context, index) {
-//                   final order = orders[index];
-//                   print(order);
-//                   print("***********");
-//                   return FutureBuilder(
-//                     future: _fetchOrderData(order['id']
-//                         .toString()), // Fetch order data asynchronously
-//                     builder: (context, orderSnapshot) {
-//                       if (orderSnapshot.connectionState ==
-//                           ConnectionState.waiting && firstTime) {
-//                         return Center(child: CircularProgressIndicator());
-//                       } else if (orderSnapshot.hasError && firstTime) {
-//                         return Text(
-//                             'Error loading order data: ${orderSnapshot.error}');
-//                       } else {
-//                         firstTime=false;
-//                         final orderData = orderSnapshot.data;
-//                         print(orderData);
-//                         print("-------------------------------------");
-//                         return Card(
-//                           child: ListTile(
-//                             title: Text(order['id'].toString()),
-//                             subtitle: Text(order['order_serial_no']),
-//                             leading: Text(orderData['subtotal_currency_price']),
-//                           ),
-//                         );
-//                       }
-//                     },
-//                   );
-//                 },
-//               );
-//             }
-//           },
-//         ),
-//       ),
-//     );
-//   }
-
-//   Future<dynamic> _fetchOrderData(String orderId) async {
-//     final response = await http.get(
-//       Uri.parse(
-//           'https://restaurant.nanosystems.com.pk/api/admin/table-order/show/$orderId'),
-//       headers: {
-//         'Content-Type': 'application/json; charset=UTF-8',
-//         'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-//         'Authorization': 'Bearer ${widget.token}',
-//       },
-//     );
-
-//     if (response.statusCode == 200 || response.statusCode == 201) {
-//       final Map<String, dynamic> responseData = jsonDecode(response.body);
-//       return responseData['data'];
-//     } else {
-//       throw Exception('Failed to load order data');
-//     }
-//   }
-// }
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:nanopos/views/login.dart';
-import 'package:nanopos/views/payment_done.dart';
+import 'package:nanopos/views/cashier.dart';
 import 'package:nanopos/views/sidebar.dart';
 
 class Order {
@@ -649,9 +498,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
           onPressed: () {
             if (kDebugMode) {
               print("Merge Orders");
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PaymentPaidScreen(user: widget.user,)),
+                MaterialPageRoute(builder: (context) => CashierScreen(user: widget.user,id: widget.id,table: widget.table,)),
               );
             }
           },
@@ -669,6 +518,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               MaterialPageRoute(
                   builder: (context) => SideBarScreen(
                         user: widget.user,
+                        id: widget.id,
                       )),
             );
           }),

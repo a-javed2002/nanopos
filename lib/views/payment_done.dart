@@ -1,14 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/login.dart';
 
-class PaymentPaidScreen extends StatelessWidget {
+class PaymentPaidScreen extends StatefulWidget {
   final loginUser user;
-  const PaymentPaidScreen({
-    Key? key,
-    required this.user
-  }) : super(key: key);
+  const PaymentPaidScreen({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<PaymentPaidScreen> createState() => _PaymentPaidScreenState();
+}
+
+class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds: 3), () {
+      _redirectHome();
+    });
+  }
+
+  void _redirectHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyHomePage(user: widget.user,),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +77,7 @@ class PaymentPaidScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => MyHomePage(
-                      user: user,
+                      user: widget.user,
                     ),
                   ),
                 );

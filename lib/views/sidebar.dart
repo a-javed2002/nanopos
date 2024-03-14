@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/views/cart.dart';
 import 'package:nanopos/views/detail.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:nanopos/views/login.dart';
@@ -8,10 +11,9 @@ import 'package:nanopos/main.dart';
 
 class SideBarScreen extends StatefulWidget {
   final loginUser user;
-  const SideBarScreen({
-    Key? key,
-    required this.user
-  }) : super(key: key);
+  final String id;
+  const SideBarScreen({Key? key, required this.user, required this.id})
+      : super(key: key);
   @override
   State<SideBarScreen> createState() => _SideBarScreenState();
 }
@@ -19,11 +21,21 @@ class SideBarScreen extends StatefulWidget {
 class _SideBarScreenState extends State<SideBarScreen> {
   // We can detect the location of the cart by this  GlobalKey<CartIconKey>
   GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
+  final CartController cartController = Get.put(CartController());
   late Function(GlobalKey) runAddToCartAnimation;
   var _cartQuantityItems = 0;
   String _searchQuery = '';
 
   void listClick(GlobalKey widgetKey) async {
+    final newItem = CartObject(
+      itemId: '1',
+      name: 'Item 1',
+      desc: 'Description of Item 1',
+      image: 'assets/item1.jpg',
+      price: '10.0',
+      qty: 1,
+    );
+    cartController.addToCart(newItem);
     await runAddToCartAnimation(widgetKey);
     await cartKey.currentState!
         .runCartAnimation((++_cartQuantityItems).toString());
@@ -171,7 +183,9 @@ class _SideBarScreenState extends State<SideBarScreen> {
                           ExpansionTile(
                             backgroundColor: Color(0xFFEBCFB9),
                             trailing: SizedBox.shrink(),
-                            title: Text('',),
+                            title: Text(
+                              '',
+                            ),
                             leading: Text(
                               'Beef',
                               style: TextStyle(fontSize: 8),
@@ -213,7 +227,9 @@ class _SideBarScreenState extends State<SideBarScreen> {
                             child: ExpansionTile(
                               backgroundColor: Color(0xFFEBCFB9),
                               trailing: SizedBox.shrink(),
-                              title: Text('',),
+                              title: Text(
+                                '',
+                              ),
                               leading: Text(
                                 'Chicken',
                                 style: TextStyle(fontSize: 8),
@@ -250,7 +266,6 @@ class _SideBarScreenState extends State<SideBarScreen> {
                   ),
                 ),
               ),
-              // Main Body
               Expanded(
                 flex: 3,
                 child: Column(
@@ -267,17 +282,20 @@ class _SideBarScreenState extends State<SideBarScreen> {
                           onPressed: () {},
                           icon: const Icon(Icons.home),
                         ),
-                        // IconButton(
-                        //   onPressed: () {},
-                        //   icon: Icon(Icons.favorite),
-                        // ),
-                        // IconButton(
-                        //   onPressed: () {},
-                        //   icon: Icon(Icons.shopping_bag),
-                        // ),
                         AddToCartIcon(
                           key: cartKey,
-                          icon: const Icon(Icons.shopping_bag),
+                          icon: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CartScreen(
+                                            user: widget.user,
+                                            id: widget.id,
+                                          )),
+                                );
+                              },
+                              child: const Icon(Icons.shopping_bag)),
                           badgeOptions: const BadgeOptions(
                             active: true,
                             backgroundColor: Color(0xfff3b98a),
@@ -289,17 +307,6 @@ class _SideBarScreenState extends State<SideBarScreen> {
                           },
                           icon: Icon(Icons.person),
                         )
-                        // InkWell(
-                        //   onTap: () {
-                        //     _showLogoutDialog();
-                        //   },
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.only(right: 10.0),
-                        //     child: CircleAvatar(
-                        //       backgroundImage: NetworkImage(widget.image),
-                        //     ),
-                        //   ),
-                        // ),
                       ],
                     ),
                     Container(
@@ -377,44 +384,6 @@ class _SideBarScreenState extends State<SideBarScreen> {
                         physics: const BouncingScrollPhysics(),
                         child: Column(
                           children: [
-                            // Card.outlined(
-                            //   surfaceTintColor: Colors.white,
-                            //   shadowColor: Colors.black,
-                            //   elevation: 4,
-                            //   child: Padding(
-                            //     padding: const EdgeInsets.all(8.0),
-                            //     child: ListTile(
-                            //       onTap: () {
-                            //         Navigator.push(
-                            //           context,
-                            //           MaterialPageRoute(
-                            //               builder: (context) => ProductDetail()),
-                            //         );
-                            //       },
-                            //       title: Text(
-                            //         "Thai Basil Chicken",
-                            //         style: TextStyle(
-                            //             fontSize: 10,
-                            //             fontWeight: FontWeight.bold),
-                            //       ),
-                            //       subtitle: Text(
-                            //         "Served with fries and soya sauce",
-                            //         style: TextStyle(fontSize: 10),
-                            //       ),
-                            //       leading: Image.asset("assets/images/pic-1.png"),
-                            //       trailing: Container(
-                            //         decoration: BoxDecoration(
-                            //           color: Colors.black,
-                            //         ),
-                            //         child: Icon(
-                            //           Icons.add,
-                            //           color: Colors.white,
-                            //           size: 20,
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
                             MyAppListItem(
                               name: "Thai Basil Chicken",
                               desc: "Served with fries and soya sauce",
