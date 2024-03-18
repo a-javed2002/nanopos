@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:nanopos/views/home.dart';
-import 'package:nanopos/views/loader.dart';
+import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/login.dart';
 import 'package:nanopos/views/sidebar.dart';
 

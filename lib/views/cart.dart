@@ -9,17 +9,19 @@ import 'package:nanopos/views/order_placed.dart';
 class CartScreen extends StatelessWidget {
   final loginUser user;
   final String id;
+  final String table;
 
   const CartScreen({
     Key? key,
     required this.user,
     required this.id,
+    required this.table,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final CartController cartController = Get.put(CartController());
-    // final CartController cartController = Get.find();
+    // final CartController cartController = Get.put(CartController());
+    final CartController cartController = Get.find();
 
     return SafeArea(
       child: Scaffold(
@@ -54,79 +56,89 @@ class CartScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text("Cart"),
         ),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(
+              Icons.delete,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              // cartController.clearCart();
+              cartController.clearCartForTable();
+            }),
         body: Obx(() {
-          // final cartItems = cartController.cartList;
-          final cartItems = [];
-
-          return cartItems.isEmpty
-              ? Center(
-                  child: Text(
-                    'No items in the cart.',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: cartItems.length,
-                  itemBuilder: (context, index) {
-                    final item = cartItems[index];
-                    // Convert item to CartObject
-                    final cartObject = CartObject(
-                      itemId: item['id'],
-                      name: item['name'],
-                      desc: item['desc'],
-                      image: item['image'],
-                      price: item['price'],
-                      qty: item['qty'],
-                    );
-                    return Card(
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductDetail(),
-                            ),
-                          );
-                        },
-                        title: Text(
-                          cartObject.name,
-                          style: TextStyle(
-                              fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          cartObject.desc,
-                          style: TextStyle(fontSize: 10),
-                        ),
-                        leading: Image.asset(
-                          cartObject.image,
-                          width: 60,
-                          height: 60,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.remove),
-                              onPressed: () {
-                                cartController.decreaseQty(cartObject);
-                              },
-                            ),
-                            Text(
-                              cartObject.qty.toString(),
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.add),
-                              onPressed: () {
-                                cartController.increaseQty(cartObject);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
+          final cartItems =
+              cartController.cartMap[cartController.tableId.value];
+          if (cartItems == null || cartItems.isEmpty) {
+            return Center(
+              child: Text('No items in the cart for table $table.'),
+            );
+          } else {
+            return ListView.builder(
+              itemCount: cartItems.length,
+              itemBuilder: (context, index) {
+                final item = cartItems[index];
+                print("--asd--- $cartItems");
+                print("--asd2--- $item");
+                // Convert item to CartObject
+                return Text("dsajk");
+                // final cartObject = CartObject(
+                //   itemId: item['id'],
+                //   name: item['name'],
+                //   desc: item['desc'],
+                //   image: item['image'],
+                //   price: item['price'],
+                //   qty: item['qty'],
+                // );
+                // return Card(
+                //   child: ListTile(
+                //     onTap: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (context) => ProductDetail(),
+                //         ),
+                //       );
+                //     },
+                //     title: Text(
+                //       cartObject.name,
+                //       style:
+                //           TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                //     ),
+                //     subtitle: Text(
+                //       cartObject.desc,
+                //       style: TextStyle(fontSize: 10),
+                //     ),
+                //     leading: Image.asset(
+                //       cartObject.image,
+                //       width: 60,
+                //       height: 60,
+                //     ),
+                //     trailing: Row(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         IconButton(
+                //           icon: Icon(Icons.remove),
+                //           onPressed: () {
+                //             cartController.decreaseQty(cartObject);
+                //           },
+                //         ),
+                //         Text(
+                //           cartObject.qty.toString(),
+                //           style: TextStyle(fontWeight: FontWeight.bold),
+                //         ),
+                //         IconButton(
+                //           icon: Icon(Icons.add),
+                //           onPressed: () {
+                //             cartController.increaseQty(cartObject);
+                //           },
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // );
+              },
+            );
+          }
         }),
       ),
     );

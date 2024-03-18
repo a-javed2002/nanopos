@@ -22,7 +22,7 @@ class CartObject {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': itemId,
+      'itemId': itemId,
       'name': name,
       'desc': desc,
       'image': image,
@@ -36,22 +36,37 @@ class CartController extends GetxController {
   static const String cartKey = 'cartItems';
   var cartMap = <int, List<Map<String, dynamic>>?>{}.obs;
   var tableId = RxInt(0);
+  var cartQuantityItems = RxInt(0);
 
   @override
   void onInit() {
     super.onInit();
     loadCartData();
+    getTotalItemsForTable();
   }
+
+  // Future<void> loadCartData() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? cartData = prefs.getString(cartKey);
+  //   if (cartData != null) {
+  //     Map<String, dynamic> cartJson = json.decode(cartData);
+  //     cartJson.forEach((key, value) {
+  //       cartMap[int.parse(key)] = List<Map<String, dynamic>>.from(value).obs;
+  //     });
+  //   }
+  // }
 
   Future<void> loadCartData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? cartData = prefs.getString(cartKey);
     if (cartData != null) {
       Map<String, dynamic> cartJson = json.decode(cartData);
-      cartJson.forEach((key, value) {
-        cartMap[int.parse(key)] =
-            List<Map<String, dynamic>>.from(value).obs;
-      });
+      int currentTableId = tableId.value;
+      if (cartJson.containsKey(currentTableId.toString())) {
+        List<Map<String, dynamic>> itemsList = List<Map<String, dynamic>>.from(
+            cartJson[currentTableId.toString()]['items']);
+        cartMap[currentTableId] = itemsList.obs;
+      }
     }
   }
 
@@ -117,5 +132,58 @@ class CartController extends GetxController {
       cartJson[key.toString()] = value;
     });
     prefs.setString(cartKey, json.encode(cartJson));
+  }
+
+  void clearCart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    cartMap.clear();
+    prefs.remove(cartKey);
+  }
+
+  void clearCartForTable() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    cartMap.remove(tableId);
+    Map<String, dynamic> cartJson = {};
+    cartMap.forEach((key, value) {
+      cartJson[key.toString()] = value;
+    });
+    prefs.setString(cartKey, json.encode(cartJson));
+  }
+
+  bool checkItemIdExists(String itemId) {
+    int currentTableId = tableId.value;
+    List<Map<String, dynamic>>? cartItems = cartMap[currentTableId];
+    if (cartItems != null) {
+      for (var cart in cartItems) {
+        List<Map<String, dynamic>> items = cart['items'];
+        for (var item in items) {
+          // print(itemId);
+          // print(item);
+          if (item['itemId'] == itemId) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  void getTotalItemsForTable() {
+    int currentTableId = tableId.value;
+    List<Map<String, dynamic>>? cartItems = cartMap[currentTableId];
+    print("cart total $currentTableId items are $cartItems");
+    if (cartItems != null) {
+      // for (var cart in cartItems) {
+      //   List<Map<String, dynamic>> items = cart['items'];
+      //   for (var item in items) {
+      //     // print(itemId);
+      //     // print(item);
+      //     if (item['itemId'] == itemId) {
+      //     }
+      //   }
+      // }
+      cartQuantityItems.value = cartItems.length;
+    }
+    print("total values are ${cartQuantityItems.value}");
   }
 }

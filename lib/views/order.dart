@@ -173,6 +173,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
       } else {
         throw Exception('Failed to load active orders');
       }
+      break;
+
       // Delay before fetching tables again
       await Future.delayed(const Duration(seconds: 5));
     }
@@ -519,6 +521,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   builder: (context) => SideBarScreen(
                         user: widget.user,
                         id: widget.id,
+                        table: widget.table,
                       )),
             );
           }),

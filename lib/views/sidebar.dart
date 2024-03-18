@@ -2,17 +2,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:nanopos/controller/apiController.dart';
 import 'package:nanopos/controller/cartController.dart';
 import 'package:nanopos/views/cart.dart';
+import 'package:nanopos/views/common/highlight_text.dart';
 import 'package:nanopos/views/detail.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:nanopos/views/login.dart';
-import 'package:nanopos/main.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SideBarScreen extends StatefulWidget {
   final loginUser user;
   final String id;
-  const SideBarScreen({Key? key, required this.user, required this.id})
+  final String table;
+  const SideBarScreen(
+      {Key? key, required this.user, required this.id, required this.table})
       : super(key: key);
   @override
   State<SideBarScreen> createState() => _SideBarScreenState();
@@ -22,23 +27,32 @@ class _SideBarScreenState extends State<SideBarScreen> {
   // We can detect the location of the cart by this  GlobalKey<CartIconKey>
   GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
   final CartController cartController = Get.put(CartController());
+  final ApiController _apiController = Get.put(ApiController());
   late Function(GlobalKey) runAddToCartAnimation;
-  var _cartQuantityItems = 0;
-  String _searchQuery = '';
 
   void listClick(GlobalKey widgetKey) async {
-    final newItem = CartObject(
-      itemId: '1',
-      name: 'Item 1',
-      desc: 'Description of Item 1',
-      image: 'assets/item1.jpg',
-      price: '10.0',
-      qty: 1,
-    );
-    cartController.addToCart(newItem);
     await runAddToCartAnimation(widgetKey);
     await cartKey.currentState!
-        .runCartAnimation((++_cartQuantityItems).toString());
+        .runCartAnimation((++ cartController.cartQuantityItems.value).toString());
+  }
+
+  void fetchData() {
+    String catUrl =
+        'https://restaurant.nanosystems.com.pk/api/admin/setting/item-category?order_type=desc';
+    String itemUrl =
+        'https://restaurant.nanosystems.com.pk/api/admin/item?order_type=desc';
+    String userToken = widget.user.token; // Replace with your user token
+
+    _apiController.fetchData(catUrl, userToken, _apiController.cat, x: true);
+    _apiController.fetchData(itemUrl, userToken, _apiController.item);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchData();
+    cartController.tableId.value = int.parse(widget.id);
   }
 
   @override
@@ -69,7 +83,7 @@ class _SideBarScreenState extends State<SideBarScreen> {
                 flex: 1,
                 child: Container(
                   color: Color(0xfff3b98a),
-                  child: ListView(
+                  child: Column(
                     children: [
                       Container(
                         decoration: BoxDecoration(
@@ -87,181 +101,178 @@ class _SideBarScreenState extends State<SideBarScreen> {
                           },
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.black,
-                              width: 1.0, // Adjust the width as needed
-                            ),
-                          ),
-                        ),
-                        child: ListTile(
-                          title: IconButton(
-                            icon: const Icon(Icons.cleaning_services),
-                            onPressed: () {
-                              _cartQuantityItems = 0;
-                              cartKey.currentState!.runClearCartAnimation();
-                            },
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.black,
-                              width: 1.0, // Adjust the width as needed
-                            ),
-                          ),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            'Brew Bar',
-                            style: TextStyle(fontSize: 8), // Adjusted font size
-                          ),
-                          onTap: () {
-                            // Navigate to home page
-                          },
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.black,
-                              width: 1.0, // Adjust the width as needed
-                            ),
-                          ),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            'Spanish Lattes',
-                            style: TextStyle(fontSize: 8), // Adjusted font size
-                          ),
-                          onTap: () {
-                            // Navigate to home page
-                          },
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.black,
-                              width: 1.0, // Adjust the width as needed
-                            ),
-                          ),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            'Hot coffees',
-                            style: TextStyle(fontSize: 8), // Adjusted font size
-                          ),
-                          onTap: () {
-                            // Navigate to home page
-                          },
-                        ),
-                      ),
-                      ExpansionTile(
-                        backgroundColor: Color(0xFFF0C5A3),
-                        trailing: SizedBox.shrink(),
-                        leading: Text(
-                          "Biryani",
-                          style: TextStyle(fontSize: 8),
-                        ),
-                        title: Text(
-                          '',
-                          // style: TextStyle(fontSize: 8),
-                          // overflow: TextOverflow.ellipsis,
-                          // maxLines: 2,
-                        ),
-                        children: [
-                          ExpansionTile(
-                            backgroundColor: Color(0xFFEBCFB9),
-                            trailing: SizedBox.shrink(),
-                            title: Text(
-                              '',
-                            ),
-                            leading: Text(
-                              'Beef',
-                              style: TextStyle(fontSize: 8),
-                            ),
-                            children: [
-                              ListTile(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 20),
-                                title: Text(
-                                  'Plain',
-                                  style: TextStyle(fontSize: 8),
-                                ),
-                                onTap: () {
-                                  // Handle Beef Kebab tap
-                                },
-                              ),
-                              ListTile(
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 20),
-                                title: Text(
-                                  'Masala',
-                                  style: TextStyle(fontSize: 8),
-                                ),
-                                onTap: () {
-                                  // Handle Beef Pulao tap
-                                },
-                              ),
-                            ],
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFF000000),
-                                  width: 1.0,
-                                ),
-                              ),
-                            ),
-                            child: ExpansionTile(
-                              backgroundColor: Color(0xFFEBCFB9),
-                              trailing: SizedBox.shrink(),
-                              title: Text(
-                                '',
-                              ),
-                              leading: Text(
-                                'Chicken',
-                                style: TextStyle(fontSize: 8),
-                              ),
-                              children: [
-                                ListTile(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 20),
-                                  title: Text(
-                                    'Plain',
-                                    style: TextStyle(fontSize: 8),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     border: Border(
+                      //       bottom: BorderSide(
+                      //         color: Colors.black,
+                      //         width: 1.0, // Adjust the width as needed
+                      //       ),
+                      //     ),
+                      //   ),
+                      //   child: ListTile(
+                      //     title: IconButton(
+                      //       icon: const Icon(Icons.cleaning_services),
+                      //       onPressed: () {
+                      //         _cartQuantityItems = 0;
+                      //         cartKey.currentState!.runClearCartAnimation();
+                      //       },
+                      //     ),
+                      //     onTap: () {
+                      //       Navigator.pop(context);
+                      //     },
+                      //   ),
+                      // ),
+                      Obx(() {
+                        if (_apiController.cat.isEmpty) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          return Expanded(
+                            child: ListView.builder(
+                              itemCount: _apiController.cat.length,
+                              itemBuilder: (context, index) {
+                                final cat = _apiController.cat[index];
+                                // print("cat is $cat");
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: _apiController.selectedCatId.value ==
+                                            cat['id']
+                                        ? Color(0xffa14716)
+                                        : Colors.transparent,
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.black,
+                                        width:
+                                            1.0, // Adjust the width as needed
+                                      ),
+                                    ),
                                   ),
-                                  onTap: () {
-                                    // Handle Chicken Biryani tap
-                                  },
-                                ),
-                                ListTile(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 20),
-                                  title: Text(
-                                    'Masala',
-                                    style: TextStyle(fontSize: 8),
+                                  child: ListTile(
+                                    title: Text(
+                                      '${cat['name']}',
+                                      style: TextStyle(
+                                          fontSize: 8,
+                                          color: _apiController
+                                                      .selectedCatId.value ==
+                                                  cat['id']
+                                              ? Colors.white
+                                              : Colors
+                                                  .black), // Adjusted font size
+                                    ),
+                                    onTap: () {
+                                      print("${cat['id']} === ${cat['name']}");
+                                      _apiController.selectedCatId.value =
+                                          cat['id'];
+                                      _apiController.filterItem();
+                                      setState(() {
+                                        _apiController.cat;
+                                      });
+                                    },
                                   ),
-                                  onTap: () {
-                                    // Handle Chicken Tikka tap
-                                  },
-                                ),
-                              ],
+                                );
+                              },
                             ),
-                          ),
-                        ],
-                      ),
+                          );
+                        }
+                      }),
+                      // ExpansionTile(
+                      //   backgroundColor: Color(0xFFF0C5A3),
+                      //   trailing: SizedBox.shrink(),
+                      //   leading: Text(
+                      //     "Biryani",
+                      //     style: TextStyle(fontSize: 8),
+                      //   ),
+                      //   title: Text(
+                      //     '',
+                      //     // style: TextStyle(fontSize: 8),
+                      //     // overflow: TextOverflow.ellipsis,
+                      //     // maxLines: 2,
+                      //   ),
+                      //   children: [
+                      //     ExpansionTile(
+                      //       backgroundColor: Color(0xFFEBCFB9),
+                      //       trailing: SizedBox.shrink(),
+                      //       title: Text(
+                      //         '',
+                      //       ),
+                      //       leading: Text(
+                      //         'Beef',
+                      //         style: TextStyle(fontSize: 8),
+                      //       ),
+                      //       children: [
+                      //         ListTile(
+                      //           contentPadding:
+                      //               EdgeInsets.symmetric(horizontal: 20),
+                      //           title: Text(
+                      //             'Plain',
+                      //             style: TextStyle(fontSize: 8),
+                      //           ),
+                      //           onTap: () {
+                      //             // Handle Beef Kebab tap
+                      //           },
+                      //         ),
+                      //         ListTile(
+                      //           contentPadding:
+                      //               EdgeInsets.symmetric(horizontal: 20),
+                      //           title: Text(
+                      //             'Masala',
+                      //             style: TextStyle(fontSize: 8),
+                      //           ),
+                      //           onTap: () {
+                      //             // Handle Beef Pulao tap
+                      //           },
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     Container(
+                      //       decoration: BoxDecoration(
+                      //         border: Border(
+                      //           bottom: BorderSide(
+                      //             color: Color(0xFF000000),
+                      //             width: 1.0,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       child: ExpansionTile(
+                      //         backgroundColor: Color(0xFFEBCFB9),
+                      //         trailing: SizedBox.shrink(),
+                      //         title: Text(
+                      //           '',
+                      //         ),
+                      //         leading: Text(
+                      //           'Chicken',
+                      //           style: TextStyle(fontSize: 8),
+                      //         ),
+                      //         children: [
+                      //           ListTile(
+                      //             contentPadding:
+                      //                 EdgeInsets.symmetric(horizontal: 20),
+                      //             title: Text(
+                      //               'Plain',
+                      //               style: TextStyle(fontSize: 8),
+                      //             ),
+                      //             onTap: () {
+                      //               // Handle Chicken Biryani tap
+                      //             },
+                      //           ),
+                      //           ListTile(
+                      //             contentPadding:
+                      //                 EdgeInsets.symmetric(horizontal: 20),
+                      //             title: Text(
+                      //               'Masala',
+                      //               style: TextStyle(fontSize: 8),
+                      //             ),
+                      //             onTap: () {
+                      //               // Handle Chicken Tikka tap
+                      //             },
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),
@@ -292,6 +303,7 @@ class _SideBarScreenState extends State<SideBarScreen> {
                                       builder: (context) => CartScreen(
                                             user: widget.user,
                                             id: widget.id,
+                                            table: widget.table,
                                           )),
                                 );
                               },
@@ -326,9 +338,9 @@ class _SideBarScreenState extends State<SideBarScreen> {
                                   const EdgeInsets.symmetric(horizontal: 8.0),
                               child: TextField(
                                 onChanged: (value) {
-                                  setState(() {
-                                    _searchQuery = value;
-                                  });
+                                  _apiController.searchQuery.value = value;
+                                  _apiController.searchItem();
+                                  // print(_apiController.filItem);
                                 },
                                 decoration: InputDecoration(
                                   hintText: 'Search',
@@ -346,7 +358,8 @@ class _SideBarScreenState extends State<SideBarScreen> {
                                         .color,
                                   ),
                                   border: InputBorder.none,
-                                  suffixIcon: _searchQuery.isNotEmpty
+                                  suffixIcon: _apiController
+                                          .searchQuery.isNotEmpty
                                       ? IconButton(
                                           icon: Icon(
                                             Icons.clear,
@@ -358,7 +371,8 @@ class _SideBarScreenState extends State<SideBarScreen> {
                                           onPressed: () {
                                             print("clearing");
                                             setState(() {
-                                              _searchQuery = '';
+                                              _apiController.searchQuery.value =
+                                                  '';
                                             });
                                           },
                                         )
@@ -379,77 +393,72 @@ class _SideBarScreenState extends State<SideBarScreen> {
                     SizedBox(
                       height: 20,
                     ),
+                    // Expanded(
+                    //   child: SingleChildScrollView(
+                    //     physics: const BouncingScrollPhysics(),
+                    //     child: Column(
+                    //       children: [
+                    //         MyAppListItem(
+                    //           name: "Thai Basil Chicken",
+                    //           desc: "Served with fries and soya sauce",
+                    //           img: "assets/images/pic-3.png",
+                    //           onClick: listClick,
+                    //           index: 0,
+                    //         ),
+                    //         Obx(() {
+                    //           if (_apiController.item.isEmpty) {
+                    //             return Center(
+                    //               child: CircularProgressIndicator(),
+                    //             );
+                    //           } else {
+                    //             return ListView.builder(
+                    //               itemCount: _apiController.item.length,
+                    //               itemBuilder: (context, index) {
+                    //                 final item = _apiController.item[index];
+                    //                 print("item is $item");
+                    //                 return Text("${item['name']}");
+                    //               },
+                    //             );
+                    //           }
+                    //         }),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     Expanded(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-3.png",
-                              onClick: listClick,
-                              index: 0,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-2.png",
-                              onClick: listClick,
-                              index: 1,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-1.png",
-                              onClick: listClick,
-                              index: 1,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-3.png",
-                              onClick: listClick,
-                              index: 0,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-2.png",
-                              onClick: listClick,
-                              index: 1,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-1.png",
-                              onClick: listClick,
-                              index: 1,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-3.png",
-                              onClick: listClick,
-                              index: 0,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-2.png",
-                              onClick: listClick,
-                              index: 1,
-                            ),
-                            MyAppListItem(
-                              name: "Thai Basil Chicken",
-                              desc: "Served with fries and soya sauce",
-                              img: "assets/images/pic-1.png",
-                              onClick: listClick,
-                              index: 1,
-                            ),
-                          ],
-                        ),
-                      ),
+                      child: Obx(() {
+                        if (_apiController.item.isEmpty) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          if (_apiController.filItem.isEmpty) {
+                            return Center(
+                              child: Text("No Items Available"),
+                            );
+                          } else {
+                            return ListView.builder(
+                              itemCount: _apiController.filItem.length,
+                              itemBuilder: (context, index) {
+                                final item = _apiController.filItem[index];
+                                // print(
+                                //     "Item exists ${cartController.checkItemIdExists(item['id'].toString())}");
+                                // print("item is $item");
+                                return MyAppListItem(
+                                  name: item['name'],
+                                  desc: item['category_name'],
+                                  img: item['cover'],
+                                  onClick: listClick,
+                                  index: item['id'],
+                                  price: item['price'],
+                                  chk: cartController
+                                      .checkItemIdExists(item['id'].toString()),
+                                );
+                              },
+                            );
+                          }
+                        }
+                      }),
                     ),
                   ],
                 ),
@@ -527,10 +536,14 @@ class _SideBarScreenState extends State<SideBarScreen> {
 
 class MyAppListItem extends StatelessWidget {
   final GlobalKey widgetKey = GlobalKey();
+  final ApiController apiController = Get.find();
+  final CartController cartController = Get.find();
   final int index;
   final String name;
+  final String price;
   final String desc;
   final String img;
+  final bool chk;
   final void Function(GlobalKey) onClick;
 
   MyAppListItem(
@@ -539,7 +552,9 @@ class MyAppListItem extends StatelessWidget {
       required this.index,
       required this.name,
       required this.desc,
-      required this.img});
+      required this.img,
+      required this.price,
+      required this.chk});
   @override
   Widget build(BuildContext context) {
     //  Container is mandatory. It can hold images or whatever you want
@@ -548,7 +563,7 @@ class MyAppListItem extends StatelessWidget {
       width: 60,
       height: 60,
       color: Colors.transparent,
-      child: Image.asset(
+      child: Image.network(
         img,
         width: 60,
         height: 60,
@@ -568,6 +583,7 @@ class MyAppListItem extends StatelessWidget {
               MaterialPageRoute(builder: (context) => ProductDetail()),
             );
           },
+          // title: HighlightedText(text: name, query: apiController.searchQuery.value),
           title: Text(
             name,
             style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
@@ -577,22 +593,65 @@ class MyAppListItem extends StatelessWidget {
             style: TextStyle(fontSize: 10),
           ),
           leading: mandatoryContainer,
-          trailing: InkWell(
-            onTap: () {
-              print("printiiing");
-              onClick(widgetKey);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Color(0xffa14716),
-              ),
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
+          trailing: chk
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.remove),
+                      onPressed: () {
+                        // cartController.decreaseQty(cartObject);
+                        print("quantity decreasing by 1");
+                      },
+                    ),
+                    Text(
+                      "1",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        // cartController.increaseQty(cartObject);
+                        print("quantity increasing by 1");
+                      },
+                    ),
+                  ],
+                )
+              : InkWell(
+                  onTap: () async {
+                    // print("printiiing");
+                    onClick(widgetKey);
+
+                    final newItem = CartObject(
+                      itemId: index.toString(),
+                      name: name,
+                      desc: desc,
+                      image: img,
+                      price: price,
+                      qty: 1,
+                    );
+                    cartController.addToCart(newItem);
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    String? cartData = prefs.getString('cartItems');
+                    if (cartData != null) {
+                      Map<String, dynamic> cartJson = json.decode(cartData);
+                      // print(cartJson);
+                    } else {
+                      print("Error");
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xffa14716),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
         ),
       ),
     );

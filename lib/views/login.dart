@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:nanopos/views/forgetPassword.dart';
 import 'dart:convert';
 import 'package:nanopos/views/home.dart';
-import 'package:nanopos/views/loader.dart';
+import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/sidebar.dart';
 import 'package:nanopos/views/signup.dart';
 

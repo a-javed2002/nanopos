@@ -202,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         throw Exception('Failed to load active tables');
       }
-
+      break;
       // Delay before fetching tables again
       await Future.delayed(const Duration(seconds: 5));
     }
@@ -256,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return GridView.builder(
                 // Use GridView to display tables in a grid layout
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Display two tables in each row
+                  crossAxisCount: 3, // Display two tables in each row
                   crossAxisSpacing: 10.0, // Set spacing between columns
                   mainAxisSpacing: 10.0, // Set spacing between rows
                 ),
@@ -313,8 +313,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       child: Card(
                         color: table['isActive'] == true
-                            ? Color(0xffa14716)
-                            : Color(0xfff3b98a),
+                            ? Color(0xfff3b98a)
+                            : Color(0xffffffff),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              10.0), // Adjust the border radius as needed
+                          side: BorderSide(
+                              color: Color(0xfff3b98a),
+                              width: 1.0), // Add border side color & width
+                        ),
                         elevation: 4,
                         child: Stack(
                           children: [
@@ -348,43 +355,64 @@ class _MyHomePageState extends State<MyHomePage> {
                               bottom: 0,
                               right: 0,
                               child: Image.asset(
-                                      "assets/icons/Restaurant_Table.png",
-                                      width: 75,
-                                      height: 75,
-                                      fit: BoxFit.cover,
-                                    ),
+                                "assets/icons/Restaurant_Table.png",
+                                width: 45,
+                                height: 45,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                           table['newOrders'] != 0? Positioned(
-                                top: 0,
-                                right: 5,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.red,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6.0),
-                                    child: Text("${table['newOrders']}",style: TextStyle(color: Colors.white),),
-                                  ),
-                                )):Container(),
+                            table['newOrders'] != 0
+                                ? Positioned(
+                                    top: 0,
+                                    right: 5,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color(0xffa14716),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(6.0),
+                                        child: Text(
+                                          "${table['newOrders']}",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ))
+                                : Container(),
                             // Text aligned to the left according to image
                             Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    table['name'].toString(),
-                                    style: const TextStyle(
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    "${table['size']} Persons",
-                                    style: const TextStyle(
-                                        fontSize: 18, color: Colors.white),
-                                  ),
+                                  table['isActive'] == true
+                                      ? Text(
+                                          table['name'].toString(),
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white),
+                                        )
+                                      : Text(
+                                          table['name'].toString(),
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xfff3b98a)),
+                                        ),
+                                  table['isActive'] == true
+                                      ? Text(
+                                          "${table['size']} Persons",
+                                          style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.white),
+                                        )
+                                      : Text(
+                                          "${table['size']} Persons",
+                                          style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Color(0xfff3b98a)),
+                                        ),
                                   // table['newOrders'] != 0
                                   //     ? Text(
                                   //         "${table['newOrders']} Orders",
@@ -465,13 +493,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       HapticFeedback.vibrate();
                     },
-                    icon: const Icon(Icons.calculate_outlined, size: 40, color: Colors.yellow),
+                    icon: const Icon(Icons.calculate_outlined,
+                        size: 40, color: Colors.yellow),
                   ),
                   IconButton(
                     onPressed: () {
                       Vibration.vibrate(duration: 2000);
                     },
-                    icon: const Icon(Icons.soap, size: 40, color: Colors.yellow),
+                    icon:
+                        const Icon(Icons.soap, size: 40, color: Colors.yellow),
                   ),
                   IconButton(
                     onPressed: () {
@@ -482,7 +512,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.g_translate, size: 40, color: Colors.pink),
+                    icon: const Icon(Icons.g_translate,
+                        size: 40, color: Colors.pink),
                   ),
                 ],
               )
