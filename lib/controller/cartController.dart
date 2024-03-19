@@ -115,23 +115,102 @@ class CartController extends GetxController {
 
   void increaseQty(CartObject item) {
     item.qty.value++;
-    updateCartData();
+    updateCartData(item);
   }
 
   void decreaseQty(CartObject item) {
     if (item.qty.value > 0) {
       item.qty.value--;
-      updateCartData();
+      if (item.qty.value == 0) {
+        removeItemById(item.itemId);
+      } else {
+        updateCartData(item);
+      }
     }
   }
 
-  void updateCartData() async {
+  void updateCartData(CartObject item) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Map<String, dynamic> cartJson = {};
     cartMap.forEach((key, value) {
-      cartJson[key.toString()] = value;
+      List<Map<String, dynamic>> updatedItems = [];
+      value?.forEach((cart) {
+        List<Map<String, dynamic>> items = cart['items'];
+        for (var innerItem in items) {
+          if (innerItem['itemId'] == item.itemId) {
+            innerItem['qty'] = item.qty.value;
+          }
+          updatedItems.add(innerItem);
+        }
+      });
+      cartJson[key.toString()] = {'items': updatedItems};
     });
     prefs.setString(cartKey, json.encode(cartJson));
+  }
+
+  // void removeItemById(String itemId) async {
+  //   int currentTableId = tableId.value;
+  //   List<Map<String, dynamic>>? cartItems = cartMap[currentTableId];
+
+  //   if (cartItems != null) {
+  //     for (var cart in cartItems) {
+  //       List<Map<String, dynamic>> items = cart['items'];
+
+  //       // Check if only one item is present
+  //       if (items.length == 1) {
+  //         // Ensure the item being removed matches the itemId
+  //         if (items[0]['itemId'] == itemId) {
+  //           items.removeAt(0); // Remove the item
+  //         }
+  //       } else {
+  //         // If multiple items are present, remove the item with the specified itemId
+  //         items.removeWhere((item) => item['itemId'] == itemId);
+  //       }
+  //     }
+
+  //     // Update cartMap
+  //     cartMap[currentTableId] = cartItems;
+
+  //     // Update shared preferences
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     Map<String, dynamic> cartJson = {};
+  //     cartMap.forEach((key, value) {
+  //       cartJson[key.toString()] = {'items': value};
+  //     });
+  //     prefs.setString(cartKey, json.encode(cartJson));
+  //   }
+  // }
+
+  void removeItemById(String itemId) async {
+    int currentTableId = tableId.value;
+    List<Map<String, dynamic>>? cartItems = cartMap[currentTableId];
+
+    if (cartItems != null) {
+      for (var cart in cartItems) {
+        List<Map<String, dynamic>> items = cart['items'];
+
+        // Check if only one item is present
+        if (items.length == 1) {
+          // Clear the cart for the table and return
+          clearCartForTable();
+          return;
+        } else {
+          // If multiple items are present, remove the item with the specified itemId
+          items.removeWhere((item) => item['itemId'] == itemId);
+        }
+      }
+
+      // Update cartMap
+      cartMap[currentTableId] = cartItems;
+
+      // Update shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      Map<String, dynamic> cartJson = {};
+      cartMap.forEach((key, value) {
+        cartJson[key.toString()] = {'items': value};
+      });
+      prefs.setString(cartKey, json.encode(cartJson));
+    }
   }
 
   void clearCart() async {
@@ -173,15 +252,6 @@ class CartController extends GetxController {
     List<Map<String, dynamic>>? cartItems = cartMap[currentTableId];
     print("cart total $currentTableId items are $cartItems");
     if (cartItems != null) {
-      // for (var cart in cartItems) {
-      //   List<Map<String, dynamic>> items = cart['items'];
-      //   for (var item in items) {
-      //     // print(itemId);
-      //     // print(item);
-      //     if (item['itemId'] == itemId) {
-      //     }
-      //   }
-      // }
       cartQuantityItems.value = cartItems.length;
     }
     print("total values are ${cartQuantityItems.value}");
