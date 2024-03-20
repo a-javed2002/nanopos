@@ -12,28 +12,28 @@ import 'package:nanopos/views/login.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SideBarScreen extends StatefulWidget {
+class MenuScreen extends StatefulWidget {
   final loginUser user;
   final String id;
   final String table;
-  const SideBarScreen(
+  const MenuScreen(
       {Key? key, required this.user, required this.id, required this.table})
       : super(key: key);
   @override
-  State<SideBarScreen> createState() => _SideBarScreenState();
+  State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _SideBarScreenState extends State<SideBarScreen> {
+class _MenuScreenState extends State<MenuScreen> {
   // We can detect the location of the cart by this  GlobalKey<CartIconKey>
   GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
-  final CartController cartController = Get.put(CartController());
+  final CartController cartController = Get.find();
   final ApiController _apiController = Get.put(ApiController());
   late Function(GlobalKey) runAddToCartAnimation;
 
   void listClick(GlobalKey widgetKey) async {
     await runAddToCartAnimation(widgetKey);
-    await cartKey.currentState!
-        .runCartAnimation((++ cartController.cartQuantityItems.value).toString());
+    await cartKey.currentState!.runCartAnimation(
+        (++cartController.cartQuantityItems.value).toString());
   }
 
   void fetchData() {
@@ -446,11 +446,12 @@ class _SideBarScreenState extends State<SideBarScreen> {
                                 // print("item is $item");
                                 return MyAppListItem(
                                   name: item['name'],
-                                  desc: item['category_name'],
+                                  desc: item['price'],
                                   img: item['cover'],
                                   onClick: listClick,
                                   index: item['id'],
-                                  price: item['price'],
+                                  price: double.parse(item['price'])
+                                      .toStringAsFixed(2),
                                   chk: cartController
                                       .checkItemIdExists(item['id'].toString()),
                                 );
@@ -534,10 +535,7 @@ class _SideBarScreenState extends State<SideBarScreen> {
   }
 }
 
-class MyAppListItem extends StatelessWidget {
-  final GlobalKey widgetKey = GlobalKey();
-  final ApiController apiController = Get.find();
-  final CartController cartController = Get.find();
+class MyAppListItem extends StatefulWidget {
   final int index;
   final String name;
   final String price;
@@ -555,6 +553,18 @@ class MyAppListItem extends StatelessWidget {
       required this.img,
       required this.price,
       required this.chk});
+
+  @override
+  State<MyAppListItem> createState() => _MyAppListItemState();
+}
+
+class _MyAppListItemState extends State<MyAppListItem> {
+  final GlobalKey widgetKey = GlobalKey();
+
+  final ApiController apiController = Get.find();
+
+  final CartController cartController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     //  Container is mandatory. It can hold images or whatever you want
@@ -564,7 +574,7 @@ class MyAppListItem extends StatelessWidget {
       height: 60,
       color: Colors.transparent,
       child: Image.network(
-        img,
+        widget.img,
         width: 60,
         height: 60,
       ),
@@ -585,15 +595,15 @@ class MyAppListItem extends StatelessWidget {
           },
           // title: HighlightedText(text: name, query: apiController.searchQuery.value),
           title: Text(
-            name,
+            widget.name,
             style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            desc,
+            widget.desc,
             style: TextStyle(fontSize: 10),
           ),
           leading: mandatoryContainer,
-          trailing: chk
+          trailing: widget.chk
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -620,14 +630,14 @@ class MyAppListItem extends StatelessWidget {
               : InkWell(
                   onTap: () async {
                     // print("printiiing");
-                    onClick(widgetKey);
+                    widget.onClick(widgetKey);
 
                     final newItem = CartObject(
-                      itemId: index.toString(),
-                      name: name,
-                      desc: desc,
-                      image: img,
-                      price: price,
+                      itemId: widget.index.toString(),
+                      name: widget.name,
+                      desc: widget.desc,
+                      image: widget.img,
+                      price: double.parse(widget.price).toStringAsFixed(2),
                       qty: 1,
                     );
                     cartController.addToCart(newItem);
@@ -636,6 +646,7 @@ class MyAppListItem extends StatelessWidget {
                     String? cartData = prefs.getString('cartItems');
                     if (cartData != null) {
                       Map<String, dynamic> cartJson = json.decode(cartData);
+                      setState(() {});
                       // print(cartJson);
                     } else {
                       print("Error");

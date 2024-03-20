@@ -5,7 +5,7 @@ import 'package:nanopos/views/forgetPassword.dart';
 import 'dart:convert';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/common/loader.dart';
-import 'package:nanopos/views/sidebar.dart';
+import 'package:nanopos/views/menu.dart';
 import 'package:nanopos/views/signup.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -181,23 +181,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
                               if (response.statusCode == 200 ||
                                   response.statusCode == 201) {
+                                setState(() {
+                                  isLoading =
+                                      false; // Set isLoading to true before signup
+                                });
                                 // Extract response body
                                 var responseBody = jsonDecode(response.body);
                                 if (kDebugMode) {
-                                  print(responseBody);
+                                  print("Login response $responseBody");
                                 }
                                 var user = responseBody['user'];
+                                var id = user['id'];
+                                var bid = responseBody['branch_id'];
                                 var username = user['username'];
                                 var email = user['email'];
                                 var image = user['image'];
                                 var token = responseBody['token'];
                                 int role =
                                     int.parse(user['role_id'].toString());
-
-                                setState(() {
-                                  isLoading =
-                                      false; // Set isLoading to true before signup
-                                });
 
                                 if (role == 7 || role == 6) {
                                   // Navigate to the next page
@@ -212,6 +213,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   //   ),
                                   // );
                                   var obj = new loginUser(
+                                      id: id.toString(),
+                                      bid: bid.toString(),
                                       email: email,
                                       image: image,
                                       name: username,
@@ -220,9 +223,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => MyHomePage(
-                                        user:obj
-                                      ),
+                                      builder: (context) =>
+                                          MyHomePage(user: obj),
                                     ),
                                   );
                                 } else {
@@ -339,6 +341,8 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class loginUser {
+  final String id;
+  final String bid;
   final String email;
   final String image;
   final String name;
@@ -346,6 +350,8 @@ class loginUser {
   final String token;
 
   loginUser({
+    required this.id,
+    required this.bid,
     required this.email,
     required this.image,
     required this.name,

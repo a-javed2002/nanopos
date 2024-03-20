@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/login.dart';
-import 'package:nanopos/views/sidebar.dart';
+import 'package:nanopos/views/menu.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({Key? key});

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Define CartObject class
+
 class CartObject {
   final String itemId;
   final String name;
@@ -10,6 +11,8 @@ class CartObject {
   final String image;
   final String price;
   final RxInt qty;
+  List<int>? itemVariations;
+  List<int>? itemExtras;
 
   CartObject({
     required this.itemId,
@@ -18,6 +21,8 @@ class CartObject {
     required this.image,
     required this.price,
     required int qty,
+    this.itemVariations,
+    this.itemExtras,
   }) : this.qty = qty.obs;
 
   Map<String, dynamic> toJson() {
@@ -111,6 +116,7 @@ class CartController extends GetxController {
       cartJson[key.toString()] = value;
     });
     prefs.setString(cartKey, json.encode(cartJson));
+    getTotalItemsForTable();
   }
 
   void increaseQty(CartObject item) {
@@ -146,6 +152,7 @@ class CartController extends GetxController {
       cartJson[key.toString()] = {'items': updatedItems};
     });
     prefs.setString(cartKey, json.encode(cartJson));
+    getTotalItemsForTable();
   }
 
   // void removeItemById(String itemId) async {
@@ -211,12 +218,14 @@ class CartController extends GetxController {
       });
       prefs.setString(cartKey, json.encode(cartJson));
     }
+    getTotalItemsForTable();
   }
 
   void clearCart() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     cartMap.clear();
     prefs.remove(cartKey);
+    getTotalItemsForTable();
   }
 
   void clearCartForTable() async {
@@ -227,6 +236,7 @@ class CartController extends GetxController {
       cartJson[key.toString()] = value;
     });
     prefs.setString(cartKey, json.encode(cartJson));
+    getTotalItemsForTable();
   }
 
   bool checkItemIdExists(String itemId) {

@@ -38,7 +38,7 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Image.asset("assets/images/paid.png"),
+          Image.asset("assets/gifs/payment.gif"),
           Text(
             "THANK YOU!",
             style: TextStyle(

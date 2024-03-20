@@ -1,143 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
-
-// import 'package:nanopos/order.dart';
-
-// class MyHomePage extends StatefulWidget {
-//   final String name;
-//   final String email;
-//   final String image;
-//   final String token;
-
-//   MyHomePage(
-//       {Key? key,
-//       required this.name,
-//       required this.email,
-//       required this.image,
-//       required this.token})
-//       : super(key: key);
-
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   late Stream<List<dynamic>> _tablesStream;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _tablesStream = _fetchActiveTables();
-//   }
-
-//   Stream<List<dynamic>> _fetchActiveTables() async* {
-//     print("Fetching Tables ${widget.user.token}");
-//     print(widget.user.token);
-//     while (true) {
-//       final response = await http.get(
-//         Uri.parse(
-//             'https://restaurant.nanosystems.com.pk/api/admin/dining-table?order_column=id&order_type=desc'),
-//         headers: {
-//           'Content-Type': 'application/json; charset=UTF-8',
-//           'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
-//           'Authorization': 'Bearer ${widget.user.token}',
-//         },
-//       );
-
-//       print(response.statusCode);
-
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         final Map<String, dynamic> responseData = jsonDecode(response.body);
-//         final List<dynamic>? tablesData =
-//             responseData['data']; // Extracting the list of tables
-//         if (tablesData != null) {
-//           yield tablesData;
-//         } else {
-//           throw Exception('Failed to parse table data');
-//         }
-//       } else {
-//         throw Exception('Failed to load active tables');
-//       }
-
-//       // Delay before fetching tables again
-//       await Future.delayed(Duration(seconds: 5));
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SafeArea(
-//       child: Scaffold(
-//         appBar: AppBar(
-//           title: Text("Dashboard"),
-//           actions: [
-//             Padding(
-//               padding: const EdgeInsets.only(right: 10.0),
-//               child: CircleAvatar(
-//                 backgroundImage: NetworkImage(widget.user.image),
-//               ),
-//             ),
-//           ],
-//         ),
-//         body: StreamBuilder<List<dynamic>>(
-//           stream: _tablesStream, // The stream to listen to for data updates
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
-//               // Show a loading indicator if data is still being fetched
-//               return Center(child: CircularProgressIndicator());
-//             } else if (snapshot.hasError) {
-//               // Show an error message if an error occurs
-//               print(snapshot.error); // Log the error for debugging
-//               return Center(child: Text('Error: ${snapshot.error}'));
-//             } else {
-//               // If data is successfully loaded
-//               final List<dynamic> tables = snapshot.data ??
-//                   []; // Extract the list of tables from the snapshot
-//               return GridView.builder(
-//                 // Use GridView to display tables in a grid layout
-//                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//                   crossAxisCount: 2, // Display two tables in each row
-//                   crossAxisSpacing: 10.0, // Set spacing between columns
-//                   mainAxisSpacing: 10.0, // Set spacing between rows
-//                 ),
-//                 itemCount: tables.length, // Total number of tables
-//                 itemBuilder: (context, index) {
-//                   // Build each table item
-//                   final table = tables[index]; // Get data for the current table
-//                   print(table);
-//                   return InkWell(
-//                     onTap: () {
-//                       Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                         builder: (context) => OrdersScreen(
-//                               id: table['id'].toString(),
-//                               token: widget.user.token,
-//                               image: widget.user.image,
-//                             )),
-//                   );
-//                     },
-//                     child: Card(
-//                       // Use Card widget to display table information
-//                       child: ListTile(
-//                         // Use ListTile for consistent layout and styling
-//                         title: Text(table['name']), // Display table name
-//                         subtitle: Text(
-//                             table['branch_name']), // Display table description
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               );
-//             }
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -149,6 +9,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 import 'package:nanopos/views/order.dart';
+import 'package:nanopos/views/r.dart';
 import 'package:nanopos/views/ringtones.dart';
 import 'package:vibration/vibration.dart';
 
@@ -202,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         throw Exception('Failed to load active tables');
       }
-      break;
+      // break;
       // Delay before fetching tables again
       await Future.delayed(const Duration(seconds: 5));
     }
@@ -269,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   //     );
 
                   if (kDebugMode) {
-                    print(table);
+                    // print(table);
                   } // Log the error for debugging
                   return AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
@@ -291,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CashierScreen(
+                              builder: (context) => OrdersScreen(
                                 user: widget.user,
                                 id: table['id'].toString(),
                                 table: table['name'].toString(),
@@ -491,11 +352,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   IconButton(
                     onPressed: () {
-                      HapticFeedback.vibrate();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CheckboxListScreen(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.calculate_outlined,
-                        size: 40, color: Colors.yellow),
+                        size: 40, color: Color(0xFFFF2C2C)),
                   ),
+                  // IconButton(
+                  //   onPressed: () {
+                  //     HapticFeedback.vibrate();
+                  //   },
+                  //   icon: const Icon(Icons.calculate_outlined,
+                  //       size: 40, color: Colors.yellow),
+                  // ),
                   IconButton(
                     onPressed: () {
                       Vibration.vibrate(duration: 2000);

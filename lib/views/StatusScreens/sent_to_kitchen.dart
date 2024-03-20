@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/login.dart';
 
-class OrderPlaced extends StatelessWidget {
+class SentToKitchen extends StatelessWidget {
   final loginUser user;
-  const OrderPlaced({
+  const SentToKitchen({
     Key? key,
     required this.user
   }) : super(key: key);
@@ -17,16 +17,16 @@ class OrderPlaced extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Image.asset("assets/gifs/order.gif"),
+          Image.asset("assets/gifs/chef.gif"),
           Text(
-            "THANK YOU!",
+            "Chef Get it!",
             style: TextStyle(
                 fontSize: 25,
                 color: Color(0xffa14716),
                 fontWeight: FontWeight.bold),
           ),
           Text(
-            "PAYMENT DONE SUCCESSFULLY",
+            "Wait Patiently",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Container(
