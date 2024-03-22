@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanopos/views/forgetPassword.dart';
+import 'package:nanopos/views/Auth/forgetPassword.dart';
 import 'dart:convert';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/common/loader.dart';
-import 'package:nanopos/views/menu.dart';
-import 'package:nanopos/views/signup.dart';
+import 'package:nanopos/views/Menu/menu.dart';
+import 'package:nanopos/views/Auth/signup.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key});
@@ -119,20 +120,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const Text('Remember me'),
                       const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          // Add logic for forgot password
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ForgetPasswordScreen()),
-                          );
-                        },
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
+                      // TextButton(
+                      //   onPressed: () {
+                      //     // Add logic for forgot password
+                      //     Navigator.pushReplacement(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //           builder: (context) => ForgetPasswordScreen()),
+                      //     );
+                      //   },
+                      //   child: const Text(
+                      //     'Forgot Password?',
+                      //     style: TextStyle(color: Colors.black),
+                      //   ),
+                      // ),
                     ],
                   ),
                   isLoading
@@ -220,13 +221,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                       name: username,
                                       roleId: role,
                                       token: token);
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          MyHomePage(user: obj),
-                                    ),
-                                  );
+                                  // Navigator.pushReplacement(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) =>
+                                  //         MyHomePage(user: obj),
+                                  //   ),
+                                  // );
+                                  Get.offAll(MyHomePage(user: obj),);
                                 } else {
                                   setState(() {
                                     isLoading =
@@ -257,36 +259,36 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 45),
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              12), // Adjust the radius as needed
-                        ),
-                        backgroundColor: const Color(0xffa14716),
-                      ),
-                      onPressed: () async {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SignupScreen()),
-                        );
-                      },
-                      child: const Text(
-                        "Sign up",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 20,
-                            color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   margin: const EdgeInsets.symmetric(
+                  //       vertical: 12, horizontal: 45),
+                  //   width: double.infinity,
+                  //   child: ElevatedButton(
+                  //     style: ElevatedButton.styleFrom(
+                  //       padding: const EdgeInsets.symmetric(
+                  //           vertical: 10.0, horizontal: 10),
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(
+                  //             12), // Adjust the radius as needed
+                  //       ),
+                  //       backgroundColor: const Color(0xffa14716),
+                  //     ),
+                  //     onPressed: () async {
+                  //       Navigator.pushReplacement(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //             builder: (context) => SignupScreen()),
+                  //       );
+                  //     },
+                  //     child: const Text(
+                  //       "Sign up",
+                  //       style: TextStyle(
+                  //           fontWeight: FontWeight.w400,
+                  //           fontSize: 20,
+                  //           color: Colors.white),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

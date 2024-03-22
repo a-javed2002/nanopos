@@ -4,11 +4,12 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/controller/apiController.dart';
 import 'package:nanopos/controller/cartController.dart';
-import 'package:nanopos/views/cart.dart';
+import 'package:nanopos/views/Menu/cart.dart';
+import 'package:nanopos/views/Menu/dialogDetail.dart';
 import 'package:nanopos/views/common/highlight_text.dart';
-import 'package:nanopos/views/detail.dart';
+import 'package:nanopos/views/Menu/detail.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
-import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/Auth/login.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,6 +53,7 @@ class _MenuScreenState extends State<MenuScreen> {
     // TODO: implement initState
     super.initState();
     fetchData();
+    _apiController.selectedCatId.value = 0;
     cartController.tableId.value = int.parse(widget.id);
   }
 
@@ -98,6 +100,37 @@ class _MenuScreenState extends State<MenuScreen> {
                           title: Icon(Icons.arrow_back),
                           onTap: () {
                             Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: _apiController.selectedCatId.value == 0
+                              ? Color(0xffa14716)
+                              : Colors.transparent,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.black,
+                              width: 1.0, // Adjust the width as needed
+                            ),
+                          ),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            'All',
+                            style: TextStyle(
+                                fontSize: 8,
+                                color: _apiController.selectedCatId.value == 0
+                                    ? Colors.white
+                                    : Colors.black), // Adjusted font size
+                          ),
+                          onTap: () {
+                            print("0 === 0");
+                            _apiController.selectedCatId.value = 0;
+                            _apiController.filterItem();
+                            setState(() {
+                              _apiController.cat;
+                            });
                           },
                         ),
                       ),
@@ -446,7 +479,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                 // print("item is $item");
                                 return MyAppListItem(
                                   name: item['name'],
-                                  desc: item['price'],
+                                  desc: item['description'],
                                   img: item['cover'],
                                   onClick: listClick,
                                   index: item['id'],
@@ -454,6 +487,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                       .toStringAsFixed(2),
                                   chk: cartController
                                       .checkItemIdExists(item['id'].toString()),
+                                  item: item,
                                 );
                               },
                             );
@@ -500,11 +534,14 @@ class _MenuScreenState extends State<MenuScreen> {
               const SizedBox(height: 20),
               IconButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const LoginScreen(),
+                  //   ),
+                  // );
+                  Get.offAll(
+                    LoginScreen(),
                   );
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),
@@ -542,6 +579,7 @@ class MyAppListItem extends StatefulWidget {
   final String desc;
   final String img;
   final bool chk;
+  final Map<String, dynamic> item;
   final void Function(GlobalKey) onClick;
 
   MyAppListItem(
@@ -552,6 +590,7 @@ class MyAppListItem extends StatefulWidget {
       required this.desc,
       required this.img,
       required this.price,
+      required this.item,
       required this.chk});
 
   @override
@@ -580,6 +619,15 @@ class _MyAppListItemState extends State<MyAppListItem> {
       ),
     );
 
+    final newItem = CartObject(
+      itemId: widget.index.toString(),
+      name: widget.name,
+      desc: widget.desc,
+      image: widget.img,
+      price: double.parse(widget.price).toStringAsFixed(2),
+      qty: 1,
+    );
+
     return Card.outlined(
       surfaceTintColor: Colors.white,
       shadowColor: Colors.black,
@@ -587,11 +635,37 @@ class _MyAppListItemState extends State<MyAppListItem> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProductDetail()),
-            );
+          onTap: () async {
+            // print("printiiing");
+
+            cartController.addToCart(newItem);
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? cartData = prefs.getString('cartItems');
+            if (cartData != null) {
+              Map<String, dynamic> cartJson = json.decode(cartData);
+              setState(() {});
+              // print(cartJson);
+              bool addToCart = await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AddToCartDialog(
+                    item: widget.item,
+                  );
+                },
+              );
+              if (addToCart != null) {
+                if (addToCart) {
+                  print('Item added to cart');
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    widget.onClick(widgetKey);
+                  });
+                } else {
+                  print('Canceled');
+                }
+              }
+            } else {
+              print("Error");
+            }
           },
           // title: HighlightedText(text: name, query: apiController.searchQuery.value),
           title: Text(
@@ -599,70 +673,80 @@ class _MyAppListItemState extends State<MyAppListItem> {
             style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            widget.desc,
+            widget.price,
             style: TextStyle(fontSize: 10),
           ),
           leading: mandatoryContainer,
-          trailing: widget.chk
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.remove),
-                      onPressed: () {
-                        // cartController.decreaseQty(cartObject);
-                        print("quantity decreasing by 1");
-                      },
-                    ),
-                    Text(
-                      "1",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () {
-                        // cartController.increaseQty(cartObject);
-                        print("quantity increasing by 1");
-                      },
-                    ),
-                  ],
-                )
-              : InkWell(
-                  onTap: () async {
-                    // print("printiiing");
-                    widget.onClick(widgetKey);
+          // trailing: widget.chk
+          //     ? Row(
+          //         mainAxisSize: MainAxisSize.min,
+          //         children: [
+          //           IconButton(
+          //             icon: Icon(Icons.remove),
+          //             onPressed: () {
+          //               // cartController.decreaseQty(cartObject);
+          //               print("quantity decreasing by 1");
+          //             },
+          //           ),
+          //           Text(
+          //             "1",
+          //             style: TextStyle(fontWeight: FontWeight.bold),
+          //           ),
+          //           IconButton(
+          //             icon: Icon(Icons.add),
+          //             onPressed: () {
+          //               // cartController.increaseQty(cartObject);
+          //               print("quantity increasing by 1");
+          //             },
+          //           ),
+          //         ],
+          //       )
+          // : InkWell(
+          //     onTap: () async {
+          //       // print("printiiing");
+          //       widget.onClick(widgetKey);
 
-                    final newItem = CartObject(
-                      itemId: widget.index.toString(),
-                      name: widget.name,
-                      desc: widget.desc,
-                      image: widget.img,
-                      price: double.parse(widget.price).toStringAsFixed(2),
-                      qty: 1,
-                    );
-                    cartController.addToCart(newItem);
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    String? cartData = prefs.getString('cartItems');
-                    if (cartData != null) {
-                      Map<String, dynamic> cartJson = json.decode(cartData);
-                      setState(() {});
-                      // print(cartJson);
-                    } else {
-                      print("Error");
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xffa14716),
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
+          //       final newItem = CartObject(
+          //         itemId: widget.index.toString(),
+          //         name: widget.name,
+          //         desc: widget.desc,
+          //         image: widget.img,
+          //         price: double.parse(widget.price).toStringAsFixed(2),
+          //         qty: 1,
+          //       );
+          //       cartController.addToCart(newItem);
+          //       SharedPreferences prefs =
+          //           await SharedPreferences.getInstance();
+          //       String? cartData = prefs.getString('cartItems');
+          //       if (cartData != null) {
+          //         Map<String, dynamic> cartJson = json.decode(cartData);
+          //         setState(() {});
+          //         // print(cartJson);
+          //       } else {
+          //         print("Error");
+          //       }
+          //     },
+          //     child: Container(
+          //       decoration: BoxDecoration(
+          //         color: Color(0xffa14716),
+          //       ),
+          //       child: Icon(
+          //         Icons.add,
+          //         color: Colors.white,
+          //         size: 20,
+          //       ),
+          //     ),
+          //   ),
+          trailing: Container(
+            decoration: BoxDecoration(
+              color: Color(0xffa14716),
+            ),
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
         ),
       ),
     );

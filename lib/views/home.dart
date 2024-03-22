@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/views/Todo/todos_Screen.dart';
 import 'package:nanopos/views/cashier.dart';
-import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/Auth/login.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         throw Exception('Failed to load active tables');
       }
-      // break;
+      break;
       // Delay before fetching tables again
       await Future.delayed(const Duration(seconds: 5));
     }

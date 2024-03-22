@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/OnBoarding/onBoarding.dart';
 import 'package:nanopos/dependency_injection.dart';
-import 'package:nanopos/views/login.dart';
-import 'package:nanopos/views/menu.dart';
+import 'package:nanopos/views/Auth/login.dart';
+import 'package:nanopos/views/Menu/menu.dart';
+import 'package:nanopos/views/channel.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 
 void main() {

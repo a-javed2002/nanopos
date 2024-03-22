@@ -1,15 +1,26 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/views/Auth/login.dart';
 
 class ProductDetail extends StatefulWidget {
-  const ProductDetail({super.key});
+  final Map<String,dynamic> item;
+  const ProductDetail(
+      {Key? key, required this.item})
+      : super(key: key);
 
   @override
   State<ProductDetail> createState() => _ProductDetailState();
 }
 
 class _ProductDetailState extends State<ProductDetail> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("Item Is : ${widget.item}");
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(

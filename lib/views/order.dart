@@ -6,9 +6,9 @@ import 'package:nanopos/controller/cartController.dart';
 import 'package:nanopos/views/StatusScreens/sent_to_kitchen.dart';
 import 'dart:convert';
 
-import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/cashier.dart';
-import 'package:nanopos/views/menu.dart';
+import 'package:nanopos/views/Menu/menu.dart';
 
 class Order {
   final String id;

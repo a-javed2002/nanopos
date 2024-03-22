@@ -4,17 +4,17 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/common/loader.dart';
-import 'package:nanopos/views/login.dart';
-import 'package:nanopos/views/menu.dart';
+import 'package:nanopos/views/Auth/login.dart';
+import 'package:nanopos/views/Menu/menu.dart';
 
-class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key});
+class ForgetPasswordScreen extends StatefulWidget {
+  const ForgetPasswordScreen({Key? key});
 
   @override
-  _SignupScreenState createState() => _SignupScreenState();
+  _ForgetPasswordScreenState createState() => _ForgetPasswordScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   bool _showPassword = false;
   bool isLoading = false;
 
@@ -26,8 +26,6 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController =
-        TextEditingController();
-    TextEditingController passwordController =
         TextEditingController();
 
     return SafeArea(
@@ -51,26 +49,18 @@ class _SignupScreenState extends State<SignupScreen> {
                 children: [
                   Image.asset("assets/images/logo.png"),
                   const Text(
-                    "Sign Up",
+                    "Forget Password",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
-                  const SizedBox(height: 15),
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      hintText: 'Enter your name',
-                      prefixIcon: Icon(Icons.email),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
-                          color: Colors.black, // Border color
-                          width: 4.0, // Border width
-                        ),
-                      ),
+                  Center(
+                    child: const Text(
+                      "Enter you email associated with your account  and we'll send an email with instructions to reset your password e",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
@@ -86,36 +76,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Enter your password',
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _showPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _showPassword = !_showPassword;
-                          });
-                        },
-                      ),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.5),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
-                          color: Colors.black, // Border color
-                          width: 4.0, // Border width
-                        ),
-                      ),
-                    ),
-                    obscureText: !_showPassword,
+                  const SizedBox(
+                    height: 10,
                   ),
                   isLoading
                       ? CustomLoader()
@@ -137,7 +99,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               
                             },
                             child: const Text(
-                              "Sign up",
+                              "Send Link",
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,
@@ -168,7 +130,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   );
                             },
                             child: const Text(
-                              "Log in",
+                              "Back to Login",
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,

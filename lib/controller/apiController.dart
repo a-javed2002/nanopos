@@ -12,6 +12,7 @@ class ApiController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    selectedCatId.value = 0;
   }
 
   void fetchData(String apiUrl, String userToken, RxList<dynamic> updatedList,
@@ -32,11 +33,11 @@ class ApiController extends GetxController {
 
         if (dataList != null) {
           updatedList.value = dataList;
-          if (x) {
-            selectedCatId.value = cat[0]['id'];
-            print("${selectedCatId.value}");
-          }
-          print("asd $item");
+          // if (x) {
+          //   selectedCatId.value = cat[0]['id'];
+          //   print("${selectedCatId.value}");
+          // }
+          // print("asd $item");
         } else {
           throw Exception('Failed to parse table data');
         }
@@ -52,9 +53,15 @@ class ApiController extends GetxController {
 
   void filterItem() {
     filItem.value = [];
-    for (var i = 0; i < item.length; i++) {
-      if (item[i]['item_category_id'] == selectedCatId.value) {
-        filItem.add(item[i]);
+    print("Selected cat id is ${selectedCatId.value} and items are $item");
+    if (selectedCatId.value == 0) {
+      filItem = item;
+    } else {
+      for (var i = 0; i < item.length; i++) {
+        print("in here");
+        if (item[i]['item_category_id'] == selectedCatId.value) {
+          filItem.add(item[i]);
+        }
       }
     }
   }
@@ -62,7 +69,7 @@ class ApiController extends GetxController {
   void searchItem() {
     String query =
         searchQuery.value.trim().toLowerCase(); // Trim and convert to lowercase
-        // print("query $query");
+    // print("query $query");
     if (query.isEmpty) {
       // If the search query is empty, show all items
       filterItem();

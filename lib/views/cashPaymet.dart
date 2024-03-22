@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/StatusScreens/order_placed.dart';
 import 'package:nanopos/views/StatusScreens/payment_done.dart';
 import 'package:http/http.dart' as http;

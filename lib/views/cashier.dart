@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/views/cashPaymet.dart';
 import 'dart:convert';
 
-import 'package:nanopos/views/login.dart';
+import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/order.dart';
 
 class CashierScreen extends StatefulWidget {
@@ -318,11 +319,8 @@ class _CashierScreenState extends State<CashierScreen> {
               const SizedBox(height: 20),
               IconButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
+                  Get.offAll(
+                    LoginScreen(),
                   );
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),
