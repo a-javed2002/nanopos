@@ -34,9 +34,14 @@ class _CashierScreenState extends State<CashierScreen> {
   List<OrderItems> orderItems = [];
   int totalOrders = 0;
 
+  String updatedTotalPrice = '';
+  String updatedTaxPrice = '';
+
   @override
   void initState() {
     super.initState();
+    updatedTotalPrice = (widget.order.totalCurrencyPrice).replaceAll("Rs", "");
+    updatedTaxPrice = (widget.order.total_tax_currency_price).replaceAll("Rs", "");
   }
 
   @override
@@ -101,7 +106,8 @@ class _CashierScreenState extends State<CashierScreen> {
                           Column(
                             children: widget.order.orderItems.map((orderItem) {
                               return Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                       "${orderItem.quantity}x ${orderItem.itemName}"),
@@ -130,8 +136,7 @@ class _CashierScreenState extends State<CashierScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Subtotal"),
-                            Text(
-                                "${widget.order.subtotal_without_tax_currency_price}"),
+                            Text("${double.parse(updatedTotalPrice) - double.parse(updatedTaxPrice)}Rs"),
                           ],
                         ),
                         Row(
@@ -145,7 +150,7 @@ class _CashierScreenState extends State<CashierScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Total"),
-                            Text("${widget.order.subtotal_currency_price}"),
+                            Text("${widget.order.totalCurrencyPrice}"),
                           ],
                         ),
                       ],
@@ -211,8 +216,8 @@ class _CashierScreenState extends State<CashierScreen> {
                                     ),
                                     Text(
                                       "**** **** 3356",
-                                      style:
-                                          TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ),
@@ -232,8 +237,8 @@ class _CashierScreenState extends State<CashierScreen> {
                                   builder: (context) => CashPayment(
                                       id: widget.id,
                                       table: widget.table,
-                                      total: 123,
-                                      // total: double.parse(widget.order.totalCurrencyPrice),
+                                      // total: 123,
+                                      total: double.parse(updatedTotalPrice),
                                       user: widget.user,
                                       orderId: widget.order.id)),
                             );
@@ -245,7 +250,8 @@ class _CashierScreenState extends State<CashierScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 4, horizontal: 8),
-                              margin: const EdgeInsets.symmetric(horizontal: 15),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: Column(
                                 children: [
                                   Row(
@@ -269,7 +275,7 @@ class _CashierScreenState extends State<CashierScreen> {
                                         width: 10,
                                       ),
                                       Text(
-                                        "Rs.4757",
+                                        updatedTotalPrice,
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),

@@ -141,11 +141,25 @@ class _CashPaymentState extends State<CashPayment> {
               decoration: InputDecoration(labelText: 'Paid Amount'),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: (_paidAmount >= widget.total)
-                  ? _handlePaidButtonPressed
-                  : null,
-              child: Text('Paid'),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 14.0, horizontal: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        12), // Adjust the radius as needed
+                  ),
+                  backgroundColor: const Color(0xffa14716),
+                  foregroundColor: Colors.white
+                ),
+                onPressed: (_paidAmount >= widget.total)
+                    ? _handlePaidButtonPressed
+                    : null,
+                child: Text('Paid'),
+              ),
             ),
             SizedBox(height: 20),
             Text(

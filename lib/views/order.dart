@@ -788,6 +788,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xffa14716),
+        foregroundColor: Colors.white,
           child: Icon(Icons.add),
           onPressed: () {
             Navigator.push(

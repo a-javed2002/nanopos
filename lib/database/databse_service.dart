@@ -1,3 +1,5 @@
+import 'package:nanopos/database/cat_db.dart';
+import 'package:nanopos/database/item_db.dart';
 import 'package:nanopos/database/todo_db.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -22,11 +24,13 @@ class DatabaseService {
   Future<Database> _initialize() async {
     final path = await fullPath;
     var database = await openDatabase(path,
-        version: 1, 
-        onCreate: create, 
-        singleInstance: true);
+        version: 1, onCreate: create, singleInstance: true);
     return database;
   }
 
-  Future<void> create(Database databse,int version)async => await TodoDB().createTable(databse);
+  Future<void> create(Database databse, int version) async {
+    await TodoDB().createTable(databse);
+    await CatDB().createTable(databse);
+    await ItemDB().createTable(databse);
+  }
 }

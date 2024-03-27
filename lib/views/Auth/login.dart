@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Add logic for handling remember me
                         },
                       ),
-                      const Text('Remember me'),
+                      // const Text('Remember me'),
                       const Spacer(),
                       // TextButton(
                       //   onPressed: () {

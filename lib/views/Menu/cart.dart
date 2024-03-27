@@ -190,6 +190,10 @@ class _CartScreenState extends State<CartScreen> {
                   image: item['image'],
                   price: item['price'],
                   qty: item['qty'],
+                  addons: item['addons'],
+                  itemExtras: item['itemExtras'],
+                  itemVariations: item['itemVariations'],
+                  instruction: item['instruction']
                 );
 
                 return Dismissible(

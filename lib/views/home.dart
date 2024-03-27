@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         throw Exception('Failed to load active tables');
       }
-      break;
+      // break;
       // Delay before fetching tables again
       await Future.delayed(const Duration(seconds: 5));
     }
@@ -376,18 +376,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon:
                         const Icon(Icons.soap, size: 40, color: Colors.yellow),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RingTonee(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.g_translate,
-                        size: 40, color: Colors.pink),
-                  ),
+                  // IconButton(
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => const RingTonee(),
+                  //       ),
+                  //     );
+                  //   },
+                  //   icon: const Icon(Icons.g_translate,
+                  //       size: 40, color: Colors.pink),
+                  // ),
                 ],
               )
             ],

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class Item {
+class Itemaa {
   final int id;
   final String name;
 
-  Item(this.id, this.name);
+  Itemaa(this.id, this.name);
 }
 
 // class MyApp extends StatelessWidget {
@@ -77,12 +77,12 @@ class CheckboxListScreen extends StatefulWidget {
 }
 
 class _CheckboxListScreenState extends State<CheckboxListScreen> {
-  List<Item> items = [
-    Item(1, "Item 1"),
-    Item(2, "Item 2"),
-    Item(3, "Item 3"),
-    Item(4, "Item 4"),
-    Item(5, "Item 5"),
+  List<Itemaa> items = [
+    Itemaa(1, "Item 1"),
+    Itemaa(2, "Item 2"),
+    Itemaa(3, "Item 3"),
+    Itemaa(4, "Item 4"),
+    Itemaa(5, "Item 5"),
   ];
   List<int> selectedIds = [];
   bool selectAll = false;
@@ -115,7 +115,7 @@ class _CheckboxListScreenState extends State<CheckboxListScreen> {
             child: ListView.builder(
               itemCount: items.length,
               itemBuilder: (context, index) {
-                Item item = items[index];
+                Itemaa item = items[index];
                 return CheckboxListTile(
                   title: ListTile(title:  Text(item.name)),
                   value: selectedIds.contains(item.id),

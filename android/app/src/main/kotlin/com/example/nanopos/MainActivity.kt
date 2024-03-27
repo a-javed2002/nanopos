@@ -37,6 +37,7 @@ import com.topwise.cloudpos.aidl.rfcard.AidlRFCard
 import com.topwise.cloudpos.aidl.serialport.AidlSerialport
 import com.topwise.cloudpos.aidl.shellmonitor.AidlShellMonitor
 import com.topwise.cloudpos.aidl.system.AidlSystem
+//import com.example.nanopos.R
 
 
 class MainActivity: FlutterActivity() {

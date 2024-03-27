@@ -1,6 +1,11 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:nanopos/database/cat_db.dart';
+import 'package:nanopos/database/item_db.dart';
 import 'dart:convert';
+
+import 'package:nanopos/models/cat.dart';
+import 'package:nanopos/models/item.dart';
 
 class ApiController extends GetxController {
   var cat = [].obs;
@@ -8,6 +13,14 @@ class ApiController extends GetxController {
   var filItem = [].obs;
   RxInt selectedCatId = RxInt(0);
   var searchQuery = ''.obs;
+
+  String token = "";
+
+  Future<List<Item>>? futureItems;
+  final itemDB = ItemDB();
+
+  Future<List<Cat>>? futureCats;
+  final catDB = CatDB();
 
   @override
   void onInit() {
@@ -82,5 +95,87 @@ class ApiController extends GetxController {
         }
       }
     }
+  }
+
+  void sqlCatInsertion() async {
+    print("Selected cat id is ${selectedCatId.value} and items are $item");
+    futureCats = catDB.fetchAll() as Future<List<Cat>>?;
+    print("futureItems $futureCats");
+    if (futureCats != null) {
+      List<Cat> catt = await futureCats!;
+      for (var i = 0; i < catt.length; i++) {
+        print("id: ${catt[i].cat_id},name: ${catt[i].cat_name}");
+      }
+    }
+    print(
+        "----------------------------Clear item table & insert N Chk---------------------------------------");
+    if (cat.isNotEmpty) {
+      catDB.truncateTable();
+      for (var i = 0; i < cat.length; i++) {
+        // print("--> ${cat[i]}");
+        await catDB.create(
+          cat_id: cat[i]['id'],
+          cat_name: cat[i]['name'],
+        );
+      }
+    }
+    print(
+        "-------------------------------------------------------------------");
+    futureCats = catDB.fetchAll() as Future<List<Cat>>?;
+    print("futureItems $futureCats");
+    if (futureCats != null) {
+      List<Cat> catt = await futureCats!;
+      for (var i = 0; i < catt.length; i++) {
+        print("id: ${catt[i].cat_id},name: ${catt[i].cat_name}");
+      }
+    }
+  }
+
+  void sqlItemInsertion() async {
+    print("Selected cat id is ${selectedCatId.value} and items are $item");
+    futureItems = itemDB.fetchAll() as Future<List<Item>>?;
+    print("futureItems $futureItems");
+    if (futureItems != null) {
+      List<Item> items = await futureItems!;
+      for (var i = 0; i < items.length; i++) {
+        print(
+            "id: ${items[i].item_id},name: ${items[i].item_name},image: ${items[i].item_image},name: ${items[i].item_price}");
+      }
+    }
+    print(
+        "----------------------------Clear item table & insert N Chk---------------------------------------");
+    if (item.isNotEmpty) {
+      itemDB.truncateTable();
+      for (var i = 0; i < item.length; i++) {
+        await itemDB.create(
+            item_id: item[i]['id'],
+            item_image: item[i]['cover'],
+            item_name: item[i]['name'],
+            item_price: item[i]['price']);
+      }
+    }
+    print(
+        "-------------------------------------------------------------------");
+    futureItems = itemDB.fetchAll() as Future<List<Item>>?;
+    print("futureItems $futureItems");
+    if (futureItems != null) {
+      List<Item> items = await futureItems!;
+      for (var i = 0; i < items.length; i++) {
+        print(
+            "id: ${items[i].item_id},name: ${items[i].item_name},image: ${items[i].item_image},name: ${items[i].item_price}");
+      }
+    }
+  }
+
+  void sqlInsertion() async {
+    String catUrl =
+        'https://restaurant.nanosystems.com.pk/api/admin/setting/item-category?order_type=desc';
+    String itemUrl =
+        'https://restaurant.nanosystems.com.pk/api/admin/item?order_type=desc';
+
+    fetchData(catUrl, token, cat, x: true);
+    fetchData(itemUrl, token, item);
+    sqlCatInsertion();
+    sqlItemInsertion();
   }
 }

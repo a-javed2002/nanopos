@@ -10,9 +10,11 @@ class CartObject {
   final String desc;
   final String image;
   final String price;
+  final String instruction;
   final RxInt qty;
-  List<int>? itemVariations;
-  List<int>? itemExtras;
+  List<Map<String,dynamic>>? itemVariations;
+  List<Map<String,dynamic>>? itemExtras;
+  List<Map<String,dynamic>>? addons;
 
   CartObject({
     required this.itemId,
@@ -20,9 +22,11 @@ class CartObject {
     required this.desc,
     required this.image,
     required this.price,
+    required this.instruction,
     required int qty,
     this.itemVariations,
     this.itemExtras,
+    this.addons,
   }) : this.qty = qty.obs;
 
   Map<String, dynamic> toJson() {
@@ -116,7 +120,6 @@ class CartController extends GetxController {
       cartJson[key.toString()] = value;
     });
     prefs.setString(cartKey, json.encode(cartJson));
-    getTotalItemsForTable();
   }
 
   void increaseQty(CartObject item) {
@@ -152,7 +155,6 @@ class CartController extends GetxController {
       cartJson[key.toString()] = {'items': updatedItems};
     });
     prefs.setString(cartKey, json.encode(cartJson));
-    getTotalItemsForTable();
   }
 
   // void removeItemById(String itemId) async {
@@ -218,7 +220,6 @@ class CartController extends GetxController {
       });
       prefs.setString(cartKey, json.encode(cartJson));
     }
-    getTotalItemsForTable();
   }
 
   void clearCart() async {

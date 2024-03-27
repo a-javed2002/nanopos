@@ -53,6 +53,7 @@ class _MenuScreenState extends State<MenuScreen> {
     // TODO: implement initState
     super.initState();
     fetchData();
+    _apiController.token = widget.user.token;
     _apiController.selectedCatId.value = 0;
     cartController.tableId.value = int.parse(widget.id);
   }
@@ -545,7 +546,25 @@ class _MenuScreenState extends State<MenuScreen> {
                   );
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),
-              )
+              ),
+              // IconButton(
+              //   onPressed: () {
+              //     _apiController.sqlCatInsertion();
+              //   },
+              //   icon: const Icon(Icons.add, size: 40, color: Colors.pink),
+              // ),
+              // IconButton(
+              //   onPressed: () {
+              //     _apiController.sqlItemInsertion();
+              //   },
+              //   icon: const Icon(Icons.add, size: 40, color: Colors.blue),
+              // ),
+              IconButton(
+                onPressed: () {
+                  _apiController.sqlInsertion();
+                },
+                icon: const Icon(Icons.add, size: 40, color: Colors.blue),
+              ),
             ],
           ),
           actions: [
@@ -619,14 +638,14 @@ class _MyAppListItemState extends State<MyAppListItem> {
       ),
     );
 
-    final newItem = CartObject(
-      itemId: widget.index.toString(),
-      name: widget.name,
-      desc: widget.desc,
-      image: widget.img,
-      price: double.parse(widget.price).toStringAsFixed(2),
-      qty: 1,
-    );
+    // final newItem = CartObject(
+    //   itemId: widget.index.toString(),
+    //   name: widget.name,
+    //   desc: widget.desc,
+    //   image: widget.img,
+    //   price: double.parse(widget.price).toStringAsFixed(2),
+    //   qty: 1,
+    // );
 
     return Card.outlined(
       surfaceTintColor: Colors.white,
@@ -638,33 +657,23 @@ class _MyAppListItemState extends State<MyAppListItem> {
           onTap: () async {
             // print("printiiing");
 
-            cartController.addToCart(newItem);
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            String? cartData = prefs.getString('cartItems');
-            if (cartData != null) {
-              Map<String, dynamic> cartJson = json.decode(cartData);
-              setState(() {});
-              // print(cartJson);
-              bool addToCart = await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AddToCartDialog(
-                    item: widget.item,
-                  );
-                },
-              );
-              if (addToCart != null) {
-                if (addToCart) {
-                  print('Item added to cart');
-                  Future.delayed(Duration(milliseconds: 500), () {
-                    widget.onClick(widgetKey);
-                  });
-                } else {
-                  print('Canceled');
-                }
+            bool addToCart = await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AddToCartDialog(
+                  item: widget.item,
+                );
+              },
+            );
+            if (addToCart != null) {
+              if (addToCart) {
+                print('Item added to cart');
+                Future.delayed(Duration(milliseconds: 500), () {
+                  widget.onClick(widgetKey);
+                });
+              } else {
+                print('Canceled');
               }
-            } else {
-              print("Error");
             }
           },
           // title: HighlightedText(text: name, query: apiController.searchQuery.value),
