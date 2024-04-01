@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/views/Todo/todos_Screen.dart';
@@ -22,13 +23,35 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Color?> _colorAnimation;
   late Stream<List<dynamic>> _tablesStream;
 
   @override
   void initState() {
     super.initState();
     _tablesStream = _fetchActiveTables();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    );
+
+    _colorAnimation =
+        ColorTween(begin: Color(0xffa14716), end: Color(0xfff3b98a))
+            .animate(_controller)
+          ..addListener(() {
+            setState(() {});
+          });
+
+    _controller!.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller!.dispose();
+    super.dispose();
   }
 
   Stream<List<dynamic>> _fetchActiveTables() async* {
@@ -132,12 +155,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (kDebugMode) {
                     // print(table);
                   } // Log the error for debugging
+                  table['is_calling'] = table['id'] % 2 == 0 ? true : false;
                   return AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
                     child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      onTap: () {
+                      onTap: () async{
                         if (widget.user.roleId == 7) {
+                          if (table['is_calling']) {
+                            await changeStatus(table['id'].toString());
+                          }
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -173,9 +200,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         }
                       },
                       child: Card(
-                        color: table['isActive'] == true
-                            ? Color(0xfff3b98a)
-                            : Color(0xffffffff),
+                        color: table['is_calling'] == true
+                            ? (_colorAnimation as Animation<Color?>).value
+                            : table['isActive'] == true
+                                ? Color(0xfff3b98a)
+                                : Color(0xffffffff),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                               10.0), // Adjust the border radius as needed
@@ -246,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  table['isActive'] == true
+                                  table['is_calling'] == true
                                       ? Text(
                                           table['name'].toString(),
                                           style: const TextStyle(
@@ -254,26 +283,41 @@ class _MyHomePageState extends State<MyHomePage> {
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white),
                                         )
-                                      : Text(
-                                          table['name'].toString(),
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xfff3b98a)),
-                                        ),
-                                  table['isActive'] == true
+                                      : table['isActive'] == true
+                                          ? Text(
+                                              table['name'].toString(),
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white),
+                                            )
+                                          : Text(
+                                              table['name'].toString(),
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xfff3b98a)),
+                                            ),
+                                  table['is_calling'] == true
                                       ? Text(
                                           "${table['size']} Persons",
                                           style: const TextStyle(
                                               fontSize: 10,
                                               color: Colors.white),
                                         )
-                                      : Text(
-                                          "${table['size']} Persons",
-                                          style: const TextStyle(
-                                              fontSize: 10,
-                                              color: Color(0xfff3b98a)),
-                                        ),
+                                      : table['isActive'] == true
+                                          ? Text(
+                                              "${table['size']} Persons",
+                                              style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white),
+                                            )
+                                          : Text(
+                                              "${table['size']} Persons",
+                                              style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Color(0xfff3b98a)),
+                                            ),
                                   // table['newOrders'] != 0
                                   //     ? Text(
                                   //         "${table['newOrders']} Orders",
@@ -297,6 +341,43 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> changeStatus(String id) async {
+    try {
+      var encodedId = Uri.encodeComponent(id);
+      var response = await http.get(
+        Uri.parse(
+            'https://restaurant.nanosystems.com.pk/api/table/dining-table/reset-call-waiter?dinning_id=$encodedId'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+          'Authorization': 'Bearer ${widget.user.token}',
+        },
+      );
+
+      if (kDebugMode) {
+        print(response.statusCode);
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseBody = jsonDecode(response.body);
+        if (kDebugMode) {
+          print(responseBody);
+          print("Status changed");
+        }
+      } else {
+        if (kDebugMode) {
+          print("Failed to change status: ${response.statusCode}");
+        }
+        throw Exception('Failed to change status: ${response.statusCode}');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print("Error: $error");
+      }
+      throw Exception('Error occurred: $error');
+    }
   }
 
   void _showLogoutDialog() {

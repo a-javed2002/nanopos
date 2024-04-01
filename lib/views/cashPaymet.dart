@@ -124,7 +124,7 @@ class _CashPaymentState extends State<CashPayment> {
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             TextField(
               enabled: false,

@@ -8,6 +8,7 @@ import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/views/Auth/signup.dart';
+import 'package:nanopos/controller/apiController.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key});
@@ -17,6 +18,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final ApiController _apiController = Get.find();
   bool _showPassword = false;
   bool isLoading = false;
 
@@ -202,17 +204,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                     int.parse(user['role_id'].toString());
 
                                 if (role == 7 || role == 6) {
-                                  // Navigate to the next page
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => SideBarScreen(
-                                  //       name: username,
-                                  //       email: email,
-                                  //       image: image,
-                                  //     )
-                                  //   ),
-                                  // );
                                   var obj = new loginUser(
                                       id: id.toString(),
                                       bid: bid.toString(),
@@ -221,32 +212,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                       name: username,
                                       roleId: role,
                                       token: token);
-                                  // Navigator.pushReplacement(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) =>
-                                  //         MyHomePage(user: obj),
-                                  //   ),
-                                  // );
-                                  Get.offAll(MyHomePage(user: obj),);
+                                  var xyz = await loadData(token);
+                                  Get.offAll(
+                                    MyHomePage(user: obj),
+                                  );
                                 } else {
                                   setState(() {
                                     isLoading =
                                         false; // Set isLoading to true before signup
                                   });
                                   _showDialog();
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => MyHomePage(
-                                  //       name: username,
-                                  //       email: email,
-                                  //       image: image,
-                                  //       token: token,
-                                  //       roleId: role,
-                                  //     ),
-                                  //   ),
-                                  // );
                                 }
                               }
                             },
@@ -296,6 +271,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> loadData(userToken) async {
+    String catUrl =
+        'https://restaurant.nanosystems.com.pk/api/admin/setting/item-category?order_type=desc';
+    String itemUrl =
+        'https://restaurant.nanosystems.com.pk/api/admin/item?order_type=desc';
+
+    await _apiController.fetchData(catUrl, userToken, _apiController.cat, x: true);
+    await _apiController.fetchData(itemUrl, userToken, _apiController.item);
   }
 
   void _showDialog() {

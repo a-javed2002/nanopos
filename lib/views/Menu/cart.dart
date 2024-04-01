@@ -65,9 +65,53 @@ class _CartScreenState extends State<CartScreen> {
 
                         // Constructing the items list dynamically
                         List<Map<String, dynamic>> itemList = [];
+                        List<Map<String, dynamic>> variationList = [];
+                        List<Map<String, dynamic>> itemExtrasList = [];
+                        // List<Map<String, dynamic>> variationList = [];
                         double total = 0;
                         for (var item in items) {
-                          total+=(double.parse(item['price']) * item['qty']);
+                          print(item['addons']);
+                          for (var variation in item['itemVariations']) {
+                            // Extracting specific fields and creating a new map
+                            variationList.add({
+                              'id': variation['id'],
+                              'item_id': variation['item_id'],
+                              'item_attribute_id':
+                                  variation['item_attribute_id'],
+                              'variation_name': variation['variation_name'],
+                              'name': variation['name']
+                            });
+                          }
+                          print("-----------------------");
+                          for (var itemExtra in item['itemExtras']) {
+                            // Extracting specific fields and creating a new map
+                            itemExtrasList.add({
+                              'id': itemExtra['id'],
+                              'item_id': itemExtra['item_id'],
+                              'name': itemExtra['name']
+                            });
+                          }
+                          for (var addon in item['addons']) {
+                            // Extracting specific fields and creating a new map
+                            itemList.add({
+                              'item_id': addon['item_addon_id'],
+                              'item_price': addon['addon_item_price'],
+                              'branch_id': widget.user.bid,
+                              'instruction': '',
+                              'quantity': addon['qty'],
+                              'discount': 0,
+                              'total_price':
+                                  double.parse(addon['addon_item_price']) *
+                                      addon['qty'],
+                              "item_variation_total": 0,
+                              "item_extra_total": 0,
+                              "item_variations": [],
+                              "item_extras": [],
+                            });
+                          }
+                          // print(item['itemExtras']);
+                          // print(item['addons']);
+                          total += (double.parse(item['price']) * item['qty']);
                           itemList.add({
                             "item_id": item['itemId'],
                             "item_price": item['price'],
@@ -80,10 +124,15 @@ class _CartScreenState extends State<CartScreen> {
                             "item_variation_total":
                                 item['itemVariationTotal'] ?? 0,
                             "item_extra_total": item['itemExtraTotal'] ?? 0,
-                            "item_variations": item['itemVariations'] ?? [],
-                            "item_extras": item['itemExtras'] ?? [],
+                            "item_variations": variationList,
+                            "item_extras": itemExtrasList,
                           });
                         }
+
+                        var x = {
+                          "items":
+                              "[{\"item_variation_total\":0,\"item_extra_total\":0,\"item_variations\":[],\"item_extras\":[]},{\"item_id\":2,\"item_price\":350,\"branch_id\":1,\"instruction\":\"\",\"quantity\":1,\"discount\":0,\"total_price\":350,\"item_variation_total\":0,\"item_extra_total\":0,\"item_variations\":[{\"id\":1,\"item_id\":2,\"item_attribute_id\":\"1\",\"variation_name\":\"Flavours\",\"name\":\"Less Fried Zinger\"}],\"item_extras\":[]}]"
+                        };
 
                         print(itemList);
 
@@ -102,6 +151,8 @@ class _CartScreenState extends State<CartScreen> {
                           "source": 5,
                           "total": total,
                         };
+                        print(data);
+
                         var response = await http.post(
                           Uri.parse(
                               'https://restaurant.nanosystems.com.pk/api/table/dining-order'),
@@ -126,6 +177,7 @@ class _CartScreenState extends State<CartScreen> {
                           }
                           setState(() {
                             cartController.clearCartForTable();
+                            cartController.cartQuantityItems.value = 0;
                             isLoading = false;
                           });
                           Navigator.push(
@@ -159,6 +211,7 @@ class _CartScreenState extends State<CartScreen> {
           title: Text("Cart"),
         ),
         floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.red,
             child: Icon(
               Icons.delete,
               color: Colors.white,
@@ -171,7 +224,7 @@ class _CartScreenState extends State<CartScreen> {
           int currentTableId = cartController.tableId.value;
           List<Map<String, dynamic>>? cartItems =
               cartController.cartMap[currentTableId];
-          print("cart total $currentTableId items areee $cartItems");
+          // print("cart total $currentTableId items areee $cartItems");
           if (cartItems == null || cartItems.isEmpty) {
             return Center(
               child: Text('No items in the cart for table $currentTableId.'),
@@ -184,17 +237,18 @@ class _CartScreenState extends State<CartScreen> {
               itemBuilder: (context, index) {
                 final item = items[index];
                 final cartObject = CartObject(
-                  itemId: item['itemId'],
-                  name: item['name'],
-                  desc: item['desc'],
-                  image: item['image'],
-                  price: item['price'],
-                  qty: item['qty'],
-                  addons: item['addons'],
-                  itemExtras: item['itemExtras'],
-                  itemVariations: item['itemVariations'],
-                  instruction: item['instruction']
-                );
+                    itemId: item['itemId'],
+                    name: item['name'],
+                    desc: item['desc'],
+                    image: item['image'],
+                    price: item['price'],
+                    qty: item['qty'],
+                    addons: item['addons'] ?? [],
+                    itemExtras: item['itemExtras'] ?? [],
+                    itemVariations: item['itemVariations'] ?? [],
+                    instruction: item['instruction'] ?? "");
+
+                print(item);
 
                 return Dismissible(
                     key: UniqueKey(),
@@ -228,9 +282,39 @@ class _CartScreenState extends State<CartScreen> {
                           style: TextStyle(
                               fontSize: 10, fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(
-                          cartObject.price,
-                          style: TextStyle(fontSize: 10),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              cartObject.desc,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Price: ${cartObject.price}',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Instructions: ${cartObject.instruction}',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Variations: ${cartObject.itemVariations!.map((v) => v['variation_name']).join(', ')}',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Extras: ${cartObject.itemExtras!.map((e) => e['name']).join(', ')}',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Addons: ${cartObject.addons!.map((a) => a['addon_item_name']).join(', ')}',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
                         ),
                         leading: Image.network(
                           cartObject.image,

@@ -28,7 +28,7 @@ class _MenuScreenState extends State<MenuScreen> {
   // We can detect the location of the cart by this  GlobalKey<CartIconKey>
   GlobalKey<CartIconKey> cartKey = GlobalKey<CartIconKey>();
   final CartController cartController = Get.find();
-  final ApiController _apiController = Get.put(ApiController());
+  final ApiController _apiController = Get.find();
   late Function(GlobalKey) runAddToCartAnimation;
 
   void listClick(GlobalKey widgetKey) async {
@@ -52,8 +52,8 @@ class _MenuScreenState extends State<MenuScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    fetchData();
-    _apiController.token = widget.user.token;
+    _apiController.getLocal();
+    // _apiController.token = widget.user.token;
     _apiController.selectedCatId.value = 0;
     cartController.tableId.value = int.parse(widget.id);
   }
@@ -160,7 +160,8 @@ class _MenuScreenState extends State<MenuScreen> {
                       Obx(() {
                         if (_apiController.cat.isEmpty) {
                           return Center(
-                            child: CircularProgressIndicator(),
+                            // child: CircularProgressIndicator(),
+                            child: Text("No Cats Available"),
                           );
                         } else {
                           return Expanded(
@@ -463,7 +464,8 @@ class _MenuScreenState extends State<MenuScreen> {
                       child: Obx(() {
                         if (_apiController.item.isEmpty) {
                           return Center(
-                            child: CircularProgressIndicator(),
+                            // child: CircularProgressIndicator(),
+                            child: Text("No Items Available"),
                           );
                         } else {
                           if (_apiController.filItem.isEmpty) {
@@ -475,6 +477,9 @@ class _MenuScreenState extends State<MenuScreen> {
                               itemCount: _apiController.filItem.length,
                               itemBuilder: (context, index) {
                                 final item = _apiController.filItem[index];
+                                for (var addon in item['addons']) {
+                                  addon['qty'] = 1;
+                                }
                                 // print(
                                 //     "Item exists ${cartController.checkItemIdExists(item['id'].toString())}");
                                 // print("item is $item");
@@ -547,6 +552,13 @@ class _MenuScreenState extends State<MenuScreen> {
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),
               ),
+              IconButton(
+                onPressed: () {
+                  fetchData();
+                  setState(() {});
+                },
+                icon: const Icon(Icons.add, size: 40, color: Colors.pink),
+              ),
               // IconButton(
               //   onPressed: () {
               //     _apiController.sqlCatInsertion();
@@ -559,12 +571,12 @@ class _MenuScreenState extends State<MenuScreen> {
               //   },
               //   icon: const Icon(Icons.add, size: 40, color: Colors.blue),
               // ),
-              IconButton(
-                onPressed: () {
-                  _apiController.sqlInsertion();
-                },
-                icon: const Icon(Icons.add, size: 40, color: Colors.blue),
-              ),
+              // IconButton(
+              //   onPressed: () {
+              //     _apiController.sqlInsertion();
+              //   },
+              //   icon: const Icon(Icons.add, size: 40, color: Colors.blue),
+              // ),
             ],
           ),
           actions: [

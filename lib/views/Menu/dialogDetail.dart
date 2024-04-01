@@ -24,11 +24,11 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // print("addons Is : ${widget.item['addons']}");
-    // print("offer Is : ${widget.item['offer']}");
-    // print("extras Is : ${widget.item['extras']}");
-    // print("itemAttributes Is : ${widget.item['itemAttributes']}");
-    // print("variations Is : ${widget.item['variations']}");
+    print("addons Is : ${widget.item['addons']}");
+    print("offer Is : ${widget.item['offer']}");
+    print("extras Is : ${widget.item['extras']}");
+    print("itemAttributes Is : ${widget.item['itemAttributes']}");
+    print("variations Is : ${widget.item['variations']}");
   }
 
   @override
@@ -214,7 +214,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                               children:
                                   widget.item['addons'].map<Widget>((addon) {
                                 bool isChecked = selectedAddons.contains(addon);
-                                int quantity = 1;
+                                
 
                                 return CheckboxListTile(
                                   activeColor: Color(0xffa14716),
@@ -231,15 +231,17 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                       IconButton(
                                         icon: Icon(Icons.remove),
                                         onPressed: () {
-                                          if (quantity > 1) {
+                                          if (addon['qty'] > 1) {
                                             setState(() {
-                                              quantity--;
+                                              addon['qty'] -= 1;
+                                              print(
+                                                  "name: ${addon['addon_item_name']} & qty: ${addon['qty']}");
                                             });
                                           }
                                         },
                                       ),
                                       Text(
-                                        quantity.toString(),
+                                        "${addon['qty']}",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -247,7 +249,9 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                         icon: Icon(Icons.add),
                                         onPressed: () {
                                           setState(() {
-                                            quantity++;
+                                            addon['qty'] += 1;
+                                            print(
+                                                "name: ${addon['addon_item_name']} & qty: ${addon['qty']}");
                                           });
                                         },
                                       ),
@@ -383,6 +387,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                             instruction: _special.text,
                           );
                           cartController.addToCart(newItem);
+                          print("new item is ${newItem.instruction}");
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
                           String? cartData = prefs.getString('cartItems');

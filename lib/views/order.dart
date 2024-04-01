@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:nanopos/controller/apiController.dart';
 import 'package:nanopos/controller/cartController.dart';
 import 'package:nanopos/views/StatusScreens/sent_to_kitchen.dart';
 import 'dart:convert';
@@ -67,6 +68,11 @@ class OrderItems {
   final String price;
   final String instruction;
   final String totalConvertPrice;
+  final double tax_rate;
+  final String item_variation_currency_total;
+  final String item_extra_currency_total;
+  final List<Map<String,dynamic>> item_variations;
+  final List<Map<String,dynamic>> item_extras;
 
   OrderItems({
     required this.id,
@@ -76,6 +82,11 @@ class OrderItems {
     required this.price,
     required this.instruction,
     required this.totalConvertPrice,
+    required this.tax_rate,
+    required this.item_variation_currency_total,
+    required this.item_extra_currency_total,
+    required this.item_variations,
+    required this.item_extras,
   });
 
   factory OrderItems.fromJson(Map<String, dynamic> json) {
@@ -87,6 +98,11 @@ class OrderItems {
       price: json['price'].toString(),
       instruction: json['instruction'].toString(),
       totalConvertPrice: json['total_convert_price'].toString(),
+      tax_rate: json['tax_rate'],
+      item_variation_currency_total: json['item_variation_currency_total'].toString(),
+      item_extra_currency_total: json['item_extra_currency_total'].toString(),
+      item_variations: json['item_variations'],
+      item_extras: json['item_extras'],
     );
   }
 }
@@ -108,7 +124,6 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  final CartController cartController = Get.put(CartController());
   late Stream<List<Order>> _ordersStream;
   final int orderType = 10;
   var firstTime = true;
@@ -179,6 +194,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     "itemId": orderItemJson[''],
                     "orderId": orderItemJson['']
                   });
+                  print(orderItemJson);
                 }
                 orders.add(Order.fromJson({
                   ...orderJson,
@@ -219,9 +235,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
         title: Text(
           widget.table,
           style: const TextStyle(
-            color: Colors.white, // Set text color to white
-            fontWeight: FontWeight.bold, // Make text bolder
-          ),
+              color: Colors.white, // Set text color to white
+              fontWeight: FontWeight.bold, // Make text bolder
+              fontSize: 16),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -237,7 +253,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
           ),
         ],
-        toolbarHeight: 70, // Increase the height of the AppBar
+        // toolbarHeight: 70, // Increase the height of the AppBar
       ),
       body: StreamBuilder<List<Order>>(
         stream: _ordersStream, // The stream to listen to for data updates
@@ -644,7 +660,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                   itemCount: order.orderItems.length,
                                   itemBuilder: (context, itemIndex) {
                                     final item = order.orderItems[itemIndex];
-                                    // print(item);
+                                    print(item);
                                     return ListTile(
                                       // title: Text("Item Name: ${item.item_name}"),
                                       title: Column(
@@ -709,12 +725,39 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                           user: widget.user,
                                                           id: widget.id,
                                                           table: widget.table,
-                                                          order: order)),
+                                                          orderrs: order)),
                                             );
                                           },
-                                          child: Text("Pay",style: TextStyle(color: Colors.white),)),
+                                          child: Text(
+                                            "Pay ${order.totalCurrencyPrice}",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )),
                                     )
-                                  : Container()
+                                  : Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 10.0, horizontal: 10),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(
+                                                  12), // Adjust the radius as needed
+                                            ),
+                                            backgroundColor:
+                                                const Color(0xfff3b98a),
+                                          ),
+                                          onPressed: () {
+                                            
+                                          },
+                                          child: Text(
+                                            "Total Bill: ${order.totalCurrencyPrice}",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )),
+                                    )
                             ],
                           ),
                         ),
@@ -788,8 +831,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color(0xffa14716),
-        foregroundColor: Colors.white,
+          backgroundColor: Color(0xffa14716),
+          foregroundColor: Colors.white,
           child: Icon(Icons.add),
           onPressed: () {
             Navigator.push(

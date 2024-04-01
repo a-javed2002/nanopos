@@ -19,7 +19,7 @@ class OrderPlaced extends StatelessWidget {
         children: [
           Image.asset("assets/gifs/order.gif"),
           Text(
-            "Yshooo!",
+            "Yahooo!",
             style: TextStyle(
                 fontSize: 25,
                 color: Color(0xffa14716),

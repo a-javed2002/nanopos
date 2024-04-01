@@ -9,7 +9,9 @@ class ItemDB {
     await database.execute("""
 CREATE TABLE IF NOT EXISTS $tablename (
   "item_id" INTEGER NOT NULL,
+  "cat_id_fk" INTEGER NOT NULL,
   "item_name" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
   "item_image" TEXT NOT NULL,
   "item_price" TEXT NOT NULL,
   "created_at" INTEGER NOT NULL DEFAULT (cast(strftime('%s','now') as INTEGER)),
@@ -20,17 +22,26 @@ CREATE TABLE IF NOT EXISTS $tablename (
   }
 
   Future<int> create(
-      {required int item_id,
+      {
+        required int item_id,
+        required int cat_id_fk,
       required String item_name,
-      required String item_image,
+      required String description,
+      required String cover,
+      required String thumb,
+      required String preview,
       required String item_price}) async {
     final database = await DatabaseService().database;
     return await database.rawInsert(
-      '''INSERT INTO $tablename (item_id,item_name,item_image,item_price,created_at) VALUES (?,?,?,?,?)''',
+      '''INSERT INTO $tablename (item_id,cat_id_fk,item_name,description,cover,thumb,preview,item_price,created_at) VALUES (?,?,?,?,?,?,?,?,?)''',
       [
         item_id,
+        cat_id_fk,
         item_name,
-        item_image,
+        description,
+        cover,
+        thumb,
+        preview,
         item_price,
         DateTime.now().millisecondsSinceEpoch
       ],

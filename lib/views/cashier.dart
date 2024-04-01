@@ -13,14 +13,14 @@ class CashierScreen extends StatefulWidget {
   final loginUser user;
   final String table;
   final String id;
-  final Order order;
+  final Order orderrs;
 
   CashierScreen({
     Key? key,
     required this.id,
     required this.user,
     required this.table,
-    required this.order,
+    required this.orderrs,
   }) : super(key: key);
 
   @override
@@ -28,11 +28,13 @@ class CashierScreen extends StatefulWidget {
 }
 
 class _CashierScreenState extends State<CashierScreen> {
-  late Future<List<Order>> _ordersFuture;
+  late Order order;
   final int orderType = 10;
   var firstTime = true;
   List<OrderItems> orderItems = [];
   int totalOrders = 0;
+
+  double total = 0;
 
   String updatedTotalPrice = '';
   String updatedTaxPrice = '';
@@ -40,8 +42,9 @@ class _CashierScreenState extends State<CashierScreen> {
   @override
   void initState() {
     super.initState();
-    updatedTotalPrice = (widget.order.totalCurrencyPrice).replaceAll("Rs", "");
-    updatedTaxPrice = (widget.order.total_tax_currency_price).replaceAll("Rs", "");
+    order = widget.orderrs;
+    updatedTotalPrice = (order.totalCurrencyPrice).replaceAll("Rs", "");
+    updatedTaxPrice = (order.total_tax_currency_price).replaceAll("Rs", "");
   }
 
   @override
@@ -52,13 +55,13 @@ class _CashierScreenState extends State<CashierScreen> {
             backgroundColor: Colors.transparent,
             title: Center(
               child: Text(
-                "Check out - ${widget.order.id}",
+                "Check out - ${order.id}",
                 style: const TextStyle(
                   fontWeight: FontWeight.bold, // Make text bolder
                 ),
               ),
             ),
-            iconTheme: const IconThemeData(color: Colors.white),
+            // iconTheme: const IconThemeData(color: Colors.white),
             actions: [
               InkWell(
                 onTap: () {
@@ -97,22 +100,32 @@ class _CashierScreenState extends State<CashierScreen> {
                               style: TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
+                            SizedBox(width: 68),
+                            IconButton(onPressed: (){}, icon: const Icon(Icons.print))
                           ],
                         ),
                         SizedBox(height: 5),
                         // Check if orderItems is not null and not empty
-                        if (widget.order.orderItems != null &&
-                            widget.order.orderItems.isNotEmpty)
+                        if (order.orderItems != null &&
+                            order.orderItems.isNotEmpty)
                           Column(
-                            children: widget.order.orderItems.map((orderItem) {
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                      "${orderItem.quantity}x ${orderItem.itemName}"),
-                                  Text("Rs. ${orderItem.price}"),
-                                ],
+                            children: order.orderItems.map((orderItem) {
+                              var x = (orderItem.price).replaceAll("Rs", "");
+                              total += orderItem.quantity * double.parse(x);
+                              print("$total = ${orderItem.quantity} and ${x}");
+                              return GestureDetector(
+                                onTap: () {
+                                  _showItemDialog(context, orderItem);
+                                },
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        "${orderItem.quantity}x ${orderItem.itemName}"),
+                                    Text("${orderItem.price}"),
+                                  ],
+                                ),
                               );
                             }).toList(),
                           )
@@ -136,21 +149,22 @@ class _CashierScreenState extends State<CashierScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Subtotal"),
-                            Text("${double.parse(updatedTotalPrice) - double.parse(updatedTaxPrice)}Rs"),
+                            Text(
+                                "${double.parse(updatedTotalPrice) - double.parse(updatedTaxPrice)}Rs"),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Tax"),
-                            Text("${widget.order.total_tax_currency_price}"),
+                            Text("${order.total_tax_currency_price}"),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text("Total"),
-                            Text("${widget.order.totalCurrencyPrice}"),
+                            Text("${total}Rs"),
                           ],
                         ),
                       ],
@@ -238,9 +252,9 @@ class _CashierScreenState extends State<CashierScreen> {
                                       id: widget.id,
                                       table: widget.table,
                                       // total: 123,
-                                      total: double.parse(updatedTotalPrice),
+                                      total: total,
                                       user: widget.user,
-                                      orderId: widget.order.id)),
+                                      orderId: order.id)),
                             );
                           },
                           child: Card.outlined(
@@ -275,7 +289,7 @@ class _CashierScreenState extends State<CashierScreen> {
                                         width: 10,
                                       ),
                                       Text(
-                                        updatedTotalPrice,
+                                        "${total}Rs",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -355,4 +369,135 @@ class _CashierScreenState extends State<CashierScreen> {
       },
     );
   }
+
+  // Function to update the total amount
+  void updateTotal() {
+    double newTotal = 0;
+    for (var orderItem in order.orderItems) {
+      var x = (orderItem.price).replaceAll("Rs", "");
+      newTotal += orderItem.quantity * double.parse(x);
+    }
+    setState(() {
+      total = newTotal;
+    });
+  }
+
+// Function to show the dialog box
+  void _showItemDialog(BuildContext context, OrderItems orderItem) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        int quantity = orderItem.quantity;
+        return AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(orderItem.itemName),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    // Remove item from order
+                    order.orderItems.remove(orderItem);
+                  });
+                  updateTotal();
+                  Navigator.of(context).pop();
+                },
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Quantity: $quantity'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (quantity > 1) {
+                        setState(() {
+                          quantity--;
+                          orderItem.quantity = quantity;
+                        });
+                        updateTotal();
+                      }
+                    },
+                    child: Icon(Icons.remove),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // setState(() {
+                      //   // Decrease quantity of item in order
+                      //   orderItem.quantity = quantity;
+                      // });
+                      // updateTotal();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Cancel'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // void _showItemDialog(BuildContext context, OrderItems orderItem) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       int quantity = orderItem.quantity;
+  //       return AlertDialog(
+  //         title: Text(orderItem.itemName),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text('Quantity: $quantity'),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 ElevatedButton(
+  //                   onPressed: () {
+  //                     if (quantity > 1) {
+  //                       setState(() {
+  //                         quantity--;
+  //                       });
+  //                     }
+  //                   },
+  //                   child: Text('-'),
+  //                 ),
+  //                 ElevatedButton(
+  //                   onPressed: () {
+  //                     setState(() {
+  //                       // Remove item from order
+  //                       order.orderItems.remove(orderItem);
+  //                     });
+  //                     Navigator.of(context).pop();
+  //                   },
+  //                   child: Text('Remove'),
+  //                 ),
+  //                 ElevatedButton(
+  //                   onPressed: () {
+  //                     setState(() {
+  //                       // Decrease quantity of item in order
+  //                       orderItem.quantity = quantity;
+  //                     });
+  //                     Navigator.of(context).pop();
+  //                   },
+  //                   child: Text('Done'),
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }

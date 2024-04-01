@@ -10,11 +10,11 @@ class CartObject {
   final String desc;
   final String image;
   final String price;
-  final String instruction;
   final RxInt qty;
   List<Map<String,dynamic>>? itemVariations;
   List<Map<String,dynamic>>? itemExtras;
   List<Map<String,dynamic>>? addons;
+  final String instruction;
 
   CartObject({
     required this.itemId,
@@ -37,6 +37,10 @@ class CartObject {
       'image': image,
       'price': price,
       'qty': qty.value,
+      'instruction': instruction,
+      'itemVariations': itemVariations,
+      'itemExtras': itemExtras,
+      'addons': addons,
     };
   }
 }
