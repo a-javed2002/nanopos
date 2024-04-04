@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nanopos/controller/cartController.dart';
 import 'package:nanopos/views/Auth/login.dart';
+import 'package:nanopos/consts/consts.dart';
 
 class ProductDetail extends StatefulWidget {
   final Map<String,dynamic> item;
@@ -94,7 +95,7 @@ class _ProductDetailState extends State<ProductDetail> {
                             child: Text(
                               "S",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: whiteColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -109,7 +110,7 @@ class _ProductDetailState extends State<ProductDetail> {
                             child: Text(
                               "M",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: whiteColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -124,7 +125,7 @@ class _ProductDetailState extends State<ProductDetail> {
                             child: Text(
                               "L",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: whiteColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -156,7 +157,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                 BorderRadius.all(Radius.circular(20))),
                         child: Icon(
                           Icons.remove,
-                          color: Colors.white,
+                          color: whiteColor,
                           size: 20,
                         ),
                       ),
@@ -174,7 +175,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                 BorderRadius.all(Radius.circular(20))),
                         child: Icon(
                           Icons.add,
-                          color: Colors.white,
+                          color: whiteColor,
                           size: 20,
                         ),
                       ),
@@ -200,7 +201,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                 BorderRadius.all(Radius.circular(20))),
                         child: Icon(
                           Icons.remove,
-                          color: Colors.white,
+                          color: whiteColor,
                           size: 20,
                         ),
                       ),
@@ -218,7 +219,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                 BorderRadius.all(Radius.circular(20))),
                         child: Icon(
                           Icons.add,
-                          color: Colors.white,
+                          color: whiteColor,
                           size: 20,
                         ),
                       ),

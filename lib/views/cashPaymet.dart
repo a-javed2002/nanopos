@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:nanopos/consts/consts.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/StatusScreens/order_placed.dart';
 import 'package:nanopos/views/StatusScreens/payment_done.dart';
@@ -59,11 +61,11 @@ class _CashPaymentState extends State<CashPayment> {
       var data = {"id": widget.orderId, "payment_status": 5};
       var response = await http.post(
         Uri.parse(
-            'http://restaurant.nanosystems.com.pk/api/admin/table-order/change-payment-status/${widget.orderId}'),
+            '$domain/api/admin/table-order/change-payment-status/${widget.orderId}'),
         body: jsonEncode(data),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+          'X-Api-Key': xApi,
           'Authorization': 'Bearer ${widget.user.token}',
         },
       );
@@ -80,6 +82,14 @@ class _CashPaymentState extends State<CashPayment> {
           print("Paid");
           _showThanksgivingScreen();
         }
+      }
+      else if (response.statusCode == 401) {
+        var responseBody = jsonDecode(response.body);
+        sessionExpire("Session Expired,Please Log In Again");
+      }
+      else{
+        String responseBody = jsonDecode(response.body);
+        sessionExpire(responseBody);
       }
     } else {
       showDialog(
@@ -101,6 +111,39 @@ class _CashPaymentState extends State<CashPayment> {
         },
       );
     }
+  }
+
+  void sessionExpire(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Failed"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                backgroundImage: NetworkImage(widget.user.image),
+                radius: 40,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                message,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: (){
+                Get.offAll(
+                    LoginScreen(),
+                  );
+              }, child: Text("Log In Again"))
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showThanksgivingScreen() {
@@ -153,7 +196,7 @@ class _CashPaymentState extends State<CashPayment> {
                         12), // Adjust the radius as needed
                   ),
                   backgroundColor: const Color(0xffa14716),
-                  foregroundColor: Colors.white
+                  foregroundColor: whiteColor
                 ),
                 onPressed: (_paidAmount >= widget.total)
                     ? _handlePaidButtonPressed

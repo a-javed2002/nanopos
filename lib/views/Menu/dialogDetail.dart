@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/controller/cartController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nanopos/consts/consts.dart';
 
 class AddToCartDialog extends StatefulWidget {
   final Map<String, dynamic> item;
@@ -37,7 +38,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
       backgroundColor: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: whiteColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Scaffold(
@@ -323,7 +324,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor: const Color(0xffa14716),
-                          backgroundColor: Colors.white,
+                          backgroundColor: whiteColor,
                           padding: const EdgeInsets.symmetric(
                               vertical: 14.0, horizontal: 20),
                           shape: RoundedRectangleBorder(
@@ -342,7 +343,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                       SizedBox(width: 10),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
+                          foregroundColor: whiteColor,
                           padding: const EdgeInsets.symmetric(
                               vertical: 14.0, horizontal: 20),
                           shape: RoundedRectangleBorder(

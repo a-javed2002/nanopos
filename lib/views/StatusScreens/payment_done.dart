@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/Auth/login.dart';
+import 'package:nanopos/consts/consts.dart';
 
 class PaymentPaidScreen extends StatefulWidget {
   final loginUser user;
@@ -84,7 +85,7 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
               },
               child: Text(
                 "Dashboard",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: whiteColor),
               ),
             ),
           )

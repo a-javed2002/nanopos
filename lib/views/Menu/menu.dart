@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:nanopos/consts/consts.dart';
 import 'package:nanopos/controller/apiController.dart';
 import 'package:nanopos/controller/cartController.dart';
 import 'package:nanopos/views/Menu/cart.dart';
@@ -39,9 +40,9 @@ class _MenuScreenState extends State<MenuScreen> {
 
   void fetchData() {
     String catUrl =
-        'https://restaurant.nanosystems.com.pk/api/admin/setting/item-category?order_type=desc';
+        '$domain/api/admin/setting/item-category?order_type=desc';
     String itemUrl =
-        'https://restaurant.nanosystems.com.pk/api/admin/item?order_type=desc';
+        '$domain/api/admin/item?order_type=desc';
     String userToken = widget.user.token; // Replace with your user token
 
     _apiController.fetchData(catUrl, userToken, _apiController.cat, x: true);
@@ -122,7 +123,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             style: TextStyle(
                                 fontSize: 8,
                                 color: _apiController.selectedCatId.value == 0
-                                    ? Colors.white
+                                    ? whiteColor
                                     : Colors.black), // Adjusted font size
                           ),
                           onTap: () {
@@ -192,7 +193,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                           color: _apiController
                                                       .selectedCatId.value ==
                                                   cat['id']
-                                              ? Colors.white
+                                              ? whiteColor
                                               : Colors
                                                   .black), // Adjusted font size
                                     ),
@@ -601,6 +602,40 @@ class _MenuScreenState extends State<MenuScreen> {
       },
     );
   }
+
+  
+  void sessionExpire(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Failed"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                backgroundImage: NetworkImage(widget.user.image),
+                radius: 40,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                message,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: (){
+                Get.offAll(
+                    LoginScreen(),
+                  );
+              }, child: Text("Log In Again"))
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class MyAppListItem extends StatefulWidget {
@@ -660,7 +695,7 @@ class _MyAppListItemState extends State<MyAppListItem> {
     // );
 
     return Card.outlined(
-      surfaceTintColor: Colors.white,
+      surfaceTintColor: whiteColor,
       shadowColor: Colors.black,
       elevation: 4,
       child: Padding(
@@ -753,7 +788,7 @@ class _MyAppListItemState extends State<MyAppListItem> {
           //       ),
           //       child: Icon(
           //         Icons.add,
-          //         color: Colors.white,
+          //         color: whiteColor,
           //         size: 20,
           //       ),
           //     ),
@@ -764,7 +799,7 @@ class _MyAppListItemState extends State<MyAppListItem> {
             ),
             child: Icon(
               Icons.add,
-              color: Colors.white,
+              color: whiteColor,
               size: 20,
             ),
           ),

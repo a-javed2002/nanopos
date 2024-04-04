@@ -1,11 +1,9 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanopos/database/cat_db.dart';
-import 'package:nanopos/database/item_db.dart';
+import 'package:nanopos/consts/consts.dart';
+import 'package:nanopos/views/Auth/login.dart';
 import 'dart:convert';
 
-import 'package:nanopos/models/cat.dart';
-import 'package:nanopos/models/item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiController extends GetxController {
@@ -36,7 +34,7 @@ class ApiController extends GetxController {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+          'X-Api-Key': xApi,
           'Authorization': 'Bearer $userToken',
         },
       );
@@ -59,7 +57,11 @@ class ApiController extends GetxController {
         } else {
           throw Exception('Failed to parse table data');
         }
-      } else {
+      }
+      if (response.statusCode == 401) {
+        print("Session Expire");
+      }
+      else {
         throw Exception('Failed to load active cat');
       }
 
@@ -197,9 +199,9 @@ class ApiController extends GetxController {
 
   // void sqlInsertion() async {
   //   String catUrl =
-  //       'https://restaurant.nanosystems.com.pk/api/admin/setting/item-category?order_type=desc';
+  //       '$domain/api/admin/setting/item-category?order_type=desc';
   //   String itemUrl =
-  //       'https://restaurant.nanosystems.com.pk/api/admin/item?order_type=desc';
+  //       '$domain/api/admin/item?order_type=desc';
 
   //   fetchData(catUrl, token, cat, x: true);
   //   fetchData(itemUrl, token, item);

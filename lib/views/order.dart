@@ -10,6 +10,8 @@ import 'dart:convert';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/cashier.dart';
 import 'package:nanopos/views/Menu/menu.dart';
+import 'package:nanopos/consts/consts.dart';
+
 
 class Order {
   final String id;
@@ -71,8 +73,8 @@ class OrderItems {
   final double tax_rate;
   final String item_variation_currency_total;
   final String item_extra_currency_total;
-  final List<Map<String,dynamic>> item_variations;
-  final List<Map<String,dynamic>> item_extras;
+  final List<Map<String, dynamic>> item_variations;
+  final List<Map<String, dynamic>> item_extras;
 
   OrderItems({
     required this.id,
@@ -99,7 +101,8 @@ class OrderItems {
       instruction: json['instruction'].toString(),
       totalConvertPrice: json['total_convert_price'].toString(),
       tax_rate: json['tax_rate'],
-      item_variation_currency_total: json['item_variation_currency_total'].toString(),
+      item_variation_currency_total:
+          json['item_variation_currency_total'].toString(),
       item_extra_currency_total: json['item_extra_currency_total'].toString(),
       item_variations: json['item_variations'],
       item_extras: json['item_extras'],
@@ -149,10 +152,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
     while (true) {
       final response = await http.get(
         Uri.parse(
-            'https://restaurant.nanosystems.com.pk/api/admin/table-order?dining_table_id=${widget.id}&payment_status=10'),
+            '$domain/api/admin/table-order?dining_table_id=${widget.id}&payment_status=10'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+          'X-Api-Key': xApi,
           'Authorization': 'Bearer ${widget.user.token}',
         },
       );
@@ -168,10 +171,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
           for (var orderJson in ordersData) {
             final response2 = await http.get(
               Uri.parse(
-                  'https://restaurant.nanosystems.com.pk/api/admin/table-order/show/${orderJson['id']}'),
+                  '$domain/api/admin/table-order/show/${orderJson['id']}'),
               headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
-                'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+                'X-Api-Key': xApi,
                 'Authorization': 'Bearer ${widget.user.token}',
               },
             );
@@ -235,11 +238,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
         title: Text(
           widget.table,
           style: const TextStyle(
-              color: Colors.white, // Set text color to white
+              color: whiteColor, // Set text color to white
               fontWeight: FontWeight.bold, // Make text bolder
               fontSize: 16),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: whiteColor),
         actions: [
           InkWell(
             onTap: () {
@@ -731,7 +734,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                           child: Text(
                                             "Pay ${order.totalCurrencyPrice}",
                                             style:
-                                                TextStyle(color: Colors.white),
+                                                TextStyle(color: whiteColor),
                                           )),
                                     )
                                   : Container(
@@ -749,13 +752,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                             backgroundColor:
                                                 const Color(0xfff3b98a),
                                           ),
-                                          onPressed: () {
-                                            
-                                          },
+                                          onPressed: () {},
                                           child: Text(
                                             "Total Bill: ${order.totalCurrencyPrice}",
                                             style:
-                                                TextStyle(color: Colors.white),
+                                                TextStyle(color: whiteColor),
                                           )),
                                     )
                             ],
@@ -784,7 +785,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 print("Merge Orders");
               }
               final baseUrl =
-                  'https://restaurant.nanosystems.com.pk/api/admin/table-order/merge-order';
+                  '$domain/api/admin/table-order/merge-order';
 
 // Extract order IDs from selectedOrders
               final List<String> orderIds =
@@ -805,7 +806,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 Uri.parse(url),
                 headers: {
                   'Content-Type': 'application/json; charset=UTF-8',
-                  'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+                  'X-Api-Key': xApi,
                   'Authorization': 'Bearer ${widget.user.token}',
                 },
               );
@@ -826,13 +827,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
           },
           child: const Text(
             'Merge Orders',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(color: whiteColor, fontWeight: FontWeight.bold),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
           backgroundColor: Color(0xffa14716),
-          foregroundColor: Colors.white,
+          foregroundColor: whiteColor,
           child: Icon(Icons.add),
           onPressed: () {
             Navigator.push(
@@ -863,11 +864,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
     var data = {"id": orderId, "status": newStatus};
     var response = await http.post(
       Uri.parse(
-          'https://restaurant.nanosystems.com.pk/api/admin/table-order/change-status/${orderId}'),
+          '$domain/api/admin/table-order/change-status/${orderId}'),
       body: jsonEncode(inputData),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
-        'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+        'X-Api-Key': xApi,
         'Authorization': 'Bearer ${widget.user.token}',
       },
     );
@@ -927,11 +928,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
               const SizedBox(height: 20),
               IconButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
+                  Get.offAll(
+                    LoginScreen(),
                   );
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),

@@ -13,6 +13,8 @@ import 'package:nanopos/views/order.dart';
 import 'package:nanopos/views/r.dart';
 import 'package:nanopos/views/ringtones.dart';
 import 'package:vibration/vibration.dart';
+import 'package:nanopos/consts/consts.dart';
+
 
 class MyHomePage extends StatefulWidget {
   final loginUser user;
@@ -62,10 +64,10 @@ class _MyHomePageState extends State<MyHomePage>
     while (true) {
       final response = await http.get(
         Uri.parse(
-            'https://restaurant.nanosystems.com.pk/api/admin/dining-table?order_column=id&order_type=desc'),
+            '$domain/api/admin/dining-table?order_column=id&order_type=desc'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+          'X-Api-Key': xApi,
           'Authorization': 'Bearer ${widget.user.token}',
         },
       );
@@ -101,11 +103,11 @@ class _MyHomePageState extends State<MyHomePage>
           title: const Text(
             "Dashboard",
             style: TextStyle(
-              color: Colors.white,
+              color: whiteColor,
               fontWeight: FontWeight.bold,
             ),
           ),
-          iconTheme: const IconThemeData(color: Colors.white),
+          iconTheme: const IconThemeData(color: whiteColor),
           actions: [
             InkWell(
               onTap: () {
@@ -151,18 +153,17 @@ class _MyHomePageState extends State<MyHomePage>
                   // table.sort(
                   //       (a, b) => b['isActive'].compareTo(a['isActive']),
                   //     );
-
                   if (kDebugMode) {
                     // print(table);
                   } // Log the error for debugging
-                  table['is_calling'] = table['id'] % 2 == 0 ? true : false;
+                  // table['is_calling'] = table['id'] % 2 == 0 ? true : false;
                   return AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
                     child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
                       onTap: () async{
                         if (widget.user.roleId == 7) {
-                          if (table['is_calling']) {
+                          if (table['is_calling']==true) {
                             await changeStatus(table['id'].toString());
                           }
                           Navigator.push(
@@ -264,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage>
                                         padding: const EdgeInsets.all(6.0),
                                         child: Text(
                                           "${table['newOrders']}",
-                                          style: TextStyle(color: Colors.white),
+                                          style: TextStyle(color: whiteColor),
                                         ),
                                       ),
                                     ))
@@ -281,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage>
                                           style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.white),
+                                              color: whiteColor),
                                         )
                                       : table['isActive'] == true
                                           ? Text(
@@ -289,7 +290,7 @@ class _MyHomePageState extends State<MyHomePage>
                                               style: const TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.white),
+                                                  color: whiteColor),
                                             )
                                           : Text(
                                               table['name'].toString(),
@@ -303,14 +304,14 @@ class _MyHomePageState extends State<MyHomePage>
                                           "${table['size']} Persons",
                                           style: const TextStyle(
                                               fontSize: 10,
-                                              color: Colors.white),
+                                              color: whiteColor),
                                         )
                                       : table['isActive'] == true
                                           ? Text(
                                               "${table['size']} Persons",
                                               style: const TextStyle(
                                                   fontSize: 10,
-                                                  color: Colors.white),
+                                                  color: whiteColor),
                                             )
                                           : Text(
                                               "${table['size']} Persons",
@@ -323,7 +324,7 @@ class _MyHomePageState extends State<MyHomePage>
                                   //         "${table['newOrders']} Orders",
                                   //         style: const TextStyle(
                                   //             fontSize: 18,
-                                  //             color: Colors.white),
+                                  //             color: whiteColor),
                                   //       )
                                   //     : Container(),
                                 ],
@@ -348,16 +349,16 @@ class _MyHomePageState extends State<MyHomePage>
       var encodedId = Uri.encodeComponent(id);
       var response = await http.get(
         Uri.parse(
-            'https://restaurant.nanosystems.com.pk/api/table/dining-table/reset-call-waiter?dinning_id=$encodedId'),
+            '$domain/api/table/dining-table/reset-call-waiter?dinning_id=$encodedId'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'X-Api-Key': 'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+          'X-Api-Key': xApi,
           'Authorization': 'Bearer ${widget.user.token}',
         },
       );
 
       if (kDebugMode) {
-        print(response.statusCode);
+        // print(response.statusCode);
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -409,11 +410,8 @@ class _MyHomePageState extends State<MyHomePage>
               const SizedBox(height: 20),
               IconButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
+                  Get.offAll(
+                    LoginScreen(),
                   );
                 },
                 icon: const Icon(Icons.logout, size: 40, color: Colors.red),

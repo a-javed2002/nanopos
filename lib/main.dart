@@ -8,6 +8,7 @@ import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/views/channel.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
+import 'package:nanopos/views/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         // useMaterial3: true,
       // ),
-      home: OnBoardingScreen(),
+      home: Splashscreen(),
       initialBinding: BindingsBuilder(() {
       Get.put(CartController());
       Get.put(ApiController());

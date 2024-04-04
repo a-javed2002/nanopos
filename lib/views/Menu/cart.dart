@@ -8,6 +8,8 @@ import 'package:nanopos/views/Menu/detail.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/StatusScreens/order_placed.dart';
 import 'package:http/http.dart' as http;
+import 'package:nanopos/consts/consts.dart';
+
 
 class CartScreen extends StatefulWidget {
   final loginUser user;
@@ -155,12 +157,11 @@ class _CartScreenState extends State<CartScreen> {
 
                         var response = await http.post(
                           Uri.parse(
-                              'https://restaurant.nanosystems.com.pk/api/table/dining-order'),
+                              '$domain/api/table/dining-order'),
                           body: jsonEncode(data),
                           headers: {
                             'Content-Type': 'application/json; charset=UTF-8',
-                            'X-Api-Key':
-                                'b6d68vy2-m7g5-20r0-5275-h103w73453q120',
+                            'X-Api-Key': xApi,
                             'Authorization': 'Bearer ${widget.user.token}',
                           },
                         );
@@ -203,7 +204,7 @@ class _CartScreenState extends State<CartScreen> {
                   child: const Text(
                     'Place Order',
                     style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                        color: whiteColor, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -214,7 +215,7 @@ class _CartScreenState extends State<CartScreen> {
             backgroundColor: Colors.red,
             child: Icon(
               Icons.delete,
-              color: Colors.white,
+              color: whiteColor,
             ),
             onPressed: () {
               // cartController.clearCart();
@@ -259,7 +260,7 @@ class _CartScreenState extends State<CartScreen> {
                       padding: EdgeInsets.symmetric(horizontal: 20.0),
                       child: Icon(
                         Icons.delete,
-                        color: Colors.white,
+                        color: whiteColor,
                       ),
                     ),
                     onDismissed: (direction) {

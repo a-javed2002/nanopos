@@ -9,6 +9,8 @@ import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/views/Auth/signup.dart';
 import 'package:nanopos/controller/apiController.dart';
+import 'package:nanopos/consts/consts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key});
@@ -29,10 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController emailController =
-        TextEditingController(text: 'Waiter@example.co');
-    TextEditingController passwordController =
-        TextEditingController(text: '123456');
+    TextEditingController emailController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
 
     return SafeArea(
       child: Scaffold(
@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       filled: true,
-                      fillColor: Colors.white.withOpacity(0.5),
+                      fillColor: whiteColor.withOpacity(0.5),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
                         borderSide: BorderSide(
@@ -154,83 +154,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               backgroundColor: const Color(0xffa14716),
                             ),
-                            onPressed: () async {
-                              setState(() {
-                                isLoading =
-                                    true; // Set isLoading to true before signup
-                              });
-                              // Your logic to get the token and make the HTTP request
-                              if (kDebugMode) {
-                                print("Logging in");
-                              }
-                              var data = {
-                                "email": emailController.text,
-                                "password": passwordController.text
-                              };
-                              var response = await http.post(
-                                Uri.parse(
-                                    'https://restaurant.nanosystems.com.pk/api/auth/login'),
-                                body: jsonEncode(data),
-                                headers: {
-                                  'Content-Type':
-                                      'application/json; charset=UTF-8',
-                                  'X-Api-Key':
-                                      'b6d68vy2-m7g5-20r0-5275-h103w73453q120'
-                                },
-                              );
-                              if (kDebugMode) {
-                                print(response.statusCode);
-                              }
-
-                              if (response.statusCode == 200 ||
-                                  response.statusCode == 201) {
-                                setState(() {
-                                  isLoading =
-                                      false; // Set isLoading to true before signup
-                                });
-                                // Extract response body
-                                var responseBody = jsonDecode(response.body);
-                                if (kDebugMode) {
-                                  print("Login response $responseBody");
-                                }
-                                var user = responseBody['user'];
-                                var id = user['id'];
-                                var bid = responseBody['branch_id'];
-                                var username = user['username'];
-                                var email = user['email'];
-                                var image = user['image'];
-                                var token = responseBody['token'];
-                                int role =
-                                    int.parse(user['role_id'].toString());
-
-                                if (role == 7 || role == 6) {
-                                  var obj = new loginUser(
-                                      id: id.toString(),
-                                      bid: bid.toString(),
-                                      email: email,
-                                      image: image,
-                                      name: username,
-                                      roleId: role,
-                                      token: token);
-                                  var xyz = await loadData(token);
-                                  Get.offAll(
-                                    MyHomePage(user: obj),
-                                  );
-                                } else {
-                                  setState(() {
-                                    isLoading =
-                                        false; // Set isLoading to true before signup
-                                  });
-                                  _showDialog();
-                                }
-                              }
+                            onPressed: () {
+                              login(emailController.text,
+                                  passwordController.text);
                             },
                             child: const Text(
                               "Log in",
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,
-                                  color: Colors.white),
+                                  color: whiteColor),
                             ),
                           ),
                         ),
@@ -260,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   //       style: TextStyle(
                   //           fontWeight: FontWeight.w400,
                   //           fontSize: 20,
-                  //           color: Colors.white),
+                  //           color: whiteColor),
                   //     ),
                   //   ),
                   // ),
@@ -273,28 +206,98 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> loadData(userToken) async {
-    String catUrl =
-        'https://restaurant.nanosystems.com.pk/api/admin/setting/item-category?order_type=desc';
-    String itemUrl =
-        'https://restaurant.nanosystems.com.pk/api/admin/item?order_type=desc';
+  void login(String email, String password) async {
+    setState(() {
+      isLoading = true; // Set isLoading to true before signup
+    });
+    // Your logic to get the token and make the HTTP request
+    if (kDebugMode) {
+      print("Logging in");
+    }
+    var data = {"email": email, "password": password};
+    var response = await http.post(
+      Uri.parse('$domain/api/auth/login'),
+      body: jsonEncode(data),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Api-Key': xApi,
+      },
+    );
+    if (kDebugMode) {
+      print(response.statusCode);
+    }
 
-    await _apiController.fetchData(catUrl, userToken, _apiController.cat, x: true);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        isLoading = false; // Set isLoading to true before signup
+      });
+      // Extract response body
+      var responseBody = jsonDecode(response.body);
+      if (kDebugMode) {
+        print("Login response $responseBody");
+      }
+      var user = responseBody['user'];
+      var id = user['id'];
+      var bid = responseBody['branch_id'];
+      var username = user['username'];
+      var email = user['email'];
+      var image = user['image'];
+      var token = responseBody['token'];
+      int role = int.parse(user['role_id'].toString());
+
+      if (role == 7 || role == 6) {
+        var obj = new loginUser(
+            id: id.toString(),
+            bid: bid.toString(),
+            email: email,
+            image: image,
+            name: username,
+            roleId: role,
+            token: token);
+        // Save logged-in status and token to shared preferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('token', token);
+        String userJson = jsonEncode(obj);
+        await prefs.setString('userObj', userJson);
+        var xyz = await loadData(token);
+        Get.offAll(
+          MyHomePage(user: obj),
+        );
+      } else {
+        setState(() {
+          isLoading = false; // Set isLoading to true before signup
+        });
+        var responseBody = jsonDecode(response.body);
+        _showDialog(responseBody);
+      }
+    }
+    setState(() {
+      isLoading = false; // Set isLoading to true before signup
+    });
+  }
+
+  Future<void> loadData(userToken) async {
+    String catUrl = '$domain/api/admin/setting/item-category?order_type=desc';
+    String itemUrl = '$domain/api/admin/item?order_type=desc';
+
+    await _apiController.fetchData(catUrl, userToken, _apiController.cat,
+        x: true);
     await _apiController.fetchData(itemUrl, userToken, _apiController.item);
   }
 
-  void _showDialog() {
+  void _showDialog(String x) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Warning!"),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Invalid credentials or you are blocked",
+                x,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
@@ -326,7 +329,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
 class loginUser {
   final String id;
   final String bid;
@@ -345,4 +347,17 @@ class loginUser {
     required this.roleId,
     required this.token,
   });
+
+  // Factory method to create a loginUser object from a Map
+  factory loginUser.fromJson(Map<String, dynamic> json) {
+    return loginUser(
+      id: json['id'],
+      bid: json['bid'],
+      email: json['email'],
+      image: json['image'],
+      name: json['name'],
+      roleId: json['roleId'],
+      token: json['token'],
+    );
+  }
 }

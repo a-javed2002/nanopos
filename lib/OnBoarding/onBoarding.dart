@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nanopos/OnBoarding/widgets.dart';
 import 'package:nanopos/consts/consts.dart';
 import 'package:nanopos/views/Auth/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnBoardingScreen extends StatefulWidget {
@@ -68,7 +69,10 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               children: [
                 page == 0
                     ? ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setBool('isOnBoard', true);
                           // _setOnboardingStatus(status: true);
                           // if (widget.settings) {
                           //   Navigator.pushReplacement(
@@ -86,25 +90,24 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           //   );
                           // }
                           Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginScreen(),
-                              ),
-                            );
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginScreen(),
+                            ),
+                          );
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: EdgeInsets.all(16.0),
                           child: Text(
                             "Skip",
                             style: TextStyle(
-                                fontWeight:
-                                    FontWeight.bold,color: Colors.white),
+                                fontWeight: FontWeight.bold, color: whiteColor),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xfff3b98a),
                           // primary: Colors.transparent, // Set background color
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
                               topRight: Radius.circular(
                                   20.0), // Add top-left border radius
@@ -125,8 +128,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           child: Text(
                             "Back",
                             style: TextStyle(
-                                fontWeight:
-                                    FontWeight.bold,color: Colors.white),
+                                fontWeight: FontWeight.bold, color: whiteColor),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -143,21 +145,23 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       ),
                 onLastPage
                     ? ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setBool('isOnBoard', true);
                           Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginScreen(),
-                              ),
-                            );
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginScreen(),
+                            ),
+                          );
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
                             "Done",
                             style: TextStyle(
-                                fontWeight:
-                                    FontWeight.bold,color: Colors.white),
+                                fontWeight: FontWeight.bold, color: whiteColor),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -186,8 +190,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           child: Text(
                             "Next",
                             style: TextStyle(
-                                fontWeight:
-                                    FontWeight.bold,color: Colors.white ),
+                                fontWeight: FontWeight.bold, color: whiteColor),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(

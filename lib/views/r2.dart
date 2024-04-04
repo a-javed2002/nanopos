@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nanopos/consts/consts.dart';
 
 class TableStatus extends StatefulWidget {
   @override
@@ -65,9 +66,9 @@ class _TableStatusState extends State<TableStatus>
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: table['is_calling']
-                        ? Colors.white
+                        ? whiteColor
                         : table['isActive']
-                            ? Colors.white
+                            ? whiteColor
                             : Color(0xfff3b98a),
                   ),
                 ),
@@ -77,9 +78,9 @@ class _TableStatusState extends State<TableStatus>
                   style: TextStyle(
                     fontSize: 10,
                     color: table['is_calling']
-                        ? Colors.white
+                        ? whiteColor
                         : table['isActive']
-                            ? Colors.white
+                            ? whiteColor
                             : Color(0xfff3b98a),
                   ),
                 ),

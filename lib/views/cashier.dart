@@ -8,6 +8,7 @@ import 'dart:convert';
 
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/order.dart';
+import 'package:nanopos/consts/consts.dart';
 
 class CashierScreen extends StatefulWidget {
   final loginUser user;
@@ -61,7 +62,7 @@ class _CashierScreenState extends State<CashierScreen> {
                 ),
               ),
             ),
-            // iconTheme: const IconThemeData(color: Colors.white),
+            // iconTheme: const IconThemeData(color: whiteColor),
             actions: [
               InkWell(
                 onTap: () {
@@ -82,7 +83,7 @@ class _CashierScreenState extends State<CashierScreen> {
             child: Column(
               children: [
                 Card.outlined(
-                  surfaceTintColor: Colors.white,
+                  surfaceTintColor: whiteColor,
                   shadowColor: Colors.black,
                   elevation: 4,
                   child: Container(
@@ -136,7 +137,7 @@ class _CashierScreenState extends State<CashierScreen> {
                   ),
                 ),
                 Card.outlined(
-                  surfaceTintColor: Colors.white,
+                  surfaceTintColor: whiteColor,
                   shadowColor: Colors.black,
                   elevation: 4,
                   child: Container(
@@ -172,7 +173,7 @@ class _CashierScreenState extends State<CashierScreen> {
                   ),
                 ),
                 Card.outlined(
-                  surfaceTintColor: Colors.white,
+                  surfaceTintColor: whiteColor,
                   shadowColor: Colors.black,
                   elevation: 4,
                   child: Container(
@@ -198,7 +199,7 @@ class _CashierScreenState extends State<CashierScreen> {
                           height: 5,
                         ),
                         Card.outlined(
-                          surfaceTintColor: Colors.white,
+                          surfaceTintColor: whiteColor,
                           shadowColor: Colors.black,
                           elevation: 4,
                           child: Container(
@@ -258,7 +259,7 @@ class _CashierScreenState extends State<CashierScreen> {
                             );
                           },
                           child: Card.outlined(
-                            surfaceTintColor: Colors.white,
+                            surfaceTintColor: whiteColor,
                             shadowColor: Colors.black,
                             elevation: 4,
                             child: Container(

@@ -6,6 +6,8 @@ import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Menu/menu.dart';
+import 'package:nanopos/consts/consts.dart';
+
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({Key? key});
@@ -103,7 +105,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,
-                                  color: Colors.white),
+                                  color: whiteColor),
                             ),
                           ),
                         ),
@@ -134,7 +136,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,
-                                  color: Colors.white),
+                                  color: whiteColor),
                             ),
                           ),
                         ),

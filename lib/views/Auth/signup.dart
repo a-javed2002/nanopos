@@ -6,6 +6,7 @@ import 'package:nanopos/views/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Menu/menu.dart';
+import 'package:nanopos/consts/consts.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key});
@@ -106,7 +107,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         },
                       ),
                       filled: true,
-                      fillColor: Colors.white.withOpacity(0.5),
+                      fillColor: whiteColor.withOpacity(0.5),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
                         borderSide: BorderSide(
@@ -141,7 +142,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,
-                                  color: Colors.white),
+                                  color: whiteColor),
                             ),
                           ),
                         ),
@@ -172,7 +173,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 20,
-                                  color: Colors.white),
+                                  color: whiteColor),
                             ),
                           ),
                         ),
