@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/consts/consts.dart';
-import 'package:nanopos/views/Auth/login.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,7 +61,9 @@ class ApiController extends GetxController {
         print("Session Expire");
       }
       else {
-        throw Exception('Failed to load active cat');
+        x?
+        throw Exception('Failed to load active cat'):
+        throw Exception('Failed to load active item');
       }
 
       // Delay before fetching cat again

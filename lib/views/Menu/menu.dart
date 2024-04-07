@@ -333,7 +333,7 @@ class _MenuScreenState extends State<MenuScreen> {
                           key: cartKey,
                           icon: InkWell(
                               onTap: () {
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => CartScreen(
@@ -551,14 +551,14 @@ class _MenuScreenState extends State<MenuScreen> {
                     LoginScreen(),
                   );
                 },
-                icon: const Icon(Icons.logout, size: 40, color: Colors.red),
+                icon: const Icon(Icons.logout, size: 40, color: redColor),
               ),
               IconButton(
                 onPressed: () {
                   fetchData();
                   setState(() {});
                 },
-                icon: const Icon(Icons.add, size: 40, color: Colors.pink),
+                icon: const Icon(Icons.restore, size: 40, color: greenColor),
               ),
               // IconButton(
               //   onPressed: () {
@@ -603,7 +603,6 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  
   void sessionExpire(String message) {
     showDialog(
       context: context,

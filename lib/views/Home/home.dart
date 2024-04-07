@@ -4,17 +4,16 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/views/Todo/todos_Screen.dart';
-import 'package:nanopos/views/cashier.dart';
+import 'package:nanopos/views/Cashier/cashier.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 
-import 'package:nanopos/views/order.dart';
+import 'package:nanopos/views/Home/order.dart';
 import 'package:nanopos/views/r.dart';
 import 'package:nanopos/views/ringtones.dart';
 import 'package:vibration/vibration.dart';
 import 'package:nanopos/consts/consts.dart';
-
 
 class MyHomePage extends StatefulWidget {
   final loginUser user;
@@ -30,6 +29,8 @@ class _MyHomePageState extends State<MyHomePage>
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
   late Stream<List<dynamic>> _tablesStream;
+
+  int call = 0;
 
   @override
   void initState() {
@@ -73,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage>
       );
 
       if (kDebugMode) {
-        print(response.statusCode);
+        // print(response.statusCode);
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -81,6 +82,45 @@ class _MyHomePageState extends State<MyHomePage>
         final List<dynamic>? tablesData =
             responseData['data']; // Extracting the list of tables
         if (tablesData != null) {
+
+          // Sort tables based on 'is_calling' and then 'isActive'
+              tablesData.sort((a, b) {
+                // Extract 'is_calling' and 'isActive' properties
+                bool isCallingA = a['is_calling'] ?? false;
+                bool isCallingB = b['is_calling'] ?? false;
+                bool isActiveA = a['isActive'] ?? false;
+                bool isActiveB = b['isActive'] ?? false;
+
+                if (isCallingA != isCallingB) {
+                  // Sort by 'is_calling' first (true before false)
+                  return isCallingA
+                      ? -1
+                      : 1; // true (isCallingA) comes before false (isCallingB)
+                } else {
+                  // 'is_calling' values are the same, sort by 'isActive' within false 'is_calling'
+                  if (!isCallingA) {
+                    return isActiveA
+                        ? -1
+                        : 1; // true (isActiveA) comes before false (isActiveB)
+                  } else {
+                    return 0; // maintain order for true 'is_calling' (shouldn't happen if different)
+                  }
+                }
+              });
+
+          // print("$tablesData");
+          int isCallingCount =
+              tablesData.where((table) => table['is_calling'] == true).length;
+          // print('Total number of is_calling: $isCallingCount');
+          // isCallingCount++;
+          if (isCallingCount > call) {
+            //vibrate
+            Vibration.vibrate(duration: 2000);
+            call = isCallingCount;
+          } else {
+            call = isCallingCount;
+          }
+
           yield tablesData;
         } else {
           throw Exception('Failed to parse table data');
@@ -139,6 +179,25 @@ class _MyHomePageState extends State<MyHomePage>
               // If data is successfully loaded
               final List<dynamic> tables = snapshot.data ??
                   []; // Extract the list of tables from the snapshot
+
+              // Sort tables based on the 'is_calling' property
+              // tables.sort((a, b) {
+              //   // Assuming 'is_calling' is a boolean property
+              //   bool isCallingA = a['is_calling'] ?? false;
+              //   bool isCallingB = b['is_calling'] ?? false;
+
+              //   // Sort true values before false values
+              //   if (isCallingA && !isCallingB) {
+              //     return -1; // a should come before b
+              //   } else if (!isCallingA && isCallingB) {
+              //     return 1; // b should come before a
+              //   } else {
+              //     return 0; // maintain order if both are true or false
+              //   }
+              // });
+
+              
+
               return GridView.builder(
                 // Use GridView to display tables in a grid layout
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -155,15 +214,16 @@ class _MyHomePageState extends State<MyHomePage>
                   //     );
                   if (kDebugMode) {
                     // print(table);
+                    // print("${table['is_calling']}");
                   } // Log the error for debugging
                   // table['is_calling'] = table['id'] % 2 == 0 ? true : false;
                   return AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
                     child: InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      onTap: () async{
+                      onTap: () async {
                         if (widget.user.roleId == 7) {
-                          if (table['is_calling']==true) {
+                          if (table['is_calling'] == true) {
                             await changeStatus(table['id'].toString());
                           }
                           Navigator.push(
@@ -303,8 +363,7 @@ class _MyHomePageState extends State<MyHomePage>
                                       ? Text(
                                           "${table['size']} Persons",
                                           style: const TextStyle(
-                                              fontSize: 10,
-                                              color: whiteColor),
+                                              fontSize: 10, color: whiteColor),
                                         )
                                       : table['isActive'] == true
                                           ? Text(
@@ -414,33 +473,33 @@ class _MyHomePageState extends State<MyHomePage>
                     LoginScreen(),
                   );
                 },
-                icon: const Icon(Icons.logout, size: 40, color: Colors.red),
+                icon: const Icon(Icons.logout, size: 40, color: redColor),
               ),
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const TodosScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.add, size: 40, color: Colors.brown),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CheckboxListScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.calculate_outlined,
-                        size: 40, color: Color(0xFFFF2C2C)),
-                  ),
+                  // IconButton(
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => const TodosScreen(),
+                  //       ),
+                  //     );
+                  //   },
+                  //   icon: const Icon(Icons.add, size: 40, color: Colors.brown),
+                  // ),
+                  // IconButton(
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => CheckboxListScreen(),
+                  //       ),
+                  //     );
+                  //   },
+                  //   icon: const Icon(Icons.calculate_outlined,
+                  //       size: 40, color: Color(0xFFFF2C2C)),
+                  // ),
                   // IconButton(
                   //   onPressed: () {
                   //     HapticFeedback.vibrate();
@@ -448,13 +507,13 @@ class _MyHomePageState extends State<MyHomePage>
                   //   icon: const Icon(Icons.calculate_outlined,
                   //       size: 40, color: Colors.yellow),
                   // ),
-                  IconButton(
-                    onPressed: () {
-                      Vibration.vibrate(duration: 2000);
-                    },
-                    icon:
-                        const Icon(Icons.soap, size: 40, color: Colors.yellow),
-                  ),
+                  // IconButton(
+                  //   onPressed: () {
+                  //     Vibration.vibrate(duration: 2000);
+                  //   },
+                  //   icon:
+                  //       const Icon(Icons.soap, size: 40, color: Colors.yellow),
+                  // ),
                   // IconButton(
                   //   onPressed: () {
                   //     Navigator.push(

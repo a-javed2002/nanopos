@@ -20,6 +20,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
   final CartController cartController = Get.find();
   List<Map<String, dynamic>> selectedExtras = [];
   List<Map<String, dynamic>> selectedAddons = [];
+  int qty = 1;
   var _special = TextEditingController();
   @override
   void initState() {
@@ -89,6 +90,47 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                         style: TextStyle(fontSize: 10),
                       ),
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                              "Price: ${double.parse(widget.item['price']).toStringAsFixed(2)}"),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.remove),
+                              onPressed: () {
+                                // cartController.decreaseQty(cartObject);
+                                if (qty > 1) {
+                                  setState(() {
+                                    qty--;
+                                  });
+                                }
+                                print("quantity decreasing by 1");
+                              },
+                            ),
+                            Text(
+                              "$qty",
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () {
+                                // cartController.increaseQty(cartObject);
+                                setState(() {
+                                  qty++;
+                                });
+                                print("quantity increasing by 1");
+                              },
+                            ),
+                          ],
+                        )
+                      ],
+                    )
                   ],
                 ),
                 const Divider(),
@@ -215,7 +257,6 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                               children:
                                   widget.item['addons'].map<Widget>((addon) {
                                 bool isChecked = selectedAddons.contains(addon);
-                                
 
                                 return CheckboxListTile(
                                   activeColor: Color(0xffa14716),
@@ -381,7 +422,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                             image: widget.item['cover'],
                             price: double.parse(widget.item['price'])
                                 .toStringAsFixed(2),
-                            qty: 1,
+                            qty: qty,
                             itemVariations: selectedVariationsList,
                             itemExtras: selectedExtras,
                             addons: selectedAddons,

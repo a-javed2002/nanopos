@@ -8,12 +8,15 @@ import 'package:nanopos/views/StatusScreens/payment_done.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:nanopos/views/Home/order.dart';
+
 class CashPayment extends StatefulWidget {
   final loginUser user;
   final String table;
   final String id;
   final double total;
   final String orderId;
+  final Order order;
 
   CashPayment({
     Key? key,
@@ -22,6 +25,7 @@ class CashPayment extends StatefulWidget {
     required this.table,
     required this.total,
     required this.orderId,
+    required this.order,
   }) : super(key: key);
 
   @override
@@ -152,6 +156,7 @@ class _CashPaymentState extends State<CashPayment> {
       MaterialPageRoute(
         builder: (context) => PaymentPaidScreen(
           user: widget.user,
+          order: widget.order,
         ),
       ),
     );

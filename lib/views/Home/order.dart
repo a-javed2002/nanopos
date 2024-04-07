@@ -4,14 +4,14 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/controller/apiController.dart';
 import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/views/Home/editOrder.dart';
 import 'package:nanopos/views/StatusScreens/sent_to_kitchen.dart';
 import 'dart:convert';
 
 import 'package:nanopos/views/Auth/login.dart';
-import 'package:nanopos/views/cashier.dart';
+import 'package:nanopos/views/Cashier/cashier.dart';
 import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/consts/consts.dart';
-
 
 class Order {
   final String id;
@@ -70,11 +70,11 @@ class OrderItems {
   final String price;
   final String instruction;
   final String totalConvertPrice;
-  final double tax_rate;
+  final String tax_rate;
   final String item_variation_currency_total;
   final String item_extra_currency_total;
-  final List<Map<String, dynamic>> item_variations;
-  final List<Map<String, dynamic>> item_extras;
+  final List<dynamic> item_variations;
+  final List<dynamic> item_extras;
 
   OrderItems({
     required this.id,
@@ -93,14 +93,14 @@ class OrderItems {
 
   factory OrderItems.fromJson(Map<String, dynamic> json) {
     return OrderItems(
-      id: json['id'].toString(),
+      id: json['item_id'].toString(),
       itemName: json['item_name'].toString(),
       itemImage: json['item_image'].toString(),
       quantity: json['quantity'],
       price: json['price'].toString(),
       instruction: json['instruction'].toString(),
       totalConvertPrice: json['total_convert_price'].toString(),
-      tax_rate: json['tax_rate'],
+      tax_rate: json['tax_rate'].toString(),
       item_variation_currency_total:
           json['item_variation_currency_total'].toString(),
       item_extra_currency_total: json['item_extra_currency_total'].toString(),
@@ -160,7 +160,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         },
       );
       if (kDebugMode) {
-        print(response.statusCode);
+        print("orders --> ${response.statusCode}");
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -179,7 +179,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               },
             );
             if (kDebugMode) {
-              print(response2.statusCode);
+              print("order items --> ${response2.statusCode}");
             }
 
             if (response2.statusCode == 200 || response2.statusCode == 201) {
@@ -366,116 +366,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                             ),
                                             Row(
                                               children: [
-                                                (isLoading &&
-                                                        activeId == order.id)
-                                                    ? const CircularProgressIndicator()
-                                                    : order.status == 1
-                                                        ? Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              ElevatedButton(
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        vertical:
-                                                                            14.0,
-                                                                        horizontal:
-                                                                            20),
-                                                                    shape:
-                                                                        RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              12), // Adjust the radius as needed
-                                                                    ),
-                                                                    backgroundColor:
-                                                                        const Color(
-                                                                            0xffa14716),
-                                                                  ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    updateStatus(
-                                                                        orderId:
-                                                                            order.id,
-                                                                        CurrentStatus: order.status,
-                                                                        newStatus: 4,
-                                                                        inputData: {
-                                                                          "id":
-                                                                              order.id,
-                                                                          "status":
-                                                                              4
-                                                                        });
-                                                                  },
-                                                                  child:
-                                                                      const Text(
-                                                                    "Approved",
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white),
-                                                                  )),
-                                                              const SizedBox(
-                                                                width: 4,
-                                                              ),
-                                                              ElevatedButton(
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        vertical:
-                                                                            14.0,
-                                                                        horizontal:
-                                                                            20),
-                                                                    shape:
-                                                                        RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              12), // Adjust the radius as needed
-                                                                    ),
-                                                                    backgroundColor:
-                                                                        const Color
-                                                                            .fromARGB(
-                                                                            255,
-                                                                            119,
-                                                                            40,
-                                                                            51),
-                                                                  ),
-                                                                  onPressed:
-                                                                      () {
-                                                                    updateStatus(
-                                                                        orderId:
-                                                                            order.id,
-                                                                        CurrentStatus: order.status,
-                                                                        newStatus: 19,
-                                                                        inputData: {
-                                                                          "id":
-                                                                              order.id,
-                                                                          "reason":
-                                                                              "Nhi Dayna",
-                                                                          "status":
-                                                                              19
-                                                                        });
-                                                                  },
-                                                                  child:
-                                                                      const Text(
-                                                                    "Reject",
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white),
-                                                                  )),
-                                                            ],
-                                                          )
-                                                        : Text(
-                                                            "Status: ${order.statusName}",
-                                                            style: const TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          )
+                                                Text(
+                                                  "Status: ${order.statusName}",
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
                                               ],
                                             ),
                                           ],
@@ -570,68 +466,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                             12), // Adjust the radius as needed
                                                                   ),
                                                                   backgroundColor:
-                                                                      const Color
-                                                                          .fromARGB(
-                                                                          255,
-                                                                          119,
-                                                                          40,
-                                                                          51),
+                                                                      Colors
+                                                                          .amber,
                                                                 ),
                                                                 onPressed: () {
-                                                                  showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (BuildContext
-                                                                            context) {
-                                                                      return AlertDialog(
-                                                                        title: Text(
-                                                                            'Select an option'),
-                                                                        content:
-                                                                            DropdownButton<String>(
-                                                                          value:
-                                                                              _selectedOption,
-                                                                          onChanged:
-                                                                              (String? newValue) {
-                                                                            setState(() {
-                                                                              _selectedOption = newValue!;
-                                                                            });
-                                                                          },
-                                                                          items:
-                                                                              <String>[
-                                                                            'No One On Table',
-                                                                            'Customer Denied',
-                                                                            'Other'
-                                                                          ].map<DropdownMenuItem<String>>((String value) {
-                                                                            return DropdownMenuItem<String>(
-                                                                              value: value,
-                                                                              child: Text(value),
-                                                                            );
-                                                                          }).toList(),
-                                                                        ),
-                                                                        actions: <Widget>[
-                                                                          ElevatedButton(
-                                                                            onPressed:
-                                                                                () {
-                                                                              print('Selected option: $_selectedOption');
-                                                                              updateStatus(orderId: order.id, CurrentStatus: order.status, newStatus: 19, inputData: {
-                                                                                "id": order.id,
-                                                                                "reason": _selectedOption,
-                                                                                "status": 19
-                                                                              });
-                                                                              Navigator.of(context).pop();
-                                                                            },
-                                                                            child:
-                                                                                Text('Reject'),
-                                                                          ),
-                                                                        ],
-                                                                      );
-                                                                    },
-                                                                  );
+                                                                  MoreBox(
+                                                                      order:
+                                                                          order,
+                                                                          id: widget.id,table: widget.table,user: widget.user);
                                                                 },
                                                                 child:
                                                                     const Text(
-                                                                  "Reject",
+                                                                  "More",
                                                                   style: TextStyle(
                                                                       color: Colors
                                                                           .white),
@@ -733,8 +579,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                           },
                                           child: Text(
                                             "Pay ${order.totalCurrencyPrice}",
-                                            style:
-                                                TextStyle(color: whiteColor),
+                                            style: TextStyle(color: whiteColor),
                                           )),
                                     )
                                   : Container(
@@ -755,8 +600,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                           onPressed: () {},
                                           child: Text(
                                             "Total Bill: ${order.totalCurrencyPrice}",
-                                            style:
-                                                TextStyle(color: whiteColor),
+                                            style: TextStyle(color: whiteColor),
                                           )),
                                     )
                             ],
@@ -784,8 +628,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               if (kDebugMode) {
                 print("Merge Orders");
               }
-              final baseUrl =
-                  '$domain/api/admin/table-order/merge-order';
+              final baseUrl = '$domain/api/admin/table-order/merge-order';
 
 // Extract order IDs from selectedOrders
               final List<String> orderIds =
@@ -863,8 +706,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
     var data = {"id": orderId, "status": newStatus};
     var response = await http.post(
-      Uri.parse(
-          '$domain/api/admin/table-order/change-status/${orderId}'),
+      Uri.parse('$domain/api/admin/table-order/change-status/${orderId}'),
       body: jsonEncode(inputData),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -897,6 +739,105 @@ class _OrdersScreenState extends State<OrdersScreen> {
       activeId = "";
       isLoading = false;
     });
+  }
+
+  void MoreBox(
+      {required Order order,
+      required String id,
+      required String table,
+      required loginUser user}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select an option'),
+          content: Column(
+            children: [
+              DropdownButton<String>(
+                value: _selectedOption,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedOption = newValue!;
+                  });
+                },
+                items: <String>['No One On Table', 'Customer Denied', 'Other']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 14.0, horizontal: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        12), // Adjust the radius as needed
+                  ),
+                  foregroundColor: redColor,
+                ),
+                onPressed: () {
+                  print('Selected option: $_selectedOption');
+                  updateStatus(
+                      orderId: order.id,
+                      CurrentStatus: order.status,
+                      newStatus: 19,
+                      inputData: {
+                        "id": order.id,
+                        "reason": _selectedOption,
+                        "status": 19
+                      });
+                  Navigator.of(context).pop();
+                },
+                child: Text('Reject'),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 14.0, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          12), // Adjust the radius as needed
+                    ),
+                    foregroundColor: const Color(0xffa14716),
+                  ),
+                  onPressed: () {
+                    Get.to(EditOrderScreen(
+                      id: id,
+                      table: table,
+                      user: user,
+                      order: order,
+                    ));
+                  },
+                  child: Text("Edit"))
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(12), // Adjust the radius as needed
+                ),
+                foregroundColor: const Color(0xffa14716),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Perform logout action here
+              },
+              child: const Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showLogoutDialog() {

@@ -65,8 +65,8 @@ flutter {
 }
 
 dependencies {
-    implementation files('libs\\core_3.3.0.jar')
-    implementation files('libs\\Native_Libs2.jar')
-    implementation files('libs\\sugar.jar')
-    implementation files('libs\\T1_V2_20221125.jar')
+//    implementation files('libs\\core_3.3.0.jar')
+//    implementation files('libs\\Native_Libs2.jar')
+//    implementation files('libs\\sugar.jar')
+//    implementation files('libs\\T1_V2_20221125.jar')
 }

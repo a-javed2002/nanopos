@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/views/Auth/forgetPassword.dart';
 import 'dart:convert';
-import 'package:nanopos/views/home.dart';
+import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/views/Auth/signup.dart';
@@ -31,8 +31,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
+    TextEditingController emailController =
+        TextEditingController(text: 'w@w.com');
+    TextEditingController passwordController =
+        TextEditingController(text: '123456');
 
     return SafeArea(
       child: Scaffold(
@@ -114,12 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Row(
                     children: [
-                      Checkbox(
-                        value: false, // Add logic for handling remember me
-                        onChanged: (value) {
-                          // Add logic for handling remember me
-                        },
-                      ),
+                      // Checkbox(
+                      //   value: false, // Add logic for handling remember me
+                      //   onChanged: (value) {
+                      //     // Add logic for handling remember me
+                      //   },
+                      // ),
                       // const Text('Remember me'),
                       const Spacer(),
                       // TextButton(
@@ -155,8 +157,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: const Color(0xffa14716),
                             ),
                             onPressed: () {
-                              login(emailController.text,
-                                  passwordController.text);
+                              if (emailController.text == '' &&
+                                  passwordController.text == '') {
+                                _showDialog("Warning",
+                                    "Email & Password is Required", "");
+                              } else if (emailController.text == '') {
+                                _showDialog("Warning", "Email is Required", "");
+                              } else if (passwordController.text == '') {
+                                _showDialog(
+                                    "Warning", "Password is Required", "");
+                              } else {
+                                login(emailController.text,
+                                    passwordController.text);
+                              }
                             },
                             child: const Text(
                               "Log in",
@@ -242,6 +255,9 @@ class _LoginScreenState extends State<LoginScreen> {
       var username = user['username'];
       var email = user['email'];
       var image = user['image'];
+      var firstName = user['first_name'];
+      var lastName = user['last_name'];
+      var phone = user['phone'];
       var token = responseBody['token'];
       int role = int.parse(user['role_id'].toString());
 
@@ -251,15 +267,26 @@ class _LoginScreenState extends State<LoginScreen> {
             bid: bid.toString(),
             email: email,
             image: image,
-            name: username,
+            name: firstName,
+            username: username,
+            lastName: lastName,
+            phone: phone,
             roleId: role,
             token: token);
         // Save logged-in status and token to shared preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('id', id.toString());
+        await prefs.setString('bid', bid.toString());
+        await prefs.setString('email', email);
+        await prefs.setString('image', image);
+        await prefs.setString('username', username);
+        await prefs.setString('firstName', username);
+        await prefs.setString('lastName', username);
+        await prefs.setString('phone', username);
+        await prefs.setString('roleId', role.toString());
         await prefs.setString('token', token);
-        String userJson = jsonEncode(obj);
-        await prefs.setString('userObj', userJson);
+
         var xyz = await loadData(token);
         Get.offAll(
           MyHomePage(user: obj),
@@ -269,12 +296,33 @@ class _LoginScreenState extends State<LoginScreen> {
           isLoading = false; // Set isLoading to true before signup
         });
         var responseBody = jsonDecode(response.body);
-        _showDialog(responseBody);
+        print(responseBody);
+        _showDialog("Fail", "Technical Issue", "kindly contact Adminitration");
+      }
+      // _showDialog(
+      //     "Fail", responseBody.toString(), "kindly contact Adminitration");
+    } else {
+      setState(() {
+        isLoading = false; // Set isLoading to true before signup
+      });
+      var responseBody = jsonDecode(response.body);
+      if (kDebugMode) {
+        print("Failed Login response $responseBody");
+      }
+      if (responseBody.containsKey('errors')) {
+        var errorMap = responseBody['errors'];
+        if (errorMap.containsKey('validation')) {
+          var errorMessage = errorMap['validation'];
+          if (kDebugMode) {
+            print('Error Message: $errorMessage');
+          }
+          _showDialog("Fail", "$errorMessage", "kindly contact Adminitration");
+        }
+      } else {
+        _showDialog(
+            "Fail", "Invalid Credentials", "kindly contact Adminitration");
       }
     }
-    setState(() {
-      isLoading = false; // Set isLoading to true before signup
-    });
   }
 
   Future<void> loadData(userToken) async {
@@ -286,25 +334,28 @@ class _LoginScreenState extends State<LoginScreen> {
     await _apiController.fetchData(itemUrl, userToken, _apiController.item);
   }
 
-  void _showDialog(String x) {
+  void _showDialog(String title, String x, String sub) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Warning!"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                x,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "kindly contact Adminitration",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
+          title: Text(title),
+          content: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  x,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  sub,
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
           actions: [
             ElevatedButton(
@@ -321,7 +372,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Navigator.of(context).pop();
                 // Perform logout action here
               },
-              child: const Text("Cancel"),
+              child: const Text("Ok"),
             ),
           ],
         );
@@ -329,12 +380,16 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 class loginUser {
   final String id;
   final String bid;
   final String email;
   final String image;
   final String name;
+  final String username;
+  final String lastName;
+  final String phone;
   final int roleId;
   final String token;
 
@@ -344,6 +399,9 @@ class loginUser {
     required this.email,
     required this.image,
     required this.name,
+    required this.username,
+    required this.lastName,
+    required this.phone,
     required this.roleId,
     required this.token,
   });
@@ -355,9 +413,12 @@ class loginUser {
       bid: json['bid'],
       email: json['email'],
       image: json['image'],
-      name: json['name'],
+      name: json['first_name'],
       roleId: json['roleId'],
       token: json['token'],
+      lastName: json['last_name'],
+      phone: json['phone'],
+      username: json['username']
     );
   }
 }

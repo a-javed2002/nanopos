@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,10 +11,10 @@ class CartObject {
   final String desc;
   final String image;
   final String price;
-  final RxInt qty;
-  List<Map<String,dynamic>>? itemVariations;
-  List<Map<String,dynamic>>? itemExtras;
-  List<Map<String,dynamic>>? addons;
+  RxInt qty;
+  List<Map<String, dynamic>>? itemVariations;
+  List<Map<String, dynamic>>? itemExtras;
+  List<Map<String, dynamic>>? addons;
   final String instruction;
 
   CartObject({
@@ -91,12 +92,30 @@ class CartController extends GetxController {
 
     if (cartItems != null) {
       bool foundCart = false;
+      bool foundItem = false;
       for (var cart in cartItems) {
         if (cart['table_id'] == currentTableId) {
           // Add the new item to an existing cart
-          cart['items'].add(newItem.toJson());
-          foundCart = true;
-          break;
+          List<Map<String, dynamic>> items = cart['items'];
+          for (var item in items) {
+            if (item['itemId'] == newItem.itemId &&
+                item['instruction'] == newItem.instruction &&
+                listEquals(item['itemVariations'], newItem.itemVariations) &&
+                listEquals(item['itemExtras'], newItem.itemExtras) &&
+                listEquals(item['addons'], newItem.addons)) {
+              // Item already exists, increase its count
+              item['qty'] += newItem.qty.value;
+              foundItem = true;
+              break;
+            }
+          }
+          if (foundItem) {
+            break;
+          } else {
+            cart['items'].add(newItem.toJson());
+            foundCart = true;
+            break;
+          }
         }
       }
 
@@ -135,7 +154,7 @@ class CartController extends GetxController {
     if (item.qty.value > 0) {
       item.qty.value--;
       if (item.qty.value == 0) {
-        removeItemById(item.itemId);
+        removeItemById(item);
       } else {
         updateCartData(item);
       }
@@ -150,7 +169,12 @@ class CartController extends GetxController {
       value?.forEach((cart) {
         List<Map<String, dynamic>> items = cart['items'];
         for (var innerItem in items) {
-          if (innerItem['itemId'] == item.itemId) {
+          // if (innerItem['itemId'] == item.itemId && innerItem['instruction'] == item.instruction && innerItem['itemVariations'] == item.itemVariations && innerItem['itemExtras'] == item.itemExtras && innerItem['addons'] == item.addons) {
+          if (innerItem['itemId'] == item.itemId &&
+              innerItem['instruction'] == item.instruction &&
+              listEquals(innerItem['itemVariations'], item.itemVariations) &&
+              listEquals(innerItem['itemExtras'], item.itemExtras) &&
+              listEquals(innerItem['addons'], item.addons)) {
             innerItem['qty'] = item.qty.value;
           }
           updatedItems.add(innerItem);
@@ -194,7 +218,7 @@ class CartController extends GetxController {
   //   }
   // }
 
-  void removeItemById(String itemId) async {
+  void removeItemById(CartObject itemCart) async {
     int currentTableId = tableId.value;
     List<Map<String, dynamic>>? cartItems = cartMap[currentTableId];
 
@@ -209,7 +233,13 @@ class CartController extends GetxController {
           return;
         } else {
           // If multiple items are present, remove the item with the specified itemId
-          items.removeWhere((item) => item['itemId'] == itemId);
+          // items.removeWhere((item) => item['itemId'] == itemCart.itemId && item['instruction'] == itemCart.instruction && item['itemVariations'] == itemCart.itemVariations && item['itemExtras'] == itemCart.itemExtras && item['addons'] == itemCart.addons);
+          items.removeWhere((item) =>
+              item['itemId'] == itemCart.itemId &&
+              item['instruction'] == itemCart.instruction &&
+              listEquals(item['itemVariations'], itemCart.itemVariations) &&
+              listEquals(item['itemExtras'], itemCart.itemExtras) &&
+              listEquals(item['addons'], itemCart.addons));
         }
       }
 

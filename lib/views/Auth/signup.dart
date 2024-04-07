@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:nanopos/views/home.dart';
+import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Menu/menu.dart';
