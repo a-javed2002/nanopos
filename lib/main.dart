@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/OnBoarding/onBoarding.dart';
+import 'package:nanopos/controller/adminController.dart';
 import 'package:nanopos/controller/apiController.dart';
 import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/controller/printController.dart';
 import 'package:nanopos/dependency_injection.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Menu/menu.dart';
@@ -47,6 +49,8 @@ class MyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(() {
       Get.put(CartController());
       Get.put(ApiController());
+      Get.put(AdminController());
+      Get.put(PrintController());
     }),
     );
   }

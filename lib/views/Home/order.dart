@@ -51,7 +51,7 @@ class Order {
       status: json['status'],
       totalCurrencyPrice: json['total_currency_price'].toString(),
       orderItems: json[
-          'orderItems'], // Assign the parsed list or null, // Assign the parsed list or null
+          'orderItems'],
       subtotal_currency_price: json['subtotal_currency_price'].toString(),
       subtotal_without_tax_currency_price:
           json['subtotal_without_tax_currency_price'].toString(),
@@ -59,6 +59,25 @@ class Order {
       total_currency_price: json['total_currency_price'].toString(),
       total_tax_currency_price: json['total_tax_currency_price'].toString(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> itemsJson = orderItems.map((item) => item.toJson()).toList();
+
+    return {
+      'id': id,
+      'order_serial_no': orderSerialNo,
+      'status_name': statusName,
+      'order_datetime': orderDatetime,
+      'status': status,
+      'total_currency_price': totalCurrencyPrice,
+      'orderItems': itemsJson,
+      'subtotal_currency_price': subtotal_currency_price,
+      'subtotal_without_tax_currency_price': subtotal_without_tax_currency_price,
+      'discount_currency_price': discount_currency_price,
+      'total_currency_price': total_currency_price,
+      'total_tax_currency_price': total_tax_currency_price,
+    };
   }
 }
 
@@ -107,6 +126,23 @@ class OrderItems {
       item_variations: json['item_variations'],
       item_extras: json['item_extras'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'item_id': id,
+      'item_name': itemName,
+      'item_image': itemImage,
+      'quantity': quantity,
+      'price': price,
+      'instruction': instruction,
+      'total_convert_price': totalConvertPrice,
+      'tax_rate': tax_rate,
+      'item_variation_currency_total': item_variation_currency_total,
+      'item_extra_currency_total': item_extra_currency_total,
+      'item_variations': item_variations,
+      'item_extras': item_extras,
+    };
   }
 }
 

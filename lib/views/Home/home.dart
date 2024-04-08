@@ -1,8 +1,13 @@
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:nanopos/controller/adminController.dart';
+import 'package:nanopos/controller/printController.dart';
+import 'package:nanopos/views/Admin/Orders.dart';
+import 'package:nanopos/views/Print/testprint.dart';
 import 'package:nanopos/views/Todo/todos_Screen.dart';
 import 'package:nanopos/views/Cashier/cashier.dart';
 import 'package:nanopos/views/Auth/login.dart';
@@ -29,8 +34,10 @@ class _MyHomePageState extends State<MyHomePage>
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
   late Stream<List<dynamic>> _tablesStream;
-
+  final AdminController adminController = Get.find();
   int call = 0;
+
+  final PrintController printController = Get.find();
 
   @override
   void initState() {
@@ -49,6 +56,8 @@ class _MyHomePageState extends State<MyHomePage>
           });
 
     _controller!.repeat(reverse: true);
+
+    printController.initPlatformState();
   }
 
   @override
@@ -82,31 +91,30 @@ class _MyHomePageState extends State<MyHomePage>
         final List<dynamic>? tablesData =
             responseData['data']; // Extracting the list of tables
         if (tablesData != null) {
-
           // Sort tables based on 'is_calling' and then 'isActive'
-              tablesData.sort((a, b) {
-                // Extract 'is_calling' and 'isActive' properties
-                bool isCallingA = a['is_calling'] ?? false;
-                bool isCallingB = b['is_calling'] ?? false;
-                bool isActiveA = a['isActive'] ?? false;
-                bool isActiveB = b['isActive'] ?? false;
+          tablesData.sort((a, b) {
+            // Extract 'is_calling' and 'isActive' properties
+            bool isCallingA = a['is_calling'] ?? false;
+            bool isCallingB = b['is_calling'] ?? false;
+            bool isActiveA = a['isActive'] ?? false;
+            bool isActiveB = b['isActive'] ?? false;
 
-                if (isCallingA != isCallingB) {
-                  // Sort by 'is_calling' first (true before false)
-                  return isCallingA
-                      ? -1
-                      : 1; // true (isCallingA) comes before false (isCallingB)
-                } else {
-                  // 'is_calling' values are the same, sort by 'isActive' within false 'is_calling'
-                  if (!isCallingA) {
-                    return isActiveA
-                        ? -1
-                        : 1; // true (isActiveA) comes before false (isActiveB)
-                  } else {
-                    return 0; // maintain order for true 'is_calling' (shouldn't happen if different)
-                  }
-                }
-              });
+            if (isCallingA != isCallingB) {
+              // Sort by 'is_calling' first (true before false)
+              return isCallingA
+                  ? -1
+                  : 1; // true (isCallingA) comes before false (isCallingB)
+            } else {
+              // 'is_calling' values are the same, sort by 'isActive' within false 'is_calling'
+              if (!isCallingA) {
+                return isActiveA
+                    ? -1
+                    : 1; // true (isActiveA) comes before false (isActiveB)
+              } else {
+                return 0; // maintain order for true 'is_calling' (shouldn't happen if different)
+              }
+            }
+          });
 
           // print("$tablesData");
           int isCallingCount =
@@ -195,8 +203,6 @@ class _MyHomePageState extends State<MyHomePage>
               //     return 0; // maintain order if both are true or false
               //   }
               // });
-
-              
 
               return GridView.builder(
                 // Use GridView to display tables in a grid layout
@@ -398,6 +404,77 @@ class _MyHomePageState extends State<MyHomePage>
               );
             }
           },
+        ),
+        drawer: Drawer(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: mainLightColor,
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: whiteColor,
+                          child: Icon(
+                            Icons.filter_list,
+                            size: 50,
+                            color: mainLightColor,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Admin',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                ListTile(
+                  onTap: () async {
+                    print("Print Last Bill ${printController.connected.value}");
+                    Order? order = await adminController.getLocal();
+                    if (order != null) {
+                      printController.printDialog(
+                          order: order, context: context, user: widget.user);
+                    } else {
+                      print("No Last Order");
+                      printController.showToast(
+                          context: context, message: "No Order Yet");
+                    }
+                  },
+                  title: Text("Print Last Bill"),
+                  leading: Icon(
+                    Icons.print,
+                    color: mainColor,
+                  ),
+                ),
+                const Divider(),
+                ListTile(
+                  onTap: () {
+                    print("All Orders");
+                    Get.to(AllOrdersScreen(
+                      user: widget.user,
+                    ));
+                  },
+                  title: Text("See Paid Orders"),
+                  leading: Icon(
+                    Icons.document_scanner,
+                    color: mainColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

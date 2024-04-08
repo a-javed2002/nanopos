@@ -57,7 +57,7 @@ class ApiController extends GetxController {
           throw Exception('Failed to parse table data');
         }
       }
-      if (response.statusCode == 401) {
+      else if (response.statusCode == 401) {
         print("Session Expire");
       }
       else {

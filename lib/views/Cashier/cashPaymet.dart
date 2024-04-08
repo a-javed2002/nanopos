@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/consts/consts.dart';
+import 'package:nanopos/controller/adminController.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/StatusScreens/order_placed.dart';
 import 'package:nanopos/views/StatusScreens/payment_done.dart';
@@ -35,6 +36,7 @@ class CashPayment extends StatefulWidget {
 class _CashPaymentState extends State<CashPayment> {
   final _paidController = TextEditingController();
   TextEditingController totalAmountController = TextEditingController();
+  final AdminController adminController = Get.find();
 
   double _paidAmount = 0;
   double _amountToReturn = 0;
@@ -79,6 +81,7 @@ class _CashPaymentState extends State<CashPayment> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("paid");
+        adminController.setLocal(widget.order);
         // Extract response body
         var responseBody = jsonDecode(response.body);
         if (kDebugMode) {
