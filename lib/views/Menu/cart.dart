@@ -156,6 +156,7 @@ class _CartScreenState extends State<CartScreen> {
                           var data = {
                             "dining_table_id": widget.id,
                             "customer_id": widget.user.id,
+                            "status": 4,
                             "branch_id": widget.user.bid,
                             "subtotal": total,
                             "discount": 0,

@@ -80,7 +80,7 @@ class PrintController extends GetxController {
     }
   }
 
-  void printDialog({required Order order,required BuildContext context,required loginUser user}) {
+  void printDialog({required Order order,required BuildContext context,required loginUser user,String billStatus = "Un Paid"}) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -149,7 +149,7 @@ class PrintController extends GetxController {
                         ElevatedButton.styleFrom(backgroundColor: Colors.brown),
                     onPressed: () {
                           testPrint.printBill(
-                              order: order, status: "Paid", user: user);
+                              order: order, status: billStatus, user: user);
                     },
                     child: const Text('Print Slip',
                         style: TextStyle(color: Colors.white)),

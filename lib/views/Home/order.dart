@@ -50,8 +50,7 @@ class Order {
       orderDatetime: json['order_datetime'].toString(),
       status: json['status'],
       totalCurrencyPrice: json['total_currency_price'].toString(),
-      orderItems: json[
-          'orderItems'],
+      orderItems: json['orderItems'],
       subtotal_currency_price: json['subtotal_currency_price'].toString(),
       subtotal_without_tax_currency_price:
           json['subtotal_without_tax_currency_price'].toString(),
@@ -62,7 +61,8 @@ class Order {
   }
 
   Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>> itemsJson = orderItems.map((item) => item.toJson()).toList();
+    List<Map<String, dynamic>> itemsJson =
+        orderItems.map((item) => item.toJson()).toList();
 
     return {
       'id': id,
@@ -73,7 +73,8 @@ class Order {
       'total_currency_price': totalCurrencyPrice,
       'orderItems': itemsJson,
       'subtotal_currency_price': subtotal_currency_price,
-      'subtotal_without_tax_currency_price': subtotal_without_tax_currency_price,
+      'subtotal_without_tax_currency_price':
+          subtotal_without_tax_currency_price,
       'discount_currency_price': discount_currency_price,
       'total_currency_price': total_currency_price,
       'total_tax_currency_price': total_tax_currency_price,
@@ -82,6 +83,7 @@ class Order {
 }
 
 class OrderItems {
+  final String oId;
   final String id;
   final String itemName;
   final String itemImage;
@@ -96,6 +98,7 @@ class OrderItems {
   final List<dynamic> item_extras;
 
   OrderItems({
+    required this.oId,
     required this.id,
     required this.itemName,
     required this.itemImage,
@@ -112,6 +115,7 @@ class OrderItems {
 
   factory OrderItems.fromJson(Map<String, dynamic> json) {
     return OrderItems(
+      oId: json['id'].toString(),
       id: json['item_id'].toString(),
       itemName: json['item_name'].toString(),
       itemImage: json['item_image'].toString(),
@@ -130,6 +134,7 @@ class OrderItems {
 
   Map<String, dynamic> toJson() {
     return {
+      'oId': oId,
       'item_id': id,
       'item_name': itemName,
       'item_image': itemImage,
@@ -509,7 +514,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                                   MoreBox(
                                                                       order:
                                                                           order,
-                                                                          id: widget.id,table: widget.table,user: widget.user);
+                                                                      id: widget
+                                                                          .id,
+                                                                      table: widget
+                                                                          .table,
+                                                                      user: widget
+                                                                          .user);
                                                                 },
                                                                 child:
                                                                     const Text(
@@ -674,12 +684,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
               final List<String> itemIds = [];
               selectedOrders.forEach((order) {
                 order.orderItems.forEach((item) {
-                  itemIds.add(item.id);
+                  itemIds.add(item.oId);
                 });
               });
 
               final url =
                   '$baseUrl?order_ids=${orderIds.join(",")}&item_ids=${itemIds.join(",")}';
+
+              print("url is: ${url}");
 
               final response = await http.get(
                 Uri.parse(url),
@@ -700,7 +712,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 final List<dynamic>? tablesData =
                     responseData['data']; // Extracting the list of tables
               } else {
-                print('Failed to Merge Orders');
+                final Map<String, dynamic> responseData =
+                    jsonDecode(response.body);
+                print('Failed to Merge Orders $responseData');
               }
             }
           },

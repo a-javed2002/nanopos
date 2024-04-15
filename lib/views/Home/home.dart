@@ -445,7 +445,7 @@ class _MyHomePageState extends State<MyHomePage>
                     Order? order = await adminController.getLocal();
                     if (order != null) {
                       printController.printDialog(
-                          order: order, context: context, user: widget.user);
+                          order: order, context: context, user: widget.user,billStatus: "Paid");
                     } else {
                       print("No Last Order");
                       printController.showToast(

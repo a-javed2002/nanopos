@@ -49,7 +49,7 @@ class TestPrint {
         // bluetooth.printImage(file.path); //path of your image/logo
         bluetooth.printImageBytes(imageBytesFromAsset); //image from Asset
         bluetooth.printCustom(
-            "Branch Address", Size.boldMedium.val, Align.center.val);
+            "${user.bName}", Size.boldMedium.val, Align.center.val);
         bluetooth.printNewLine();
         bluetooth.printCustom("Order: ${order.orderSerialNo}",
             Size.boldMedium.val, Align.center.val);

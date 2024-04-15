@@ -40,8 +40,7 @@ class AdminController extends GetxController {
         } else {
           throw Exception('Failed to parse Admin Order data');
         }
-      }
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         print("Session Expire");
       } else {
         throw Exception('Failed to load Admin Order datat');
@@ -80,6 +79,10 @@ class AdminController extends GetxController {
             order[i]['total_currency_price']
                 .toString()
                 .toLowerCase()
+                .contains(query) ||
+            order[i]['order_datetime']
+                .toString()
+                .toLowerCase()
                 .contains(query)) {
           filOrder.add(order[i]);
         }
@@ -116,15 +119,14 @@ class AdminController extends GetxController {
       Map<String, dynamic> orderMap = jsonDecode(orderJson);
 
       if (orderMap.isNotEmpty) {
-        
-
         // Extract order items data from the JSON map
         List<dynamic> orderItemsList = orderMap['orderItems'] ?? [];
         List<OrderItems> orderItems = [];
 
         for (var item in orderItemsList) {
           OrderItems orderItem = OrderItems(
-              id: item['item_id'],
+              oId: item['id'].toString(),
+              id: item['item_id'].toString(),
               itemName: item['item_name'],
               itemImage: item['item_image'],
               quantity: item['quantity'],

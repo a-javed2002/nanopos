@@ -135,7 +135,14 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       children: [
         ListTile(
           title: Text('Order Serial No: ${orderMap['order_serial_no']}'),
-          subtitle: Text('Total Price: ${orderMap['total_currency_price']}'),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text('Total Price: ${orderMap['total_currency_price']}'),
+              Text('Date Time: ${orderMap['order_datetime']}'),
+            ],
+          ),
           trailing: InkWell(
               onTap: () {
                 if (orderMap != null) {
@@ -147,6 +154,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
 
                     for (var item in orderItemsList) {
                       OrderItems orderItem = OrderItems(
+                          oId: item['id'].toString(),
                           id: item['item_id'].toString(),
                           itemName: item['item_name'],
                           itemImage: item['item_image'],

@@ -32,6 +32,7 @@ class _SplashscreenState extends State<Splashscreen> {
       // Retrieve user object JSON string from shared preferences
       String id = prefs.getString('id') ?? '';
       String bid = prefs.getString('bid') ?? '';
+      String bName = prefs.getString('bName') ?? '';
       String email = prefs.getString('email') ?? '';
       String image = prefs.getString('image') ?? '';
       String username = prefs.getString('username') ?? '';
@@ -49,6 +50,7 @@ class _SplashscreenState extends State<Splashscreen> {
       loginUser userObj =  loginUser(
           id: id.toString(),
           bid: bid.toString(),
+          bName: bName,
           email: email,
           image: image,
           roleId: int.parse(roleId),

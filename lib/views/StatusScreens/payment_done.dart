@@ -117,7 +117,7 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
                 backgroundColor: const Color(0xffa14716),
               ),
               onPressed: () {
-                printController.printDialog(context: context,order: widget.order,user: widget.user);
+                printController.printDialog(context: context,order: widget.order,user: widget.user,billStatus: "paid");
               },
               child: Text(
                 "Print",

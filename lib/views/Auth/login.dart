@@ -252,6 +252,8 @@ class _LoginScreenState extends State<LoginScreen> {
       var user = responseBody['user'];
       var id = user['id'];
       var bid = responseBody['branch_id'];
+      var bName = "Main Branch";
+      // var bName = responseBody['branch_name'];
       var username = user['username'];
       var email = user['email'];
       var image = user['image'];
@@ -265,6 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
         var obj = new loginUser(
             id: id.toString(),
             bid: bid.toString(),
+            bName: bName,
             email: email,
             image: image,
             name: firstName,
@@ -278,6 +281,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('id', id.toString());
         await prefs.setString('bid', bid.toString());
+        await prefs.setString('bName', bName.toString());
         await prefs.setString('email', email);
         await prefs.setString('image', image);
         await prefs.setString('username', username);
@@ -384,6 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
 class loginUser {
   final String id;
   final String bid;
+  final String bName;
   final String email;
   final String image;
   final String name;
@@ -396,6 +401,7 @@ class loginUser {
   loginUser({
     required this.id,
     required this.bid,
+    required this.bName,
     required this.email,
     required this.image,
     required this.name,
@@ -411,6 +417,7 @@ class loginUser {
     return loginUser(
       id: json['id'],
       bid: json['bid'],
+      bName: json['bName'],
       email: json['email'],
       image: json['image'],
       name: json['first_name'],
