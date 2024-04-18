@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nanopos/database/todo_db.dart';
 import 'package:nanopos/models/todo.dart';
@@ -66,7 +65,7 @@ class _TodosScreenState extends State<TodosScreen> {
                               trailing: IconButton(onPressed: ()async{
                                 await todoDB.delete(todo.id);
                                 fetchTodos();
-                              }, icon: Icon(Icons.delete,color: Colors.red,)),
+                              }, icon: const Icon(Icons.delete,color: Colors.red,)),
                               onTap: (){
                                 showDialog(context: context, builder: (context)=>CreateTodoWidget(todo: todo,onSubmit: (title)async{
                                   await todoDB.update(id: todo.id,title: title);

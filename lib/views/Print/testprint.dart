@@ -14,7 +14,7 @@ class TestPrint {
   Future<void> printBill(
       {required Order order,
       required String status,
-      required loginUser user}) async {
+      required LoginUser user}) async {
     //image max 300px X 300px
 
     List<OrderItems> orderItems = order.orderItems;
@@ -49,7 +49,7 @@ class TestPrint {
         // bluetooth.printImage(file.path); //path of your image/logo
         bluetooth.printImageBytes(imageBytesFromAsset); //image from Asset
         bluetooth.printCustom(
-            "${user.bName}", Size.boldMedium.val, Align.center.val);
+            user.bName, Size.boldMedium.val, Align.center.val);
         bluetooth.printNewLine();
         bluetooth.printCustom("Order: ${order.orderSerialNo}",
             Size.boldMedium.val, Align.center.val);
@@ -57,17 +57,17 @@ class TestPrint {
         bluetooth.print3Column(
           "",
           "UserId:",
-          "${user.username}",
+          user.username,
           Size.bold.val,
         );
         bluetooth.print3Column(
           "Date & Time:",
-          "${now}",
+          now.toString(),
           "",
           Size.bold.val,
         );
         bluetooth.printNewLine();
-        bluetooth.printCustom("$status", Size.bold.val, Align.center.val);
+        bluetooth.printCustom(status, Size.bold.val, Align.center.val);
         bluetooth.printNewLine();
         // bluetooth.printImageBytes(imageBytesFromNetwork); //image from Network
 
@@ -77,10 +77,10 @@ class TestPrint {
           total += double.parse(x) * (item.quantity);
           tax = (double.parse(x) *
                   (item.quantity) *
-                  double.parse(item.tax_rate)) /
+                  double.parse(item.taxRate)) /
               100;
           bluetooth.printLeftRight("${item.quantity} ${item.itemName}",
-              "${x} ${double.parse(x) * (item.quantity)}", Size.medium.val);
+              "$x ${double.parse(x) * (item.quantity)}", Size.medium.val);
         }
 
         bluetooth.print3Column(

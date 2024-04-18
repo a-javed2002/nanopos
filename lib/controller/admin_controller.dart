@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/consts/consts.dart';
@@ -36,27 +37,39 @@ class AdminController extends GetxController {
         if (dataList != null) {
           updatedList.value = dataList;
           filOrder.value = dataList;
+          if (kDebugMode) {
           print(dataList);
+
+          }
         } else {
           throw Exception('Failed to parse Admin Order data');
         }
       } else if (response.statusCode == 401) {
+        if (kDebugMode) {
         print("Session Expire");
+
+        }
       } else {
         throw Exception('Failed to load Admin Order datat');
       }
 
       // Delay before fetching cat again
     } catch (e) {
-      print('Error fetching cat: $e');
+      if (kDebugMode) {
+        print('Error fetching cat: $e');
+      }
     }
   }
 
   void filterOrder() {
     filOrder.value = [];
-    print("Selected cat id is and items are $order");
+    if (kDebugMode) {
+      print("Selected cat id is and items are $order");
+    }
     for (var i = 0; i < order.length; i++) {
-      print("in here2");
+      if (kDebugMode) {
+        print("in here2");
+      }
       filOrder.add(order[i]);
     }
   }
@@ -133,12 +146,12 @@ class AdminController extends GetxController {
               price: item['price'],
               instruction: item['instruction'],
               totalConvertPrice: item['total_convert_price'],
-              tax_rate: item['tax_rate'],
-              item_variation_currency_total:
+              taxRate: item['tax_rate'],
+              itemVariationCurrencyTotal:
                   item['item_variation_currency_total'],
-              item_extra_currency_total: item['item_extra_currency_total'],
-              item_variations: item['item_variations'],
-              item_extras: item['item_extras']);
+              itemExtraCurrencyTotal: item['item_extra_currency_total'],
+              itemVariations: item['item_variations'],
+              itemExtras: item['item_extras']);
 
           orderItems.add(orderItem);
         }
@@ -156,7 +169,7 @@ class AdminController extends GetxController {
                 orderMap['total_currency_price'],
             discount_currency_price: orderMap['total_currency_price'],
             total_currency_price: orderMap['total_currency_price'],
-            total_tax_currency_price: orderMap['total_currency_price']);
+            totalTaxCurrencyPrice: orderMap['total_currency_price']);
 
         return order;
       }

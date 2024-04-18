@@ -1,15 +1,15 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/consts/consts.dart';
+import 'package:nanopos/views/Home/order.dart';
 
 class OrderPlaced extends StatelessWidget {
-  final loginUser user;
-  const OrderPlaced({
-    Key? key,
-    required this.user
-  }) : super(key: key);
+  final LoginUser user;
+  final String id;
+  final String table;
+  const OrderPlaced(
+      {Key? key, required this.user, required this.id, required this.table})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,22 +19,22 @@ class OrderPlaced extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset("assets/gifs/order.gif"),
-          Text(
+          const Text(
             "Yahooo!",
             style: TextStyle(
                 fontSize: 25,
                 color: Color(0xffa14716),
                 fontWeight: FontWeight.bold),
           ),
-          Text(
+          const Text(
             "ORDER PLACED SUCCESSFULLY",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Center(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            child: const Center(
               child: Text(
-                "You will be redirected to Dashboard shortly or click here to return to the home page",
+                "You will be redirected to Back shortly or click here to return to the home page",
                 textAlign: TextAlign.center, // Align text to center
               ),
             ),
@@ -56,14 +56,16 @@ class OrderPlaced extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyHomePage(
+                    builder: (context) => OrdersScreen(
                       user: user,
+                      id: id,
+                      table: table,
                     ),
                   ),
                 );
               },
-              child: Text(
-                "Dashboard",
+              child: const Text(
+                "Back",
                 style: TextStyle(color: whiteColor),
               ),
             ),

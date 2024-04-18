@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/controller/cart_controller.dart';
 import 'package:nanopos/views/Home/order.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +10,7 @@ import 'package:nanopos/consts/consts.dart';
 import 'package:nanopos/views/StatusScreens/sent_to_kitchen.dart';
 
 class EditOrderScreen extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
   final String id;
   final String table;
   final Order order;
@@ -34,7 +34,10 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
     // TODO: implement initState
     super.initState();
     orderDuplicate = widget.order;
+    if (kDebugMode) {
+
     print(widget.order.orderItems.length);
+    }
   }
 
   @override
@@ -80,7 +83,10 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                       // print("cart total items $currentTableId And\n $cartItems");
                       if (orderDuplicate.orderItems == null ||
                           orderDuplicate.orderItems.isEmpty) {
+                            if (kDebugMode) {
+
                         print("cart is empty");
+                            }
                       } else {
                         // Accessing items map directly
                         List<OrderItems> items = orderDuplicate.orderItems;
@@ -90,7 +96,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                         // List<Map<String, dynamic>> variationList = [];
                         double total = 0;
                         for (var item in items) {
-                          for (var variation in item.item_variations) {
+                          for (var variation in item.itemVariations) {
                             // Extracting specific fields and creating a new map
                             variationList.add({
                               'id': variation['id'],
@@ -101,8 +107,11 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                               'name': variation['name']
                             });
                           }
+                          if (kDebugMode) {
+
                           print("-----------------------");
-                          for (var itemExtra in item.item_extras) {
+                          }
+                          for (var itemExtra in item.itemExtras) {
                             // Extracting specific fields and creating a new map
                             itemExtrasList.add({
                               'id': itemExtra['id'],
@@ -123,11 +132,11 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                             "discount": 0,
                             "total_price": double.parse(x) * item.quantity,
                             "item_variation_total": double.parse(
-                                    (item.item_variation_currency_total)
+                                    (item.itemVariationCurrencyTotal)
                                         .replaceAll("Rs", "")) ??
                                 0,
                             "item_extra_total": double.parse(
-                                    (item.item_extra_currency_total)
+                                    (item.itemExtraCurrencyTotal)
                                         .replaceAll("Rs", "")) ??
                                 0,
                             "item_variations": variationList,
@@ -139,8 +148,10 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                         //   "items":
                         //       "[{\"item_variation_total\":0,\"item_extra_total\":0,\"item_variations\":[],\"item_extras\":[]},{\"item_id\":2,\"item_price\":350,\"branch_id\":1,\"instruction\":\"\",\"quantity\":1,\"discount\":0,\"total_price\":350,\"item_variation_total\":0,\"item_extra_total\":0,\"item_variations\":[{\"id\":1,\"item_id\":2,\"item_attribute_id\":\"1\",\"variation_name\":\"Flavours\",\"name\":\"Less Fried Zinger\"}],\"item_extras\":[]}]"
                         // };
+if (kDebugMode) {
 
                         print(itemList);
+}
 
                         var data = {
                           "dining_table_id": widget.id,
@@ -158,7 +169,10 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                           "source": 5,
                           "total": total,
                         };
+                        if (kDebugMode) {
+
                         print(data);
+                        }
 
                         var response = await http.post(
                           Uri.parse('$domain/api/table/dining-order'),
@@ -208,7 +222,10 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                             ),
                           );
                         } else {
+                          if (kDebugMode) {
+
                           print("order Not Placed......");
+                          }
                           setState(() {
                             isLoading = false;
                           });
@@ -232,11 +249,11 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
             children: [
               Text(
                 "Edit Order-${orderDuplicate.orderSerialNo}",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
               ),
               Text(
-                "${orderDuplicate.totalCurrencyPrice}",
-                style: TextStyle(fontSize: 14),
+                orderDuplicate.totalCurrencyPrice,
+                style: const TextStyle(fontSize: 14),
               ),
             ],
           ),
@@ -277,8 +294,8 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                     background: Container(
                       color: redColor,
                       alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Icon(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: const Icon(
                         Icons.delete,
                         color: whiteColor,
                       ),
@@ -305,7 +322,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                         },
                         title: Text(
                           cartObject.name,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                         subtitle: Column(
@@ -313,32 +330,32 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                           children: [
                             Text(
                               cartObject.desc,
-                              style: TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 12),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Price: ${cartObject.price}',
-                              style: TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 12),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Instructions: ${cartObject.instruction}',
-                              style: TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 12),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Variations: ${cartObject.itemVariations!.map((v) => v['variation_name']).join(', ')}',
-                              style: TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 12),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Extras: ${cartObject.itemExtras!.map((e) => e['name']).join(', ')}',
-                              style: TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 12),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Addons: ${cartObject.addons!.map((a) => a['addon_item_name']).join(', ')}',
-                              style: TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 12),
                             ),
                           ],
                         ),
@@ -346,12 +363,29 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                           cartObject.image,
                           width: 60,
                           height: 60,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) {
+                              // If the image is fully loaded, return the Image widget
+                              return child;
+                            } else {
+                              // If the image is still loading, return a CircularProgressIndicator
+                              return const CircularProgressIndicator();
+                            }
+                          },
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            // Return a fallback image in case of an error
+                            return Image.asset(
+                              'assets/images/imageNotFound.png', // Provide the path to your fallback image
+                            );
+                          },
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.remove),
+                              icon: const Icon(Icons.remove),
                               onPressed: () {
                                 setState(() {
                                   // cartController.decreaseQty(cartObject);
@@ -359,24 +393,30 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                                   if (q > 1) {
                                     cartObject.qty.value = q - 1;
                                   }
+                                  if (kDebugMode) {
+
                                   print(
                                       "Quantity decreeased ${cartObject.qty.value}");
+                                  }
                                 });
                               },
                             ),
                             Text(
                               cartObject.qty.toString(),
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             IconButton(
-                              icon: Icon(Icons.add),
+                              icon: const Icon(Icons.add),
                               onPressed: () {
                                 setState(() {
                                   // cartController.increaseQty(cartObject);
                                   var q = cartObject.qty.value;
                                   cartObject.qty.value = q + 1;
+                                  if (kDebugMode) {
+
                                   print(
                                       "Quantity increeased ${cartObject.qty.value}");
+                                  }
                                 });
                               },
                             ),
@@ -402,7 +442,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
     }
     // var data = {"id": orderId, "status": newStatus};
     var response = await http.post(
-      Uri.parse('$domain/api/admin/table-order/change-status/${orderId}'),
+      Uri.parse('$domain/api/admin/table-order/change-status/$orderId'),
       body: jsonEncode(inputData),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -426,6 +466,8 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
           MaterialPageRoute(
             builder: (context) => SentToKitchen(
               user: widget.user,
+              table: widget.table,
+              id: widget.id,
             ),
           ),
         );

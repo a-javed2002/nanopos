@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class Itemaa {
@@ -70,13 +71,13 @@ class Itemaa {
 //   }
 // }
 
-
 class CheckboxListScreen extends StatefulWidget {
+  const CheckboxListScreen({Key? key}) : super(key: key);
   @override
-  _CheckboxListScreenState createState() => _CheckboxListScreenState();
+  CheckboxListScreenState createState() => CheckboxListScreenState();
 }
 
-class _CheckboxListScreenState extends State<CheckboxListScreen> {
+class CheckboxListScreenState extends State<CheckboxListScreen> {
   List<Itemaa> items = [
     Itemaa(1, "Item 1"),
     Itemaa(2, "Item 2"),
@@ -91,20 +92,21 @@ class _CheckboxListScreenState extends State<CheckboxListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Checkbox List"),
+        title: const Text("Checkbox List"),
       ),
       body: Column(
         children: [
           CheckboxListTile(
             activeColor: Colors.red,
             controlAffinity: ListTileControlAffinity.leading,
-            title: Text("Select/Unselect All"),
+            title: const Text("Select/Unselect All"),
             value: selectAll,
             onChanged: (value) {
               setState(() {
                 selectAll = value!;
                 if (selectAll) {
-                  selectedIds = List.from(List.generate(items.length, (index) => items[index].id));
+                  selectedIds = List.from(
+                      List.generate(items.length, (index) => items[index].id));
                 } else {
                   selectedIds.clear();
                 }
@@ -117,7 +119,7 @@ class _CheckboxListScreenState extends State<CheckboxListScreen> {
               itemBuilder: (context, index) {
                 Itemaa item = items[index];
                 return CheckboxListTile(
-                  title: ListTile(title:  Text(item.name)),
+                  title: ListTile(title: Text(item.name)),
                   value: selectedIds.contains(item.id),
                   onChanged: (bool? value) {
                     setState(() {
@@ -137,9 +139,11 @@ class _CheckboxListScreenState extends State<CheckboxListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print("Selected IDs: $selectedIds");
+          if (kDebugMode) {
+            print("Selected IDs: $selectedIds");
+          }
         },
-        child: Icon(Icons.print),
+        child: const Icon(Icons.print),
       ),
     );
   }

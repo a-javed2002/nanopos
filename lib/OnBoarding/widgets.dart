@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:nanopos/consts/consts.dart';
 
 Widget IntroPage1() {
-  return Container(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset("assets/images/boarding1.png", fit: BoxFit.cover),
-        SizedBox(height: 16), // Add some space between the image and text
-        Text(
-          "Caffé Praha",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        SizedBox(height: 8), // Add some space between the heading and text
-        Text(
-          "Find the best coffee for you,all you",
-          style: TextStyle(fontSize: 16),
-        ),
-        SizedBox(height: 2), // Add some space between the heading and text
-        Text(
-          "needs coffee ",
-          style: TextStyle(fontSize: 16),
-        ),
-      ],
-    ),
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Image.asset("assets/images/boarding1.png", fit: BoxFit.cover),
+      const SizedBox(height: 16), // Add some space between the image and text
+      const Text(
+        "Caffé Praha",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      ),
+      const SizedBox(height: 8), // Add some space between the heading and text
+      const Text(
+        "Find the best coffee for you,all you",
+        style: TextStyle(fontSize: 16),
+      ),
+      const SizedBox(height: 2), // Add some space between the heading and text
+      const Text(
+        "needs coffee ",
+        style: TextStyle(fontSize: 16),
+      ),
+    ],
   );
 }
 
@@ -33,7 +30,7 @@ Widget IntroPage2() {
       children: [
         // Background image
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage(
                   'assets/images/boarding2.jpeg'), // Replace 'assets/images/boarding2.jpeg' with your image path
@@ -44,8 +41,8 @@ Widget IntroPage2() {
         // Content
         Center(
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: 60),
-            child: Column(
+            margin: const EdgeInsets.symmetric(vertical: 60),
+            child: const Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -81,7 +78,7 @@ Widget IntroPage3() {
       children: [
         // Background image
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage(
                   'assets/images/boarding3.jpeg'), // Replace 'assets/images/boarding3.jpeg' with your image path
@@ -90,7 +87,7 @@ Widget IntroPage3() {
           ),
         ),
         // Content
-        Center(
+        const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

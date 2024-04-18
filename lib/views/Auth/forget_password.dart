@@ -1,23 +1,18 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Auth/login.dart';
-import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/consts/consts.dart';
 
 
 class ForgetPasswordScreen extends StatefulWidget {
-  const ForgetPasswordScreen({Key? key});
+  const ForgetPasswordScreen({Key? key}): super(key: key);
 
   @override
-  _ForgetPasswordScreenState createState() => _ForgetPasswordScreenState();
+  ForgetPasswordScreenState createState() => ForgetPasswordScreenState();
 }
 
-class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
-  bool _showPassword = false;
+class ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
+  final bool _showPassword = false;
   bool isLoading = false;
 
   @override
@@ -54,8 +49,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     "Forget Password",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
-                  Center(
-                    child: const Text(
+                  const Center(
+                    child: Text(
                       "Enter you email associated with your account  and we'll send an email with instructions to reset your password e",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -68,10 +63,10 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email),
+                      prefixIcon: const Icon(Icons.email),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black, // Border color
                           width: 4.0, // Border width
                         ),
@@ -127,7 +122,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => LoginScreen()
+                                      builder: (context) => const LoginScreen()
                                     ),
                                   );
                             },
@@ -146,49 +141,6 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  void _showDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Warning!"),
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Invalid credentials or you are blocked",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "kindly contact Adminitration",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12), // Adjust the radius as needed
-                ),
-                foregroundColor: const Color(0xff2a407c),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Perform logout action here
-              },
-              child: const Text("Cancel"),
-            ),
-          ],
-        );
-      },
     );
   }
 }

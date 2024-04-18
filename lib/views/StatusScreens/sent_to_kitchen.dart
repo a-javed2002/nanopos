@@ -1,14 +1,17 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/consts/consts.dart';
+import 'package:nanopos/views/Home/order.dart';
 
 class SentToKitchen extends StatelessWidget {
-  final loginUser user;
+  final LoginUser user;
+  final String table;
+  final String id;
   const SentToKitchen({
     Key? key,
-    required this.user
+    required this.user,
+    required this.table,
+    required this.id
   }) : super(key: key);
 
   @override
@@ -19,22 +22,22 @@ class SentToKitchen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset("assets/gifs/chef.gif"),
-          Text(
+          const Text(
             "Chef Get it!",
             style: TextStyle(
                 fontSize: 25,
                 color: Color(0xffa14716),
                 fontWeight: FontWeight.bold),
           ),
-          Text(
+          const Text(
             "Wait Patiently",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Center(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            child: const Center(
               child: Text(
-                "You will be redirected to Dashboard shortly or click here to return to the home page",
+                "You will be redirected to Back shortly or click here to return to the home page",
                 textAlign: TextAlign.center, // Align text to center
               ),
             ),
@@ -56,14 +59,16 @@ class SentToKitchen extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyHomePage(
+                    builder: (context) => OrdersScreen(
                       user: user,
+                      id: id,
+                      table: table,
                     ),
                   ),
                 );
               },
-              child: Text(
-                "Dashboard",
+              child: const Text(
+                "Back",
                 style: TextStyle(color: whiteColor),
               ),
             ),

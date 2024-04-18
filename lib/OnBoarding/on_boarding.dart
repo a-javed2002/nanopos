@@ -6,15 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnBoardingScreen extends StatefulWidget {
-  final settings;
-  const OnBoardingScreen({Key? key, this.settings = false}) : super(key: key);
+  
+  const OnBoardingScreen({Key? key}) : super(key: key);
 
   @override
   State<OnBoardingScreen> createState() => _OnBoardingScreenState();
 }
 
 class _OnBoardingScreenState extends State<OnBoardingScreen> {
-  PageController _controller = PageController();
+  final PageController _controller = PageController();
   bool onLastPage = false;
   int page = 0;
 
@@ -32,7 +32,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xfff5f5f5),
+      backgroundColor: const Color(0xfff5f5f5),
       body: Stack(
         children: [
           PageView(
@@ -92,11 +92,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoginScreen(),
+                              builder: (context) => const LoginScreen(),
                             ),
                           );
                         },
-                        child: Padding(
+                        child: const Padding(
                           padding: EdgeInsets.all(16.0),
                           child: Text(
                             "Skip",
@@ -105,7 +105,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xfff3b98a),
+                          backgroundColor: const Color(0xfff3b98a),
                           // primary: Colors.transparent, // Set background color
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
@@ -119,12 +119,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     : ElevatedButton(
                         onPressed: () {
                           _controller.previousPage(
-                            duration: Duration(milliseconds: 500),
+                            duration: const Duration(milliseconds: 500),
                             curve: Curves.easeOut,
                           );
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                        child: const Padding(
+                          padding: EdgeInsets.all(16.0),
                           child: Text(
                             "Back",
                             style: TextStyle(
@@ -133,8 +133,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                         ),
                         style: ElevatedButton.styleFrom(
                           // primary: Colors.transparent, // Set background color
-                          backgroundColor: Color(0xfff3b98a),
-                          shape: RoundedRectangleBorder(
+                          backgroundColor: const Color(0xfff3b98a),
+                          shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
                               topRight: Radius.circular(
                                   20.0), // Add top-left border radius
@@ -152,12 +152,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoginScreen(),
+                              builder: (context) => const LoginScreen(),
                             ),
                           );
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                        child: const Padding(
+                          padding: EdgeInsets.all(16.0),
                           child: Text(
                             "Done",
                             style: TextStyle(
@@ -165,9 +165,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF753411),
+                          backgroundColor: const Color(0xFF753411),
                           // primary: mainColor, // Set background color
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(
                                   20.0), // Add top-left border radius
@@ -180,13 +180,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           if (_controller.page != null &&
                               _controller.page! < 2) {
                             _controller.nextPage(
-                              duration: Duration(milliseconds: 500),
+                              duration: const Duration(milliseconds: 500),
                               curve: Curves.easeIn,
                             );
                           }
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                        child: const Padding(
+                          padding: EdgeInsets.all(16.0),
                           child: Text(
                             "Next",
                             style: TextStyle(
@@ -194,9 +194,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF753411),
+                          backgroundColor: const Color(0xFF753411),
                           // primary: mainColor, // Set background color
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(
                                   20.0), // Add top-left border radius

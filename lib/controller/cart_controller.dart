@@ -28,7 +28,7 @@ class CartObject {
     this.itemVariations,
     this.itemExtras,
     this.addons,
-  }) : this.qty = qty.obs;
+  }) : qty = qty.obs;
 
   Map<String, dynamic> toJson() {
     return {
@@ -295,10 +295,14 @@ class CartController extends GetxController {
   void getTotalItemsForTable() {
     int currentTableId = tableId.value;
     List<Map<String, dynamic>>? cartItems = cartMap[currentTableId];
-    print("cart total $currentTableId items are $cartItems");
+    if (kDebugMode) {
+      print("cart total $currentTableId items are $cartItems");
+    }
     if (cartItems != null) {
       cartQuantityItems.value = cartItems.length;
     }
-    print("total values are ${cartQuantityItems.value}");
+    if (kDebugMode) {
+      print("total values are ${cartQuantityItems.value}");
+    }
   }
 }

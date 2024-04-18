@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nanopos/consts/consts.dart';
 
 class HighlightedText extends StatelessWidget {
   final String text;
@@ -7,7 +7,8 @@ class HighlightedText extends StatelessWidget {
   final TextStyle highlightStyle;
   final TextStyle textStyle;
 
-  HighlightedText({
+  const HighlightedText({
+    Key? key,
     required this.text,
     required this.query,
     this.highlightStyle = const TextStyle(
@@ -17,7 +18,7 @@ class HighlightedText extends StatelessWidget {
     this.textStyle = const TextStyle(
       fontSize: 10, fontWeight: FontWeight.bold
     ),
-  });
+  }): super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,9 @@ class HighlightedText extends StatelessWidget {
       return Text(text, style: textStyle);
     }
 
-    print("name is item $text & $query");
+    if (kDebugMode) {
+      print("name is item $text & $query");
+    }
 
     final escapedQuery = RegExp.escape(query);
     final regExp = RegExp(escapedQuery, caseSensitive: false);

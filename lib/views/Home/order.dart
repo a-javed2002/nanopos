@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanopos/controller/apiController.dart';
-import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/controller/auth_controller.dart';
 import 'package:nanopos/views/Home/editOrder.dart';
 import 'package:nanopos/views/StatusScreens/sent_to_kitchen.dart';
 import 'dart:convert';
@@ -25,7 +25,7 @@ class Order {
   final String subtotal_without_tax_currency_price;
   final String discount_currency_price;
   final String total_currency_price;
-  final String total_tax_currency_price;
+  final String totalTaxCurrencyPrice;
 
   Order({
     required this.id,
@@ -39,7 +39,7 @@ class Order {
     required this.subtotal_without_tax_currency_price,
     required this.discount_currency_price,
     required this.total_currency_price,
-    required this.total_tax_currency_price,
+    required this.totalTaxCurrencyPrice,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -56,7 +56,7 @@ class Order {
           json['subtotal_without_tax_currency_price'].toString(),
       discount_currency_price: json['discount_currency_price'].toString(),
       total_currency_price: json['total_currency_price'].toString(),
-      total_tax_currency_price: json['total_tax_currency_price'].toString(),
+      totalTaxCurrencyPrice: json['total_tax_currency_price'].toString(),
     );
   }
 
@@ -77,7 +77,7 @@ class Order {
           subtotal_without_tax_currency_price,
       'discount_currency_price': discount_currency_price,
       'total_currency_price': total_currency_price,
-      'total_tax_currency_price': total_tax_currency_price,
+      'total_tax_currency_price': totalTaxCurrencyPrice,
     };
   }
 }
@@ -91,11 +91,11 @@ class OrderItems {
   final String price;
   final String instruction;
   final String totalConvertPrice;
-  final String tax_rate;
-  final String item_variation_currency_total;
-  final String item_extra_currency_total;
-  final List<dynamic> item_variations;
-  final List<dynamic> item_extras;
+  final String taxRate;
+  final String itemVariationCurrencyTotal;
+  final String itemExtraCurrencyTotal;
+  final List<dynamic> itemVariations;
+  final List<dynamic> itemExtras;
 
   OrderItems({
     required this.oId,
@@ -106,11 +106,11 @@ class OrderItems {
     required this.price,
     required this.instruction,
     required this.totalConvertPrice,
-    required this.tax_rate,
-    required this.item_variation_currency_total,
-    required this.item_extra_currency_total,
-    required this.item_variations,
-    required this.item_extras,
+    required this.taxRate,
+    required this.itemVariationCurrencyTotal,
+    required this.itemExtraCurrencyTotal,
+    required this.itemVariations,
+    required this.itemExtras,
   });
 
   factory OrderItems.fromJson(Map<String, dynamic> json) {
@@ -123,12 +123,12 @@ class OrderItems {
       price: json['price'].toString(),
       instruction: json['instruction'].toString(),
       totalConvertPrice: json['total_convert_price'].toString(),
-      tax_rate: json['tax_rate'].toString(),
-      item_variation_currency_total:
+      taxRate: json['tax_rate'].toString(),
+      itemVariationCurrencyTotal:
           json['item_variation_currency_total'].toString(),
-      item_extra_currency_total: json['item_extra_currency_total'].toString(),
-      item_variations: json['item_variations'],
-      item_extras: json['item_extras'],
+      itemExtraCurrencyTotal: json['item_extra_currency_total'].toString(),
+      itemVariations: json['item_variations'],
+      itemExtras: json['item_extras'],
     );
   }
 
@@ -142,17 +142,17 @@ class OrderItems {
       'price': price,
       'instruction': instruction,
       'total_convert_price': totalConvertPrice,
-      'tax_rate': tax_rate,
-      'item_variation_currency_total': item_variation_currency_total,
-      'item_extra_currency_total': item_extra_currency_total,
-      'item_variations': item_variations,
-      'item_extras': item_extras,
+      'tax_rate': taxRate,
+      'item_variation_currency_total': itemVariationCurrencyTotal,
+      'item_extra_currency_total': itemExtraCurrencyTotal,
+      'item_variations': itemVariations,
+      'item_extras': itemExtras,
     };
   }
 }
 
 class OrdersScreen extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
   final String table;
   final String id;
 
@@ -164,16 +164,18 @@ class OrdersScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _OrdersScreenState createState() => _OrdersScreenState();
+  OrdersScreenState createState() => OrdersScreenState();
 }
 
-class _OrdersScreenState extends State<OrdersScreen> {
+class OrdersScreenState extends State<OrdersScreen> {
   late Stream<List<Order>> _ordersStream;
   final int orderType = 10;
   var firstTime = true;
   bool isLoading = false;
   String activeId = "";
   String _selectedOption = 'No One On Table';
+
+  final AuthController _authController = Get.find();
 
   List<Order> selectedOrders = [];
   List<int> itemIds = [];
@@ -193,7 +195,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     while (true) {
       final response = await http.get(
         Uri.parse(
-            '$domain/api/admin/table-order?dining_table_id=${widget.id}&payment_status=10'),
+            '$domain/api/admin/table-order?dining_table_id=${widget.id}&payment_status=10&status=1,4,7,13'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'X-Api-Key': xApi,
@@ -210,51 +212,57 @@ class _OrdersScreenState extends State<OrdersScreen> {
         if (ordersData != null) {
           List<Order> orders = [];
           for (var orderJson in ordersData) {
-            final response2 = await http.get(
-              Uri.parse(
-                  '$domain/api/admin/table-order/show/${orderJson['id']}'),
-              headers: {
-                'Content-Type': 'application/json; charset=UTF-8',
-                'X-Api-Key': xApi,
-                'Authorization': 'Bearer ${widget.user.token}',
-              },
-            );
             if (kDebugMode) {
-              print("order items --> ${response2.statusCode}");
+              print(orderJson['order_items']);
             }
+            // final response2 = await http.get(
+            //   Uri.parse(
+            //       '$domain/api/admin/table-order/show/${orderJson['id']}'),
+            //   headers: {
+            //     'Content-Type': 'application/json; charset=UTF-8',
+            //     'X-Api-Key': xApi,
+            //     'Authorization': 'Bearer ${widget.user.token}',
+            //   },
+            // );
+            // if (kDebugMode) {
+            //   print("order items --> ${response2.statusCode}");
+            // }
 
-            if (response2.statusCode == 200 || response2.statusCode == 201) {
-              final Map<String, dynamic> responseData2 =
-                  jsonDecode(response2.body);
-              final Map<String, dynamic> orderData2 = responseData2['data'];
-              final dynamic orderItemsData = orderData2['order_items'];
+            // if (response2.statusCode == 200 || response2.statusCode == 201) {
+            //   final Map<String, dynamic> responseData2 =
+            //       jsonDecode(response2.body);
+            //   final Map<String, dynamic> orderData2 = responseData2['data'];
+            final dynamic orderItemsData = orderJson['order_items'];
+            // final dynamic orderItemsData = orderData2['order_items'];
 
-              if (orderItemsData != null && orderItemsData is List) {
-                // Check if orderItemsData is a List
-                List<OrderItems> orderItems = [];
-                for (var orderItemJson in orderItemsData) {
-                  orderItems.add(OrderItems.fromJson(orderItemJson));
-                  allItemIds.add({
-                    "itemId": orderItemJson[''],
-                    "orderId": orderItemJson['']
-                  });
+            if (orderItemsData != null && orderItemsData is List) {
+              // Check if orderItemsData is a List
+              List<OrderItems> orderItems = [];
+              for (var orderItemJson in orderItemsData) {
+                orderItems.add(OrderItems.fromJson(orderItemJson));
+                allItemIds.add({
+                  "itemId": orderItemJson[''],
+                  "orderId": orderItemJson['']
+                });
+                if (kDebugMode) {
                   print(orderItemJson);
                 }
-                orders.add(Order.fromJson({
-                  ...orderJson,
-                  'orderItems': orderItems,
-                }));
-              } else {
-                if (kDebugMode) {
-                  print('order_items data is not a List or is null');
-                }
               }
+              orders.add(Order.fromJson({
+                ...orderJson,
+                'orderItems': orderItems,
+              }));
             } else {
               if (kDebugMode) {
-                print(
-                    'Failed to fetch order items. Status code: ${response2.statusCode}');
+                print('order_items data is not a List or is null');
               }
             }
+            // } else {
+            //   if (kDebugMode) {
+            //     print(
+            //         'Failed to fetch order items. Status code: ${response2.statusCode}');
+            //   }
+            // }
           }
           yield orders;
         } else {
@@ -285,14 +293,48 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ),
         iconTheme: const IconThemeData(color: whiteColor),
         actions: [
+          // InkWell(
+          //   onTap: () {
+          //     _showLogoutDialog();
+          //   },
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(right: 10.0),
+          //     child: CircleAvatar(
+          //       backgroundImage: NetworkImage(widget.user.image),
+          //     ),
+          //   ),
+          // ),
           InkWell(
             onTap: () {
-              _showLogoutDialog();
+              _authController.showLogoutDialog(context);
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 10.0),
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.image),
+              child: Image.network(
+                widget.user.image,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    // If the image is fully loaded, return the CircleAvatar
+                    return CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        widget.user.image,
+                      ),
+                    );
+                  } else {
+                    // If the image is still loading, return a CircularProgressIndicator
+                    return const CircularProgressIndicator();
+                  }
+                },
+                errorBuilder: (BuildContext context, Object exception,
+                    StackTrace? stackTrace) {
+                  // Return a fallback image in case of an error
+                  return const CircleAvatar(
+                    backgroundImage: AssetImage(
+                      'assets/images/profile.png', // Provide the path to your fallback image
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -325,10 +367,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
               children: [
                 (orders.length > 0 && hasAtLeastTwoStatusNotEqualToOne)
                     ? CheckboxListTile(
-                        tileColor: Color(0xfff3b98a),
-                        activeColor: Color(0xffa14716),
+                        tileColor: const Color(0xfff3b98a),
+                        activeColor: const Color(0xffa14716),
                         controlAffinity: ListTileControlAffinity.leading,
-                        title: Text("Merge All"),
+                        title: const Text("Merge All"),
                         value: selectAll,
                         onChanged: (value) {
                           setState(() {
@@ -380,7 +422,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                       orders.length > 0 &&
                                       hasAtLeastTwoStatusNotEqualToOne)
                                   ? CheckboxListTile(
-                                      activeColor: Color(0xffa14716),
+                                      activeColor: const Color(0xffa14716),
                                       controlAffinity:
                                           ListTileControlAffinity.leading,
                                       value: selectedOrders.contains(order),
@@ -555,17 +597,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                   itemCount: order.orderItems.length,
                                   itemBuilder: (context, itemIndex) {
                                     final item = order.orderItems[itemIndex];
-                                    print(item);
+                                    if (kDebugMode) {
+                                      print(item);
+                                    }
+                                    var x = (item.price).replaceAll("Rs", "");
+                                    var y = (item.itemVariationCurrencyTotal)
+                                        .replaceAll("Rs", "");
+                                    var z = (item.itemExtraCurrencyTotal)
+                                        .replaceAll("Rs", "");
+                                    var itemtotal = double.parse(x) +
+                                        double.parse(y) +
+                                        double.parse(z);
                                     return ListTile(
                                       // title: Text("Item Name: ${item.item_name}"),
                                       title: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            item.itemName.toString(),
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold),
+                                          InkWell(
+                                            onTap: () {
+                                              _showItemDialog(
+                                                  context,
+                                                  item,
+                                                  double.parse(x),
+                                                  double.parse(y),
+                                                  double.parse(z));
+                                            },
+                                            child: Text(
+                                              item.itemName.toString(),
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                           Row(
                                             children: [
@@ -586,12 +648,33 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              Text(item.price.toString()),
+                                              Text(itemtotal.toString()),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      trailing: Image.network(item.itemImage),
+                                      trailing: Image.network(
+                                        item.itemImage,
+                                        loadingBuilder: (BuildContext context,
+                                            Widget child,
+                                            ImageChunkEvent? loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            // If the image is fully loaded, return the Image widget
+                                            return child;
+                                          } else {
+                                            // If the image is still loading, return a CircularProgressIndicator
+                                            return const CircularProgressIndicator();
+                                          }
+                                        },
+                                        errorBuilder: (BuildContext context,
+                                            Object exception,
+                                            StackTrace? stackTrace) {
+                                          // Return a fallback image in case of an error
+                                          return Image.asset(
+                                            'assets/images/imageNotFound.png', // Provide the path to your fallback image
+                                          );
+                                        },
+                                      ),
                                     );
                                   },
                                 ),
@@ -625,7 +708,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                           },
                                           child: Text(
                                             "Pay ${order.totalCurrencyPrice}",
-                                            style: TextStyle(color: whiteColor),
+                                            style: const TextStyle(
+                                                color: whiteColor),
                                           )),
                                     )
                                   : Container(
@@ -646,7 +730,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                           onPressed: () {},
                                           child: Text(
                                             "Total Bill: ${order.totalCurrencyPrice}",
-                                            style: TextStyle(color: whiteColor),
+                                            style: const TextStyle(
+                                                color: whiteColor),
                                           )),
                                     )
                             ],
@@ -674,7 +759,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               if (kDebugMode) {
                 print("Merge Orders");
               }
-              final baseUrl = '$domain/api/admin/table-order/merge-order';
+              const baseUrl = '$domain/api/admin/table-order/merge-order';
 
 // Extract order IDs from selectedOrders
               final List<String> orderIds =
@@ -690,8 +775,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
               final url =
                   '$baseUrl?order_ids=${orderIds.join(",")}&item_ids=${itemIds.join(",")}';
-
-              print("url is: ${url}");
+              if (kDebugMode) {
+                print("url is: $url");
+              }
 
               final response = await http.get(
                 Uri.parse(url),
@@ -711,10 +797,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     jsonDecode(response.body);
                 final List<dynamic>? tablesData =
                     responseData['data']; // Extracting the list of tables
+                setState(() {
+                  _ordersStream = _fetchActiveOrders();
+                });
               } else {
                 final Map<String, dynamic> responseData =
                     jsonDecode(response.body);
-                print('Failed to Merge Orders $responseData');
+                if (kDebugMode) {
+                  print('Failed to Merge Orders $responseData');
+                }
               }
             }
           },
@@ -725,9 +816,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(0xffa14716),
+          backgroundColor: const Color(0xffa14716),
           foregroundColor: whiteColor,
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
           onPressed: () {
             Navigator.push(
               context,
@@ -740,6 +831,98 @@ class _OrdersScreenState extends State<OrdersScreen> {
             );
           }),
     ));
+  }
+
+  void _showItemDialog(BuildContext context, OrderItems item, double itemPrice,
+      double varPrice, double extraPrice) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(item.itemName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (item.itemVariations != null && item.itemVariations.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Variations:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    for (var variation in item.itemVariations)
+                      Text(
+                          "- ${variation['variation_name']} ${variation['name']}"),
+                    const Divider(),
+                  ],
+                ),
+              if (item.itemExtras != null && item.itemExtras.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Extras:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    for (var extra in item.itemExtras)
+                      Text("- ${extra['name']}"),
+                    const Divider(),
+                  ],
+                ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Item:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(itemPrice.toString()),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "extra:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(varPrice.toString()),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "variation:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(extraPrice.toString()),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Total:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text("${itemPrice + varPrice + extraPrice}"),
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void updateStatus(
@@ -756,7 +939,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
     var data = {"id": orderId, "status": newStatus};
     var response = await http.post(
-      Uri.parse('$domain/api/admin/table-order/change-status/${orderId}'),
+      Uri.parse('$domain/api/admin/table-order/change-status/$orderId'),
       body: jsonEncode(inputData),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -780,6 +963,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
           MaterialPageRoute(
             builder: (context) => SentToKitchen(
               user: widget.user,
+              table: widget.table,
+              id: widget.id,
             ),
           ),
         );
@@ -795,12 +980,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
       {required Order order,
       required String id,
       required String table,
-      required loginUser user}) {
+      required LoginUser user}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select an option'),
+          title: const Text('Select an option'),
           content: Column(
             children: [
               DropdownButton<String>(
@@ -829,7 +1014,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   foregroundColor: redColor,
                 ),
                 onPressed: () {
-                  print('Selected option: $_selectedOption');
+                  if (kDebugMode) {
+                    print('Selected option: $_selectedOption');
+                  }
                   updateStatus(
                       orderId: order.id,
                       CurrentStatus: order.status,
@@ -839,11 +1026,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         "reason": _selectedOption,
                         "status": 19
                       });
+                  setState(() {
+                    _ordersStream = _fetchActiveOrders();
+                  });
                   Navigator.of(context).pop();
                 },
-                child: Text('Reject'),
+                child: const Text('Reject'),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               ElevatedButton(
@@ -864,67 +1054,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       order: order,
                     ));
                   },
-                  child: Text("Edit"))
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12), // Adjust the radius as needed
-                ),
-                foregroundColor: const Color(0xffa14716),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Perform logout action here
-              },
-              child: const Text("Cancel"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Profile"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.image),
-                radius: 40,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                widget.user.name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                widget.user.email,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              IconButton(
-                onPressed: () {
-                  Get.offAll(
-                    LoginScreen(),
-                  );
-                },
-                icon: const Icon(Icons.logout, size: 40, color: Colors.red),
-              )
+                  child: const Text("Edit"))
             ],
           ),
           actions: [

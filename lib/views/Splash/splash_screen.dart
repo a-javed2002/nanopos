@@ -1,8 +1,7 @@
-import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nanopos/OnBoarding/onBoarding.dart';
+import 'package:nanopos/OnBoarding/on_boarding.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Home/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,10 +10,10 @@ class Splashscreen extends StatefulWidget {
   const Splashscreen({Key? key}) : super(key: key);
 
   @override
-  _SplashscreenState createState() => _SplashscreenState();
+  SplashscreenState createState() => SplashscreenState();
 }
 
-class _SplashscreenState extends State<Splashscreen> {
+class SplashscreenState extends State<Splashscreen> {
   @override
   void initState() {
     super.initState();
@@ -26,7 +25,10 @@ class _SplashscreenState extends State<Splashscreen> {
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     bool isOnBoard = prefs.getBool('isOnBoard') ?? false;
 
+    if (kDebugMode) {
     print("Redirecting...");
+
+    }
 
     if (isLoggedIn) {
       // Retrieve user object JSON string from shared preferences
@@ -47,7 +49,7 @@ class _SplashscreenState extends State<Splashscreen> {
       }
 
 // Create a new loginUser object from the Map
-      loginUser userObj =  loginUser(
+      LoginUser userObj =  LoginUser(
           id: id.toString(),
           bid: bid.toString(),
           bName: bName,
@@ -61,12 +63,12 @@ class _SplashscreenState extends State<Splashscreen> {
           token: token);
 
       Get.off(MyHomePage(
-        user: userObj,
+        user: userObj,isLogin: false,
       ));
     } else if (isOnBoard) {
-      Get.off(LoginScreen());
+      Get.off(const LoginScreen());
     } else {
-      Get.off(OnBoardingScreen());
+      Get.off(const OnBoardingScreen());
     }
 
     // Wait for 2 seconds

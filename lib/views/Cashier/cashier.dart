@@ -1,23 +1,22 @@
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:nanopos/controller/printController.dart';
-import 'package:nanopos/views/Print/testprint.dart';
-import 'package:nanopos/views/Cashier/cardPayment.dart';
-import 'package:nanopos/views/Cashier/cashPaymet.dart';
+import 'package:nanopos/controller/auth_controller.dart';
+import 'package:nanopos/controller/print_controller.dart';
+import 'package:nanopos/views/Cashier/card_payment.dart';
+import 'package:nanopos/views/Cashier/cash_paymet.dart';
 
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Home/order.dart';
 import 'package:nanopos/consts/consts.dart';
 
 class CashierScreen extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
   final String table;
   final String id;
   final Order orderrs;
 
-  CashierScreen({
+  const CashierScreen({
     Key? key,
     required this.id,
     required this.user,
@@ -26,10 +25,11 @@ class CashierScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CashierScreenState createState() => _CashierScreenState();
+  CashierScreenState createState() => CashierScreenState();
 }
 
-class _CashierScreenState extends State<CashierScreen> {
+class CashierScreenState extends State<CashierScreen> {
+  final AuthController _authController = Get.find();
   late Order order;
   final int orderType = 10;
   var firstTime = true;
@@ -49,12 +49,11 @@ class _CashierScreenState extends State<CashierScreen> {
     printController.initPlatformState();
     order = widget.orderrs;
     updatedTotalPrice = (order.totalCurrencyPrice).replaceAll("Rs", "");
-    updatedTaxPrice = (order.total_tax_currency_price).replaceAll("Rs", "");
+    updatedTaxPrice = (order.totalTaxCurrencyPrice).replaceAll("Rs", "");
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -64,10 +63,10 @@ class _CashierScreenState extends State<CashierScreen> {
       child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.transparent,
-            title: Center(
+            title: const Center(
               child: Text(
                 "Payment",
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold, // Make text bolder
                 ),
               ),
@@ -76,7 +75,7 @@ class _CashierScreenState extends State<CashierScreen> {
             actions: [
               InkWell(
                 onTap: () {
-                  _showLogoutDialog();
+                  _authController.showLogoutDialog(context);
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 10.0),
@@ -105,28 +104,41 @@ class _CashierScreenState extends State<CashierScreen> {
                         Row(
                           children: [
                             Image.asset("assets/images/receipt.png"),
-                            SizedBox(width: 10),
-                            Text(
+                            const SizedBox(width: 10),
+                            const Text(
                               "Order Summary",
                               style: TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(width: 40),
+                            const SizedBox(width: 40),
                             IconButton(
                                 onPressed: () {
-                                  printController.printDialog(context: context,order: order,user: widget.user);
-                                }, icon: const Icon(Icons.print))
+                                  printController.printDialog(
+                                      context: context,
+                                      order: order,
+                                      user: widget.user);
+                                },
+                                icon: const Icon(Icons.print))
                           ],
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         // Check if orderItems is not null and not empty
                         if (order.orderItems != null &&
                             order.orderItems.isNotEmpty)
                           Column(
                             children: order.orderItems.map((orderItem) {
-                              var x = (orderItem.price).replaceAll("Rs", "");
-                              total += orderItem.quantity * double.parse(x);
-                              print("$total = ${orderItem.quantity} and ${x}");
+                              var p = (orderItem.price).replaceAll("Rs", "");
+                              var q = (orderItem.itemVariationCurrencyTotal)
+                                  .replaceAll("Rs", "");
+                              var r = (orderItem.itemExtraCurrencyTotal)
+                                  .replaceAll("Rs", "");
+                              var itemtotal = double.parse(p) +
+                                  double.parse(q) +
+                                  double.parse(r);
+                                  total+=itemtotal;
+                              if (kDebugMode) {
+                                print("$total = ${orderItem.quantity} and $p");
+                              }
                               return GestureDetector(
                                 onTap: () {
                                   _showItemDialog(context, orderItem);
@@ -137,14 +149,14 @@ class _CashierScreenState extends State<CashierScreen> {
                                   children: [
                                     Text(
                                         "${orderItem.quantity}x ${orderItem.itemName}"),
-                                    Text("${orderItem.price}"),
+                                    Text(itemtotal.toString()),
                                   ],
                                 ),
                               );
                             }).toList(),
                           )
                         else
-                          Text("No items in order"),
+                          const Text("No items in order"),
                       ],
                     ),
                   ),
@@ -162,7 +174,7 @@ class _CashierScreenState extends State<CashierScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Subtotal"),
+                            const Text("Subtotal"),
                             Text(
                                 "${double.parse(updatedTotalPrice) - double.parse(updatedTaxPrice)}Rs"),
                           ],
@@ -170,14 +182,14 @@ class _CashierScreenState extends State<CashierScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Tax"),
-                            Text("${order.total_tax_currency_price}"),
+                            const Text("Tax"),
+                            Text(order.totalTaxCurrencyPrice),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Total"),
+                            const Text("Total"),
                             Text("${total}Rs"),
                           ],
                         ),
@@ -198,17 +210,17 @@ class _CashierScreenState extends State<CashierScreen> {
                         Row(
                           children: [
                             Image.asset("assets/images/credit_card.png"),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
-                            Text(
+                            const Text(
                               "Payment method",
                               style: TextStyle(
                                   fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         InkWell(
@@ -218,12 +230,13 @@ class _CashierScreenState extends State<CashierScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => CardPayment(
-                                      id: widget.id,
-                                      table: widget.table,
-                                      // total: 123,
-                                      total: total,
-                                      user: widget.user,
-                                      orderId: order.id,order: order,)),
+                                        id: widget.id,
+                                        table: widget.table,
+                                        // total: 123,
+                                        total: total,
+                                        user: widget.user,
+                                        orderId: order.id, order: order,
+                                      )),
                             );
                           },
                           child: Card.outlined(
@@ -233,7 +246,8 @@ class _CashierScreenState extends State<CashierScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 8, horizontal: 8),
-                              margin: const EdgeInsets.symmetric(horizontal: 15),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: Column(
                                 children: [
                                   Row(
@@ -242,22 +256,22 @@ class _CashierScreenState extends State<CashierScreen> {
                                     children: [
                                       Column(
                                         children: [
-                                          Text(
+                                          const Text(
                                             "Card",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             height: 5,
                                           ),
                                           Image.asset(
                                               "assets/images/MasterCard.png"),
                                         ],
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
-                                      Text(
+                                      const Text(
                                         "**** **** 3356",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
@@ -269,7 +283,7 @@ class _CashierScreenState extends State<CashierScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 5,
                         ),
                         InkWell(
@@ -279,12 +293,13 @@ class _CashierScreenState extends State<CashierScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => CashPayment(
-                                      id: widget.id,
-                                      table: widget.table,
-                                      // total: 123,
-                                      total: total,
-                                      user: widget.user,
-                                      orderId: order.id,order: order,)),
+                                        id: widget.id,
+                                        table: widget.table,
+                                        // total: 123,
+                                        total: total,
+                                        user: widget.user,
+                                        orderId: order.id, order: order,
+                                      )),
                             );
                           },
                           child: Card.outlined(
@@ -304,23 +319,23 @@ class _CashierScreenState extends State<CashierScreen> {
                                     children: [
                                       Column(
                                         children: [
-                                          Text(
+                                          const Text(
                                             "Cash",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             height: 5,
                                           ),
                                           Image.asset("assets/images/cash.png"),
                                         ],
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       Text(
                                         "${total}Rs",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ],
@@ -337,66 +352,6 @@ class _CashierScreenState extends State<CashierScreen> {
               ],
             ),
           )),
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Profile"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.image),
-                radius: 40,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                widget.user.name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                widget.user.email,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              IconButton(
-                onPressed: () {
-                  Get.offAll(
-                    LoginScreen(),
-                  );
-                },
-                icon: const Icon(Icons.logout, size: 40, color: Colors.red),
-              )
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12), // Adjust the radius as needed
-                ),
-                foregroundColor: const Color(0xff2a407c),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Perform logout action here
-              },
-              child: const Text("Cancel"),
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -432,7 +387,7 @@ class _CashierScreenState extends State<CashierScreen> {
                   updateTotal();
                   Navigator.of(context).pop();
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.delete,
                   color: Colors.red,
                 ),
@@ -456,7 +411,7 @@ class _CashierScreenState extends State<CashierScreen> {
                         updateTotal();
                       }
                     },
-                    child: Icon(Icons.remove),
+                    child: const Icon(Icons.remove),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -467,7 +422,7 @@ class _CashierScreenState extends State<CashierScreen> {
                       // updateTotal();
                       Navigator.of(context).pop();
                     },
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                 ],
               ),

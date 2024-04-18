@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:nanopos/consts/consts.dart';
 
 class TableStatus extends StatefulWidget {
+  const TableStatus({Key? key}): super(key: key);
   @override
-  _TableStatusState createState() => _TableStatusState();
+  TableStatusState createState() => TableStatusState();
 }
 
-class _TableStatusState extends State<TableStatus>
+class TableStatusState extends State<TableStatus>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
@@ -16,7 +17,7 @@ class _TableStatusState extends State<TableStatus>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
     );
 
     _colorAnimation = ColorTween(begin: Colors.red, end: Colors.yellow)
@@ -49,12 +50,12 @@ class _TableStatusState extends State<TableStatus>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnimatedContainer(
-            duration: Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
             width: double.infinity,
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: table['is_calling'] ? (_colorAnimation as Animation<Color?>).value : Colors.grey,
+              color: table['is_calling'] ? (_colorAnimation).value : Colors.grey,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -69,10 +70,10 @@ class _TableStatusState extends State<TableStatus>
                         ? whiteColor
                         : table['isActive']
                             ? whiteColor
-                            : Color(0xfff3b98a),
+                            : const Color(0xfff3b98a),
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   "${table['size']} Persons",
                   style: TextStyle(
@@ -81,7 +82,7 @@ class _TableStatusState extends State<TableStatus>
                         ? whiteColor
                         : table['isActive']
                             ? whiteColor
-                            : Color(0xfff3b98a),
+                            : const Color(0xfff3b98a),
                   ),
                 ),
               ],

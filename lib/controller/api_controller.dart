@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanopos/consts/consts.dart';
@@ -26,7 +27,8 @@ class ApiController extends GetxController {
     selectedCatId.value = 0;
   }
 
-  Future<void> fetchData(String apiUrl, String userToken, RxList<dynamic> updatedList,
+  Future<void> fetchData(
+      String apiUrl, String userToken, RxList<dynamic> updatedList,
       {bool x = false}) async {
     try {
       final response = await http.get(
@@ -56,33 +58,41 @@ class ApiController extends GetxController {
         } else {
           throw Exception('Failed to parse table data');
         }
-      }
-      else if (response.statusCode == 401) {
-        print("Session Expire");
-      }
-      else {
-        x?
-        throw Exception('Failed to load active cat'):
-        throw Exception('Failed to load active item');
+      } else if (response.statusCode == 401) {
+        if (kDebugMode) {
+          print("Session Expire");
+        }
+      } else {
+        x
+            ? throw Exception('Failed to load active cat')
+            : throw Exception('Failed to load active item');
       }
 
       // Delay before fetching cat again
     } catch (e) {
-      print('Error fetching cat: $e');
+      if (kDebugMode) {
+        print('Error fetching cat: $e');
+      }
     }
   }
 
   void filterItem() {
     filItem.value = [];
-    print("Selected cat id is ${selectedCatId.value} and items are $item");
+    if (kDebugMode) {
+      print("Selected cat id is ${selectedCatId.value} and items are $item");
+    }
     if (selectedCatId.value == 0) {
       for (var i = 0; i < item.length; i++) {
-        print("in here1");
+        if (kDebugMode) {
+          print("in here1");
+        }
         filItem.add(item[i]);
       }
     } else {
       for (var i = 0; i < item.length; i++) {
-        print("in here2");
+        if (kDebugMode) {
+          print("in here2");
+        }
         if (item[i]['item_category_id'] == selectedCatId.value) {
           filItem.add(item[i]);
         }

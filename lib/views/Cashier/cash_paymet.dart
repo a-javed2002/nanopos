@@ -2,9 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/consts/consts.dart';
-import 'package:nanopos/controller/adminController.dart';
+import 'package:nanopos/controller/admin_controller.dart';
 import 'package:nanopos/views/Auth/login.dart';
-import 'package:nanopos/views/StatusScreens/order_placed.dart';
 import 'package:nanopos/views/StatusScreens/payment_done.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,7 +11,7 @@ import 'dart:convert';
 import 'package:nanopos/views/Home/order.dart';
 
 class CashPayment extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
   final String table;
   final String id;
   final double total;
@@ -30,10 +29,10 @@ class CashPayment extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CashPaymentState createState() => _CashPaymentState();
+  CashPaymentState createState() => CashPaymentState();
 }
 
-class _CashPaymentState extends State<CashPayment> {
+class CashPaymentState extends State<CashPayment> {
   final _paidController = TextEditingController();
   TextEditingController totalAmountController = TextEditingController();
   final AdminController adminController = Get.find();
@@ -80,7 +79,9 @@ class _CashPaymentState extends State<CashPayment> {
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print("paid");
+        if (kDebugMode) {
+          print("paid");
+        }
         adminController.setLocal(widget.order);
         // Extract response body
         var responseBody = jsonDecode(response.body);
@@ -103,15 +104,15 @@ class _CashPaymentState extends State<CashPayment> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Insufficient Payment'),
-            content: Text(
+            title: const Text('Insufficient Payment'),
+            content: const Text(
                 'The paid amount must be greater than or equal to the total amount.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('OK'),
+                child: const Text('OK'),
               ),
             ],
           );
@@ -143,9 +144,9 @@ class _CashPaymentState extends State<CashPayment> {
               const SizedBox(height: 20),
               ElevatedButton(onPressed: (){
                 Get.offAll(
-                    LoginScreen(),
+                    const LoginScreen(),
                   );
-              }, child: Text("Log In Again"))
+              }, child: const Text("Log In Again"))
             ],
           ),
         );
@@ -173,7 +174,7 @@ class _CashPaymentState extends State<CashPayment> {
         title: Text('Cash Payment - ${widget.orderId}'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -181,17 +182,17 @@ class _CashPaymentState extends State<CashPayment> {
               enabled: false,
               controller: totalAmountController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Total Amount',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: _paidController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Paid Amount'),
+              decoration: const InputDecoration(labelText: 'Paid Amount'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
               width: double.infinity,
@@ -209,10 +210,10 @@ class _CashPaymentState extends State<CashPayment> {
                 onPressed: (_paidAmount >= widget.total)
                     ? _handlePaidButtonPressed
                     : null,
-                child: Text('Paid'),
+                child: const Text('Paid'),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               'Amount to return: ${_amountToReturn.toStringAsFixed(2)}',
             ),

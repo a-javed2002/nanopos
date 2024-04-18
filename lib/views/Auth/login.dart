@@ -1,28 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:nanopos/views/Auth/forgetPassword.dart';
-import 'dart:convert';
+import 'package:nanopos/controller/api_controller.dart';
+import 'package:nanopos/controller/auth_controller.dart';
 import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/common/loader.dart';
-import 'package:nanopos/views/Menu/menu.dart';
-import 'package:nanopos/views/Auth/signup.dart';
-import 'package:nanopos/controller/apiController.dart';
 import 'package:nanopos/consts/consts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
+  final AuthController _authController = Get.find();
   final ApiController _apiController = Get.find();
   bool _showPassword = false;
-  bool isLoading = false;
 
   @override
   void initState() {
@@ -73,10 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email),
+                      prefixIcon: const Icon(Icons.email),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black, // Border color
                           width: 4.0, // Border width
                         ),
@@ -106,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fillColor: whiteColor.withOpacity(0.5),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black, // Border color
                           width: 4.0, // Border width
                         ),
@@ -114,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     obscureText: !_showPassword,
                   ),
-                  Row(
+                  const Row(
                     children: [
                       // Checkbox(
                       //   value: false, // Add logic for handling remember me
@@ -123,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       //   },
                       // ),
                       // const Text('Remember me'),
-                      const Spacer(),
+                      Spacer(),
                       // TextButton(
                       //   onPressed: () {
                       //     // Add logic for forgot password
@@ -140,8 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       // ),
                     ],
                   ),
-                  isLoading
-                      ? CustomLoader()
+                 Obx(() =>  _authController.isLoading.value
+                      ? const CustomLoader()
                       : Container(
                           margin: const EdgeInsets.symmetric(
                               vertical: 12, horizontal: 25),
@@ -156,19 +151,49 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               backgroundColor: const Color(0xffa14716),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
                               if (emailController.text == '' &&
                                   passwordController.text == '') {
-                                _showDialog("Warning",
-                                    "Email & Password is Required", "");
+                                _authController.showDialogBox(
+                                    "Warning",
+                                    "Email & Password is Required",
+                                    "",
+                                    context);
                               } else if (emailController.text == '') {
-                                _showDialog("Warning", "Email is Required", "");
+                                _authController.showDialogBox("Warning",
+                                    "Email is Required", "", context);
                               } else if (passwordController.text == '') {
-                                _showDialog(
-                                    "Warning", "Password is Required", "");
+                                _authController.showDialogBox("Warning",
+                                    "Password is Required", "", context);
                               } else {
-                                login(emailController.text,
-                                    passwordController.text);
+                                bool response = await _authController.login(
+                                    emailController.text,
+                                    passwordController.text,
+                                    context);
+
+                                if (response) {
+                                  bool xyz = await loadData(
+                                      _authController.loggedInUser.token);
+                                  if (xyz) {
+                                    if (kDebugMode) {
+                                      print("Successfully saved on local");
+                                    }
+                                  } else {
+                                    if (kDebugMode) {
+                                      print("Unsuccessfully saved on local");
+                                    }
+                                  }
+                                  Get.offAll(
+                                    MyHomePage(
+                                      user: _authController.loggedInUser,
+                                      isLogin: true,
+                                    ),
+                                  );
+                                } else {
+                                  if (kDebugMode) {
+                                    print("Login Failed");
+                                  }
+                                }
                               }
                             },
                             child: const Text(
@@ -179,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: whiteColor),
                             ),
                           ),
-                        ),
+                        ),)
                   // Container(
                   //   margin: const EdgeInsets.symmetric(
                   //       vertical: 12, horizontal: 45),
@@ -219,173 +244,25 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void login(String email, String password) async {
-    setState(() {
-      isLoading = true; // Set isLoading to true before signup
-    });
-    // Your logic to get the token and make the HTTP request
-    if (kDebugMode) {
-      print("Logging in");
-    }
-    var data = {"email": email, "password": password};
-    var response = await http.post(
-      Uri.parse('$domain/api/auth/login'),
-      body: jsonEncode(data),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'X-Api-Key': xApi,
-      },
-    );
-    if (kDebugMode) {
-      print(response.statusCode);
-    }
+  Future<bool> loadData(userToken) async {
+    try {
+      String catUrl = '$domain/api/admin/setting/item-category?order_type=desc';
+      String itemUrl = '$domain/api/admin/item?order_type=desc';
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      setState(() {
-        isLoading = false; // Set isLoading to true before signup
-      });
-      // Extract response body
-      var responseBody = jsonDecode(response.body);
+      await _apiController.fetchData(catUrl, userToken, _apiController.cat,
+          x: true);
+      await _apiController.fetchData(itemUrl, userToken, _apiController.item);
+    } on Exception catch (e) {
       if (kDebugMode) {
-        print("Login response $responseBody");
+        print(e);
       }
-      var user = responseBody['user'];
-      var id = user['id'];
-      var bid = responseBody['branch_id'];
-      var bName = "Main Branch";
-      // var bName = responseBody['branch_name'];
-      var username = user['username'];
-      var email = user['email'];
-      var image = user['image'];
-      var firstName = user['first_name'];
-      var lastName = user['last_name'];
-      var phone = user['phone'];
-      var token = responseBody['token'];
-      int role = int.parse(user['role_id'].toString());
-
-      if (role == 7 || role == 6) {
-        var obj = new loginUser(
-            id: id.toString(),
-            bid: bid.toString(),
-            bName: bName,
-            email: email,
-            image: image,
-            name: firstName,
-            username: username,
-            lastName: lastName,
-            phone: phone,
-            roleId: role,
-            token: token);
-        // Save logged-in status and token to shared preferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('id', id.toString());
-        await prefs.setString('bid', bid.toString());
-        await prefs.setString('bName', bName.toString());
-        await prefs.setString('email', email);
-        await prefs.setString('image', image);
-        await prefs.setString('username', username);
-        await prefs.setString('firstName', username);
-        await prefs.setString('lastName', username);
-        await prefs.setString('phone', username);
-        await prefs.setString('roleId', role.toString());
-        await prefs.setString('token', token);
-
-        var xyz = await loadData(token);
-        Get.offAll(
-          MyHomePage(user: obj),
-        );
-      } else {
-        setState(() {
-          isLoading = false; // Set isLoading to true before signup
-        });
-        var responseBody = jsonDecode(response.body);
-        print(responseBody);
-        _showDialog("Fail", "Technical Issue", "kindly contact Adminitration");
-      }
-      // _showDialog(
-      //     "Fail", responseBody.toString(), "kindly contact Adminitration");
-    } else {
-      setState(() {
-        isLoading = false; // Set isLoading to true before signup
-      });
-      var responseBody = jsonDecode(response.body);
-      if (kDebugMode) {
-        print("Failed Login response $responseBody");
-      }
-      if (responseBody.containsKey('errors')) {
-        var errorMap = responseBody['errors'];
-        if (errorMap.containsKey('validation')) {
-          var errorMessage = errorMap['validation'];
-          if (kDebugMode) {
-            print('Error Message: $errorMessage');
-          }
-          _showDialog("Fail", "$errorMessage", "kindly contact Adminitration");
-        }
-      } else {
-        _showDialog(
-            "Fail", "Invalid Credentials", "kindly contact Adminitration");
-      }
+      return false;
     }
-  }
-
-  Future<void> loadData(userToken) async {
-    String catUrl = '$domain/api/admin/setting/item-category?order_type=desc';
-    String itemUrl = '$domain/api/admin/item?order_type=desc';
-
-    await _apiController.fetchData(catUrl, userToken, _apiController.cat,
-        x: true);
-    await _apiController.fetchData(itemUrl, userToken, _apiController.item);
-  }
-
-  void _showDialog(String title, String x, String sub) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  x,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  sub,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12), // Adjust the radius as needed
-                ),
-                foregroundColor: const Color(0xff2a407c),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Perform logout action here
-              },
-              child: const Text("Ok"),
-            ),
-          ],
-        );
-      },
-    );
+    return true;
   }
 }
 
-class loginUser {
+class LoginUser {
   final String id;
   final String bid;
   final String bName;
@@ -398,7 +275,7 @@ class loginUser {
   final int roleId;
   final String token;
 
-  loginUser({
+  LoginUser({
     required this.id,
     required this.bid,
     required this.bName,
@@ -413,19 +290,18 @@ class loginUser {
   });
 
   // Factory method to create a loginUser object from a Map
-  factory loginUser.fromJson(Map<String, dynamic> json) {
-    return loginUser(
-      id: json['id'],
-      bid: json['bid'],
-      bName: json['bName'],
-      email: json['email'],
-      image: json['image'],
-      name: json['first_name'],
-      roleId: json['roleId'],
-      token: json['token'],
-      lastName: json['last_name'],
-      phone: json['phone'],
-      username: json['username']
-    );
+  factory LoginUser.fromJson(Map<String, dynamic> json) {
+    return LoginUser(
+        id: json['id'],
+        bid: json['bid'],
+        bName: json['bName'],
+        email: json['email'],
+        image: json['image'],
+        name: json['first_name'],
+        roleId: json['roleId'],
+        token: json['token'],
+        lastName: json['last_name'],
+        phone: json['phone'],
+        username: json['username']);
   }
 }

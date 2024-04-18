@@ -1,21 +1,16 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/consts/consts.dart';
-import 'package:nanopos/controller/apiController.dart';
-import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/controller/api_controller.dart';
+import 'package:nanopos/controller/cart_controller.dart';
 import 'package:nanopos/views/Menu/cart.dart';
-import 'package:nanopos/views/Menu/dialogDetail.dart';
-import 'package:nanopos/views/common/highlight_text.dart';
-import 'package:nanopos/views/Menu/detail.dart';
+import 'package:nanopos/views/Menu/dialog_detail.dart';
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:nanopos/views/Auth/login.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuScreen extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
   final String id;
   final String table;
   const MenuScreen(
@@ -39,10 +34,8 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   void fetchData() {
-    String catUrl =
-        '$domain/api/admin/setting/item-category?order_type=desc';
-    String itemUrl =
-        '$domain/api/admin/item?order_type=desc';
+    String catUrl = '$domain/api/admin/setting/item-category?order_type=desc';
+    String itemUrl = '$domain/api/admin/item?order_type=desc';
     String userToken = widget.user.token; // Replace with your user token
 
     _apiController.fetchData(catUrl, userToken, _apiController.cat, x: true);
@@ -51,7 +44,6 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _apiController.getLocal();
     // _apiController.token = widget.user.token;
@@ -86,11 +78,11 @@ class _MenuScreenState extends State<MenuScreen> {
               Expanded(
                 flex: 1,
                 child: Container(
-                  color: Color(0xfff3b98a),
+                  color: const Color(0xfff3b98a),
                   child: Column(
                     children: [
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
                               color: Colors.black,
@@ -99,7 +91,7 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                         child: ListTile(
-                          title: Icon(Icons.arrow_back),
+                          title: const Icon(Icons.arrow_back),
                           onTap: () {
                             Navigator.pop(context);
                           },
@@ -108,9 +100,9 @@ class _MenuScreenState extends State<MenuScreen> {
                       Container(
                         decoration: BoxDecoration(
                           color: _apiController.selectedCatId.value == 0
-                              ? Color(0xffa14716)
+                              ? const Color(0xffa14716)
                               : Colors.transparent,
-                          border: Border(
+                          border: const Border(
                             bottom: BorderSide(
                               color: Colors.black,
                               width: 1.0, // Adjust the width as needed
@@ -127,7 +119,9 @@ class _MenuScreenState extends State<MenuScreen> {
                                     : Colors.black), // Adjusted font size
                           ),
                           onTap: () {
+                            if (kDebugMode) {
                             print("0 === 0");
+                            }
                             _apiController.selectedCatId.value = 0;
                             _apiController.filterItem();
                             setState(() {
@@ -160,7 +154,7 @@ class _MenuScreenState extends State<MenuScreen> {
                       // ),
                       Obx(() {
                         if (_apiController.cat.isEmpty) {
-                          return Center(
+                          return const Center(
                             // child: CircularProgressIndicator(),
                             child: Text("No Cats Available"),
                           );
@@ -175,9 +169,9 @@ class _MenuScreenState extends State<MenuScreen> {
                                   decoration: BoxDecoration(
                                     color: _apiController.selectedCatId.value ==
                                             cat['id']
-                                        ? Color(0xffa14716)
+                                        ? const Color(0xffa14716)
                                         : Colors.transparent,
-                                    border: Border(
+                                    border: const Border(
                                       bottom: BorderSide(
                                         color: Colors.black,
                                         width:
@@ -198,7 +192,10 @@ class _MenuScreenState extends State<MenuScreen> {
                                                   .black), // Adjusted font size
                                     ),
                                     onTap: () {
+                                      if (kDebugMode) {
+
                                       print("${cat['id']} === ${cat['name']}");
+                                      }
                                       _apiController.selectedCatId.value =
                                           cat['id'];
                                       _apiController.filterItem();
@@ -353,13 +350,13 @@ class _MenuScreenState extends State<MenuScreen> {
                           onPressed: () {
                             _showLogoutDialog();
                           },
-                          icon: Icon(Icons.person),
+                          icon: const Icon(Icons.person),
                         )
                       ],
                     ),
                     Container(
                       margin:
-                          EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                          const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: Colors.black,
@@ -378,47 +375,41 @@ class _MenuScreenState extends State<MenuScreen> {
                                   _apiController.searchItem();
                                   // print(_apiController.filItem);
                                 },
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   hintText: 'Search',
                                   hintStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyText1!
-                                        .color,
+                                    color: blackColor,
                                   ),
                                   icon: Icon(
                                     Icons.search,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyText1!
-                                        .color,
+                                    color: greenColor,
                                   ),
                                   border: InputBorder.none,
-                                  suffixIcon: _apiController
-                                          .searchQuery.isNotEmpty
-                                      ? IconButton(
-                                          icon: Icon(
-                                            Icons.clear,
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1!
-                                                .color,
-                                          ),
-                                          onPressed: () {
-                                            print("clearing");
-                                            setState(() {
-                                              _apiController.searchQuery.value =
-                                                  '';
-                                            });
-                                          },
-                                        )
-                                      : null,
+                                  // suffixIcon: _apiController
+                                  //         .searchQuery.isNotEmpty
+                                  //     ? IconButton(
+                                  //         icon: Icon(
+                                  //           Icons.clear,
+                                  //           color: Theme.of(context)
+                                  //               .textTheme
+                                  //               .bodyText1!
+                                  //               .color,
+                                  //         ),
+                                  //         onPressed: () {
+                                  //           if (kDebugMode) {
+
+                                  //           print("clearing");
+                                  //           }
+                                  //           setState(() {
+                                  //             _apiController.searchQuery.value =
+                                  //                 '';
+                                  //           });
+                                  //         },
+                                  //       )
+                                  //     : null,
                                 ),
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyText1!
-                                      .color,
+                                style: const TextStyle(
+                                  color: blackColor,
                                 ),
                               ),
                             ),
@@ -426,7 +417,7 @@ class _MenuScreenState extends State<MenuScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     // Expanded(
@@ -464,13 +455,13 @@ class _MenuScreenState extends State<MenuScreen> {
                     Expanded(
                       child: Obx(() {
                         if (_apiController.item.isEmpty) {
-                          return Center(
+                          return const Center(
                             // child: CircularProgressIndicator(),
                             child: Text("No Items Available"),
                           );
                         } else {
                           if (_apiController.filItem.isEmpty) {
-                            return Center(
+                            return const Center(
                               child: Text("No Items Available"),
                             );
                           } else {
@@ -548,15 +539,16 @@ class _MenuScreenState extends State<MenuScreen> {
                   //   ),
                   // );
                   Get.offAll(
-                    LoginScreen(),
+                    const LoginScreen(),
                   );
                 },
                 icon: const Icon(Icons.logout, size: 40, color: redColor),
               ),
               IconButton(
                 onPressed: () {
-                  fetchData();
-                  setState(() {});
+                  setState(() {
+                    fetchData();
+                  });
                 },
                 icon: const Icon(Icons.restore, size: 40, color: greenColor),
               ),
@@ -624,11 +616,13 @@ class _MenuScreenState extends State<MenuScreen> {
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: (){
-                Get.offAll(
-                    LoginScreen(),
-                  );
-              }, child: Text("Log In Again"))
+              ElevatedButton(
+                  onPressed: () {
+                    Get.offAll(
+                      const LoginScreen(),
+                    );
+                  },
+                  child: const Text("Log In Again"))
             ],
           ),
         );
@@ -647,7 +641,7 @@ class MyAppListItem extends StatefulWidget {
   final Map<String, dynamic> item;
   final void Function(GlobalKey) onClick;
 
-  MyAppListItem(
+  const MyAppListItem(
       {super.key,
       required this.onClick,
       required this.index,
@@ -681,6 +675,23 @@ class _MyAppListItemState extends State<MyAppListItem> {
         widget.img,
         width: 60,
         height: 60,
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) {
+            // If the image is fully loaded, return the Image widget
+            return child;
+          } else {
+            // If the image is still loading, return a CircularProgressIndicator
+            return const CircularProgressIndicator();
+          }
+        },
+        errorBuilder:
+            (BuildContext context, Object exception, StackTrace? stackTrace) {
+          // Return a fallback image in case of an error
+          return Image.asset(
+            'assets/images/imageNotFound.png', // Provide the path to your fallback image
+          );
+        },
       ),
     );
 
@@ -713,23 +724,29 @@ class _MyAppListItemState extends State<MyAppListItem> {
             );
             if (addToCart != null) {
               if (addToCart) {
+                if (kDebugMode) {
+
                 print('Item added to cart');
-                Future.delayed(Duration(milliseconds: 500), () {
+                }
+                Future.delayed(const Duration(milliseconds: 500), () {
                   widget.onClick(widgetKey);
                 });
               } else {
+                if (kDebugMode) {
+
                 print('Canceled');
+                }
               }
             }
           },
           // title: HighlightedText(text: name, query: apiController.searchQuery.value),
           title: Text(
             widget.name,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
             widget.price,
-            style: TextStyle(fontSize: 10),
+            style: const TextStyle(fontSize: 10),
           ),
           leading: mandatoryContainer,
           // trailing: widget.chk
@@ -793,10 +810,10 @@ class _MyAppListItemState extends State<MyAppListItem> {
           //     ),
           //   ),
           trailing: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color(0xffa14716),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.add,
               color: whiteColor,
               size: 20,

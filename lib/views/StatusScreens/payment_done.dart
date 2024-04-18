@@ -1,20 +1,14 @@
 import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:nanopos/controller/printController.dart';
+import 'package:nanopos/controller/print_controller.dart';
 import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/consts/consts.dart';
-import 'package:http/http.dart' as http;
-import 'package:nanopos/views/Print/testprint.dart';
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:nanopos/views/Home/order.dart';
 
 class PaymentPaidScreen extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
   final Order order;
   const PaymentPaidScreen({Key? key, required this.user, required this.order})
       : super(key: key);
@@ -30,20 +24,9 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
   void initState() {
     super.initState();
     printController.initPlatformState();
-    Timer(Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () {
       // _redirectHome();
     });
-  }
-
-  void _redirectHome() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MyHomePage(
-          user: widget.user,
-        ),
-      ),
-    );
   }
 
   @override
@@ -54,20 +37,20 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset("assets/gifs/payment.gif"),
-          Text(
+          const Text(
             "THANK YOU!",
             style: TextStyle(
                 fontSize: 25,
                 color: Color(0xffa14716),
                 fontWeight: FontWeight.bold),
           ),
-          Text(
+          const Text(
             "PAYMENT DONE SUCCESSFULLY",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Center(
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            child: const Center(
               child: Text(
                 "You will be redirected to Dashboard shortly or click here to return to the home page",
                 textAlign: TextAlign.center, // Align text to center
@@ -75,7 +58,7 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
             ),
           ),
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 45),
+            margin: const EdgeInsets.symmetric(horizontal: 45),
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -92,12 +75,12 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => MyHomePage(
-                      user: widget.user,
+                      user: widget.user,isLogin: false,
                     ),
                   ),
                 );
               },
-              child: Text(
+              child: const Text(
                 "Dashboard",
                 style: TextStyle(color: whiteColor),
               ),
@@ -119,7 +102,7 @@ class _PaymentPaidScreenState extends State<PaymentPaidScreen> {
               onPressed: () {
                 printController.printDialog(context: context,order: widget.order,user: widget.user,billStatus: "paid");
               },
-              child: Text(
+              child: const Text(
                 "Print",
                 style: TextStyle(color: whiteColor),
               ),

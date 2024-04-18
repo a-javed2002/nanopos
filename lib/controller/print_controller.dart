@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
@@ -5,12 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Home/order.dart';
 import 'package:nanopos/views/Print/testprint.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class PrintController extends GetxController {
   BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
 
-  RxList<BluetoothDevice> _devices = <BluetoothDevice>[].obs;
+  final RxList<BluetoothDevice> _devices = <BluetoothDevice>[].obs;
   BluetoothDevice? _device;
   var connected = false.obs;
   TestPrint testPrint = TestPrint();
@@ -20,44 +20,66 @@ class PrintController extends GetxController {
     List<BluetoothDevice> devices = [];
     try {
       devices = await bluetooth.getBondedDevices();
-    } on PlatformException {}
+    } on PlatformException {
+      if (kDebugMode) {
+        print("platform error");
+      }
+    }
 
     bluetooth.onStateChanged().listen((state) {
       switch (state) {
         case BlueThermalPrinter.CONNECTED:
           connected.value = true;
-          print("bluetooth device state: connected");
+          if (kDebugMode) {
+            print("bluetooth device state: connected");
+          }
           break;
         case BlueThermalPrinter.DISCONNECTED:
           connected.value = false;
-          print("bluetooth device state: disconnected");
+          if (kDebugMode) {
+            print("bluetooth device state: disconnected");
+          }
           break;
         case BlueThermalPrinter.DISCONNECT_REQUESTED:
           connected.value = false;
-          print("bluetooth device state: disconnect requested");
+          if (kDebugMode) {
+            print("bluetooth device state: disconnect requested");
+          }
           break;
         case BlueThermalPrinter.STATE_TURNING_OFF:
           connected.value = false;
-          print("bluetooth device state: bluetooth turning off");
+          if (kDebugMode) {
+            print("bluetooth device state: bluetooth turning off");
+          }
           break;
         case BlueThermalPrinter.STATE_OFF:
           connected.value = false;
-          print("bluetooth device state: bluetooth off");
+          if (kDebugMode) {
+            print("bluetooth device state: bluetooth off");
+          }
           break;
         case BlueThermalPrinter.STATE_ON:
           connected.value = false;
-          print("bluetooth device state: bluetooth on");
+          if (kDebugMode) {
+            print("bluetooth device state: bluetooth on");
+          }
           break;
         case BlueThermalPrinter.STATE_TURNING_ON:
           connected.value = false;
-          print("bluetooth device state: bluetooth turning on");
+          if (kDebugMode) {
+            print("bluetooth device state: bluetooth turning on");
+          }
           break;
         case BlueThermalPrinter.ERROR:
           connected.value = false;
-          print("bluetooth device state: error");
+          if (kDebugMode) {
+            print("bluetooth device state: error");
+          }
           break;
         default:
-          print(state);
+          if (kDebugMode) {
+            print(state);
+          }
           break;
       }
     });
@@ -80,7 +102,7 @@ class PrintController extends GetxController {
     }
   }
 
-  void printDialog({required Order order,required BuildContext context,required loginUser user,String billStatus = "Un Paid"}) {
+  void printDialog({required Order order,required BuildContext context,required LoginUser user,String billStatus = "Un Paid"}) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -136,7 +158,7 @@ class PrintController extends GetxController {
                       },
                       child: Text(
                         connected.value ? 'Disconnect' : 'Connect',
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
@@ -164,7 +186,7 @@ class PrintController extends GetxController {
   void showToast({required BuildContext context, required String message}) {
     final snackBar = SnackBar(
       content: Text(message),
-      duration: Duration(seconds: 2), // Adjust the duration as needed
+      duration: const Duration(seconds: 2), // Adjust the duration as needed
       behavior: SnackBarBehavior
           .floating, // Ensure SnackBar is displayed above other content
     );
@@ -175,16 +197,16 @@ class PrintController extends GetxController {
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
     if (_devices.isEmpty) {
-      items.add(DropdownMenuItem(
+      items.add(const DropdownMenuItem(
         child: Text('NONE'),
       ));
     } else {
-      _devices.forEach((device) {
+      for (var device in _devices) {
         items.add(DropdownMenuItem(
-          child: Text(device.name ?? ""),
           value: device,
+          child: Text(device.name ?? ""),
         ));
-      });
+      }
     }
     return items;
   }
@@ -214,7 +236,7 @@ class PrintController extends GetxController {
   Future show(String message,
       {Duration duration = const Duration(seconds: 3),
       required BuildContext context}) async {
-    await new Future.delayed(new Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 100));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(

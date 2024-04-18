@@ -1,10 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
-import 'package:nanopos/controller/cartController.dart';
+import 'package:nanopos/controller/cart_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nanopos/consts/consts.dart';
 
@@ -21,16 +19,17 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
   List<Map<String, dynamic>> selectedExtras = [];
   List<Map<String, dynamic>> selectedAddons = [];
   int qty = 1;
-  var _special = TextEditingController();
+  final _special = TextEditingController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    print("addons Is : ${widget.item['addons']}");
-    print("offer Is : ${widget.item['offer']}");
-    print("extras Is : ${widget.item['extras']}");
-    print("itemAttributes Is : ${widget.item['itemAttributes']}");
-    print("variations Is : ${widget.item['variations']}");
+    if (kDebugMode) {
+      print("addons Is : ${widget.item['addons']}");
+      print("offer Is : ${widget.item['offer']}");
+      print("extras Is : ${widget.item['extras']}");
+      print("itemAttributes Is : ${widget.item['itemAttributes']}");
+      print("variations Is : ${widget.item['variations']}");
+    }
   }
 
   @override
@@ -49,6 +48,34 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
               children: [
                 Column(
                   children: [
+                    // CarouselSlider(
+                    //   options: CarouselOptions(
+                    //     autoPlay: true,
+                    //     aspectRatio: 16 / 9,
+                    //     enlargeCenterPage: true,
+                    //   ),
+                    //   items: [
+                    //     widget.item['cover'],
+                    //     widget.item['thumb'],
+                    //     widget.item['preview'],
+                    //   ].map((item) {
+                    //     return Builder(
+                    //       builder: (BuildContext context) {
+                    //         return Container(
+                    //           width: MediaQuery.of(context).size.width,
+                    //           margin: EdgeInsets.symmetric(horizontal: 5.0),
+                    //           decoration: BoxDecoration(
+                    //             borderRadius: BorderRadius.circular(8.0),
+                    //             image: DecorationImage(
+                    //               fit: BoxFit.cover,
+                    //               image: NetworkImage(item),
+                    //             ),
+                    //           ),
+                    //         );
+                    //       },
+                    //     );
+                    //   }).toList(),
+                    // ),
                     CarouselSlider(
                       options: CarouselOptions(
                         autoPlay: true,
@@ -64,30 +91,52 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                           builder: (BuildContext context) {
                             return Container(
                               width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.symmetric(horizontal: 5.0),
+                              margin: const EdgeInsets.symmetric(horizontal: 5.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8.0),
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(item),
-                                ),
+                              ),
+                              child: Image.network(
+                                item,
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    // If the image is fully loaded, return the Image widget
+                                    return child;
+                                  } else {
+                                    // If the image is still loading, return a CircularProgressIndicator
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                },
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  // Return a fallback image in case of an error
+                                  return Image.asset(
+                                    'assets/images/imageNotFound.png', // Provide the path to your fallback image
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                                fit: BoxFit.cover,
                               ),
                             );
                           },
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 10),
+
+                    const SizedBox(height: 10),
                     Text(
                       widget.item['name'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
                         widget.item['description'],
-                        style: TextStyle(fontSize: 10),
+                        style: const TextStyle(fontSize: 10),
                       ),
                     ),
                     Row(
@@ -102,7 +151,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.remove),
+                              icon: const Icon(Icons.remove),
                               onPressed: () {
                                 // cartController.decreaseQty(cartObject);
                                 if (qty > 1) {
@@ -110,12 +159,15 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                     qty--;
                                   });
                                 }
-                                print("quantity decreasing by 1");
+                                if (kDebugMode) {
+                                  print("quantity decreasing by 1");
+                                }
                               },
                             ),
                             Text(
                               "$qty",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             IconButton(
                               icon: const Icon(Icons.add),
@@ -124,7 +176,9 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                 setState(() {
                                   qty++;
                                 });
-                                print("quantity increasing by 1");
+                                if (kDebugMode) {
+                                  print("quantity increasing by 1");
+                                }
                               },
                             ),
                           ],
@@ -135,7 +189,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                 ),
                 const Divider(),
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
                     children:
                         widget.item['itemAttributes'].map<Widget>((attribute) {
@@ -154,12 +208,13 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                         children: [
                           Text(
                             attribute['name'],
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Wrap(
                             spacing: 10,
                             runSpacing: 10,
                             children: variations.map<Widget>((variation) {
+                              print('vaaaaaaar --> ${variation}');
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
@@ -168,23 +223,23 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                   });
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.all(10),
+                                  padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color: attribute['selected'] == variation
-                                          ? Color(0xffa14716)
-                                          : Color(0xfff3b98a),
+                                          ? const Color(0xffa14716)
+                                          : const Color(0xfff3b98a),
                                     ),
                                     borderRadius: BorderRadius.circular(5),
                                     color: attribute['selected'] == variation
-                                        ? Color(0xffa14716)
-                                        : Color(0xfff3b98a),
+                                        ? const Color(0xffa14716)
+                                        : const Color(0xfff3b98a),
                                   ),
                                   child: Text(
                                     "${variation['name']} +${double.parse(variation['price']).toStringAsFixed(2)}",
                                     style: TextStyle(
                                       color: attribute['selected'] == variation
-                                          ? Color(0xffffffff)
+                                          ? const Color(0xffffffff)
                                           : Colors.black,
                                     ),
                                   ),
@@ -201,10 +256,10 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                 (widget.item['extras'] != null &&
                         widget.item['extras'].isNotEmpty)
                     ? Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
                         child: Column(
                           children: [
-                            Text(
+                            const Text(
                               "Extras",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -213,17 +268,17 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                   widget.item['extras'].map<Widget>((extra) {
                                 return CheckboxListTile(
                                   // tileColor: Color(0xfff3b98a),
-                                  activeColor: Color(0xffa14716),
+                                  activeColor: const Color(0xffa14716),
                                   // controlAffinity: ListTileControlAffinity.leading,
                                   title: Text(
                                     extra['name'],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold),
                                   ),
                                   subtitle: Text(
                                     "Price: ${extra['currency_price']}",
-                                    style: TextStyle(fontSize: 10),
+                                    style: const TextStyle(fontSize: 10),
                                   ),
                                   value: selectedExtras.contains(extra),
                                   onChanged: (bool? value) {
@@ -246,10 +301,10 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                 (widget.item['addons'] != null &&
                         widget.item['addons'].isNotEmpty)
                     ? Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
                         child: Column(
                           children: [
-                            Text(
+                            const Text(
                               "Addons",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -259,41 +314,45 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                 bool isChecked = selectedAddons.contains(addon);
 
                                 return CheckboxListTile(
-                                  activeColor: Color(0xffa14716),
+                                  activeColor: const Color(0xffa14716),
                                   title: Row(
                                     children: [
                                       Expanded(
                                         child: Text(
                                           addon['addon_item_name'],
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       IconButton(
-                                        icon: Icon(Icons.remove),
+                                        icon: const Icon(Icons.remove),
                                         onPressed: () {
                                           if (addon['qty'] > 1) {
                                             setState(() {
                                               addon['qty'] -= 1;
-                                              print(
-                                                  "name: ${addon['addon_item_name']} & qty: ${addon['qty']}");
+                                              if (kDebugMode) {
+                                                print(
+                                                    "name: ${addon['addon_item_name']} & qty: ${addon['qty']}");
+                                              }
                                             });
                                           }
                                         },
                                       ),
                                       Text(
                                         "${addon['qty']}",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
                                       IconButton(
-                                        icon: Icon(Icons.add),
+                                        icon: const Icon(Icons.add),
                                         onPressed: () {
                                           setState(() {
                                             addon['qty'] += 1;
-                                            print(
-                                                "name: ${addon['addon_item_name']} & qty: ${addon['qty']}");
+                                            if (kDebugMode) {
+                                              print(
+                                                  "name: ${addon['addon_item_name']} & qty: ${addon['qty']}");
+                                            }
                                           });
                                         },
                                       ),
@@ -301,7 +360,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                                   ),
                                   subtitle: Text(
                                     "Price: ${addon['addon_item_currency_price']}",
-                                    style: TextStyle(fontSize: 10),
+                                    style: const TextStyle(fontSize: 10),
                                   ),
                                   value: isChecked,
                                   onChanged: (bool? value) {
@@ -329,15 +388,15 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                         ),
                       )
                     : Container(),
-                Text(
+                const Text(
                   "Special Intructions",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Container(
                   margin:
                       const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                  child: Text(
-                      "Please let us know if you are allergic to anything on if we need to avid anything"),
+                  child: const Text(
+                      "Please inform your server of any allergies restrictions you may have."),
                 ),
                 Container(
                   margin:
@@ -346,7 +405,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                     controller: _special,
                     maxLines: null, // Allows for unlimited lines of input
                     keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'e.g  no mayo', // Placeholder text
                       border: OutlineInputBorder(), // Border style
                       filled: true, // Fill the background color
@@ -371,17 +430,17 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                                 12), // Adjust the radius as needed
-                            side: BorderSide(
-                                color: const Color(0xffa14716),
+                            side: const BorderSide(
+                                color: Color(0xffa14716),
                                 width: 2), // Add this line for colored border
                           ),
                         ),
                         onPressed: () {
                           Navigator.of(context).pop(false); // Return false
                         },
-                        child: Text('Cancel'),
+                        child: const Text('Cancel'),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor: whiteColor,
@@ -404,17 +463,21 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                           for (var attribute in widget.item['itemAttributes']) {
                             Map<String, dynamic> variationInfo = {
                               'attribute_name': attribute['name'],
-                              'attribute_id': attribute['selected']['id'],
+                              'attribute_id': attribute['selected']['item_attribute_id'],
+                              'variation_id': attribute['id'],
                               'variation_name': attribute['selected']['name'],
+                              'variation_price': attribute['selected']['price'],
                             };
                             selectedVariationsList.add(variationInfo);
                           }
 
-                          print(selectedVariationsList);
-                          print("------------------------------");
-                          print("Extra ${selectedExtras}");
-                          print("Addons ${selectedAddons}");
-                          print("Instructions ${_special.text}");
+                          if (kDebugMode) {
+                            print(selectedVariationsList);
+                            print("------------------------------");
+                            print("Extra $selectedExtras");
+                            print("Addons $selectedAddons");
+                            print("Instructions ${_special.text}");
+                          }
                           final newItem = CartObject(
                             itemId: widget.item['id'].toString(),
                             name: widget.item['name'],
@@ -429,21 +492,25 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
                             instruction: _special.text,
                           );
                           cartController.addToCart(newItem);
-                          print("new item is ${newItem.instruction}");
+                          if (kDebugMode) {
+                            print("new item is ${newItem.instruction}");
+                          }
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
                           String? cartData = prefs.getString('cartItems');
                           if (cartData != null) {
-                            Map<String, dynamic> cartJson =
-                                json.decode(cartData);
+                            // Map<String, dynamic> cartJson =
+                            //     json.decode(cartData);
                             Navigator.of(context).pop(true); // Return true
                             setState(() {});
                             // print(cartJson);
                           } else {
-                            print("Error");
+                            if (kDebugMode) {
+                              print("Error");
+                            }
                           }
                         },
-                        child: Text('Add to Cart'),
+                        child: const Text('Add to Cart'),
                       ),
                     ],
                   ),

@@ -1,21 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:nanopos/views/Home/home.dart';
 import 'package:nanopos/views/common/loader.dart';
 import 'package:nanopos/views/Auth/login.dart';
-import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/consts/consts.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key});
+  const SignupScreen({Key? key}): super(key: key);
 
   @override
-  _SignupScreenState createState() => _SignupScreenState();
+  SignupScreenState createState() => SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class SignupScreenState extends State<SignupScreen> {
   bool _showPassword = false;
   bool isLoading = false;
 
@@ -61,10 +56,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     decoration: InputDecoration(
                       labelText: 'Full Name',
                       hintText: 'Enter your name',
-                      prefixIcon: Icon(Icons.email),
+                      prefixIcon: const Icon(Icons.email),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black, // Border color
                           width: 4.0, // Border width
                         ),
@@ -77,10 +72,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email),
+                      prefixIcon: const Icon(Icons.email),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black, // Border color
                           width: 4.0, // Border width
                         ),
@@ -110,7 +105,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       fillColor: whiteColor.withOpacity(0.5),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black, // Border color
                           width: 4.0, // Border width
                         ),
@@ -164,7 +159,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => LoginScreen()
+                                      builder: (context) => const LoginScreen()
                                     ),
                                   );
                             },

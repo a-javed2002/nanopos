@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nanopos/consts/consts.dart';
-import 'package:nanopos/controller/adminController.dart';
-import 'package:nanopos/controller/printController.dart';
+import 'package:nanopos/controller/admin_controller.dart';
+import 'package:nanopos/controller/print_controller.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Home/order.dart';
 
 class AllOrdersScreen extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
 
   const AllOrdersScreen({
     Key? key,
@@ -24,7 +24,6 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     adminController.fetchData("$domain/api/admin/table-order?payment_status=5",
         widget.user.token, adminController.order);
@@ -36,12 +35,12 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("All Orders"),
+          title: const Text("All Orders"),
         ),
         body: Column(
           children: [
             Container(
-              margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.black,
@@ -59,36 +58,38 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                           adminController.searchItem();
                           // print(adminController.filItem);
                         },
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Search',
                           hintStyle: TextStyle(
-                            color: Theme.of(context).textTheme.bodyText1!.color,
+                            color: blackColor,
                           ),
                           icon: Icon(
                             Icons.search,
-                            color: Theme.of(context).textTheme.bodyText1!.color,
+                            color: greyColor,
                           ),
                           border: InputBorder.none,
-                          suffixIcon: adminController.searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: Icon(
-                                    Icons.clear,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyText1!
-                                        .color,
-                                  ),
-                                  onPressed: () {
-                                    print("clearing");
-                                    setState(() {
-                                      adminController.searchQuery.value = '';
-                                    });
-                                  },
-                                )
-                              : null,
+                          // suffixIcon: adminController.searchQuery.isNotEmpty
+                          //     ? IconButton(
+                          //         icon: Icon(
+                          //           Icons.clear,
+                          //           color: Theme.of(context)
+                          //               .textTheme
+                          //               .bodyText1!
+                          //               .color,
+                          //         ),
+                          //         onPressed: () {
+                          //           if (kDebugMode) {
+                          //             print("clearing");
+                          //           }
+                          //           setState(() {
+                          //             adminController.searchQuery.value = '';
+                          //           });
+                          //         },
+                          //       )
+                          //     : null,
                         ),
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyText1!.color,
+                        style: const TextStyle(
+                          color: greyColor,
                         ),
                       ),
                     ),
@@ -96,19 +97,19 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Expanded(
               child: Obx(() {
                 if (adminController.order.isEmpty) {
-                  return Center(
+                  return const Center(
                       // child: CircularProgressIndicator(),
                       // child: Text("No Orders Available 1"),
                       );
                 } else {
                   if (adminController.filOrder.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: Text("No Orders Available"),
                     );
                   } else {
@@ -163,13 +164,13 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                           instruction: item['instruction'],
                           totalConvertPrice:
                               item['total_convert_price']!.toString(),
-                          tax_rate: item['tax_rate']!.toString(),
-                          item_variation_currency_total:
+                          taxRate: item['tax_rate']!.toString(),
+                          itemVariationCurrencyTotal:
                               item['item_variation_currency_total']!.toString(),
-                          item_extra_currency_total:
+                          itemExtraCurrencyTotal:
                               item['item_extra_currency_total']!.toString(),
-                          item_variations: item['item_variations'],
-                          item_extras: item['item_extras']);
+                          itemVariations: item['item_variations'],
+                          itemExtras: item['item_extras']);
 
                       orderItems.add(orderItem);
                     }
@@ -189,7 +190,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                         discount_currency_price:
                             orderMap['total_currency_price'],
                         total_currency_price: orderMap['total_currency_price'],
-                        total_tax_currency_price:
+                        totalTaxCurrencyPrice:
                             orderMap['total_currency_price']);
 
                     printController.printDialog(
@@ -200,7 +201,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
                       context: context, message: "Order Detail is Empty");
                 }
               },
-              child: Icon(Icons.print, color: mainColor)),
+              child: const Icon(Icons.print, color: mainColor)),
           onTap: () {
             _showOrderDetailsDialog(context, orderMap);
           },
@@ -216,19 +217,19 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Order Details'),
+          title: const Text('Order Details'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Order Serial No: ${orderData['order_serial_no']}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Total Price: ${orderData['total_currency_price']}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // Assuming 'status_name' is present in the response
               Text('Status: ${orderData['status_name'] ?? 'Unknown'}'),
-              SizedBox(height: 16),
-              Text('Order Items:'),
+              const SizedBox(height: 16),
+              const Text('Order Items:'),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: (orderData['order_items'] as List).map((item) {
@@ -243,7 +244,7 @@ class _AllOrdersScreenState extends State<AllOrdersScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );

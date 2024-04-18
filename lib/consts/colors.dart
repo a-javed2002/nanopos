@@ -11,5 +11,7 @@ const Color whiteColor = Color(0xFFFFFFFF);
 const Color redColor = Color(0xFFF44336);
 const Color redColorLight = Color(0xFFEF5350);
 const Color greenColor = Color(0xFF4CAF50);
+const Color blackColor = Color(0xFF000000);
+const Color greyColor = Color(0xFFA1A1A1);
 // const Color mainColor = Color(0xFF202A32);
 // const Color mainLightColor = Color.fromARGB(255, 51, 66, 79);

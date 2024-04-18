@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nanopos/OnBoarding/onBoarding.dart';
-import 'package:nanopos/controller/adminController.dart';
-import 'package:nanopos/controller/apiController.dart';
-import 'package:nanopos/controller/cartController.dart';
-import 'package:nanopos/controller/printController.dart';
+import 'package:nanopos/controller/admin_controller.dart';
+import 'package:nanopos/controller/api_controller.dart';
+import 'package:nanopos/controller/auth_controller.dart';
+import 'package:nanopos/controller/cart_controller.dart';
+import 'package:nanopos/controller/print_controller.dart';
 import 'package:nanopos/dependency_injection.dart';
-import 'package:nanopos/views/Auth/login.dart';
-import 'package:nanopos/views/Menu/menu.dart';
-import 'package:nanopos/views/channel.dart';
-import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:nanopos/views/Splash/splash_screen.dart';
 
 void main() {
@@ -45,8 +41,9 @@ class MyApp extends StatelessWidget {
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         // useMaterial3: true,
       // ),
-      home: Splashscreen(),
+      home: const Splashscreen(),
       initialBinding: BindingsBuilder(() {
+      Get.put(AuthController());
       Get.put(CartController());
       Get.put(ApiController());
       Get.put(AdminController());

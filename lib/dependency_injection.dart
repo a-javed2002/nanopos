@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:nanopos/controller/networkController.dart';
+import 'package:nanopos/controller/network_controller.dart';
 
 
 class DependencyInjection {

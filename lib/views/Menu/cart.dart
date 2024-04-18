@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nanopos/controller/cartController.dart';
-import 'package:nanopos/views/Menu/detail.dart';
+import 'package:nanopos/controller/cart_controller.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'package:nanopos/views/Menu/menu.dart';
 import 'package:nanopos/views/StatusScreens/order_placed.dart';
@@ -12,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:nanopos/consts/consts.dart';
 
 class CartScreen extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
   final String id;
   final String table;
 
@@ -74,7 +73,9 @@ class _CartScreenState extends State<CartScreen> {
                             cartController.cartMap[currentTableId];
                         // print("cart total items $currentTableId And\n $cartItems");
                         if (cartItems == null || cartItems.isEmpty) {
-                          print("cart is empty");
+                          if (kDebugMode) {
+                            print("cart is empty");
+                          }
                         } else {
                           // Accessing items map directly
                           List<dynamic> items = cartItems[0]['items'];
@@ -85,21 +86,29 @@ class _CartScreenState extends State<CartScreen> {
                           List<Map<String, dynamic>> itemExtrasList = [];
                           // List<Map<String, dynamic>> variationList = [];
                           double total = 0;
+                          double varTotal = 0;
+                          double extraTotal = 0;
                           for (var item in items) {
-                            print(item['addons']);
+                            if (kDebugMode) {
+                              print(item['addons']);
+                            }
                             for (var variation in item['itemVariations']) {
                               // Extracting specific fields and creating a new map
+                              varTotal += double.parse(variation['variation_price']);
                               variationList.add({
-                                'id': variation['id'],
-                                'item_id': variation['item_id'],
+                                'id': variation['variation_id'],
+                                'item_id': item['itemId'],
                                 'item_attribute_id':
-                                    variation['item_attribute_id'],
+                                    variation['attribute_id'],
                                 'variation_name': variation['variation_name'],
-                                'name': variation['name']
+                                'name': variation['attribute_name']
                               });
                             }
-                            print("-----------------------");
+                            if (kDebugMode) {
+                              print("-----------------------");
+                            }
                             for (var itemExtra in item['itemExtras']) {
+                              extraTotal += double.parse(itemExtra['price']);
                               // Extracting specific fields and creating a new map
                               itemExtrasList.add({
                                 'id': itemExtra['id'],
@@ -128,7 +137,7 @@ class _CartScreenState extends State<CartScreen> {
                             // print(item['itemExtras']);
                             // print(item['addons']);
                             total +=
-                                (double.parse(item['price']) * item['qty']);
+                                (double.parse(item['price']) * item['qty']) + extraTotal + varTotal;
                             itemList.add({
                               "item_id": item['itemId'],
                               "item_price": item['price'],
@@ -138,20 +147,28 @@ class _CartScreenState extends State<CartScreen> {
                               "discount": item['discount'] ?? 0,
                               "total_price":
                                   double.parse(item['price']) * item['qty'],
-                              "item_variation_total":
-                                  item['itemVariationTotal'] ?? 0,
-                              "item_extra_total": item['itemExtraTotal'] ?? 0,
+                              "item_variation_total": varTotal,
+                              "item_extra_total": extraTotal,
+                              // "item_variation_total":
+                              //     item['itemVariationTotal'] ?? 0,
+                              // "item_extra_total": item['itemExtraTotal'] ?? 0,
                               "item_variations": variationList,
                               "item_extras": itemExtrasList,
                             });
+
+                            if (kDebugMode) {
+                              print(
+                                  "varTotal --> $varTotal");
+                              print(
+                                  "extraTotal --> $extraTotal");
+                            }
+                            varTotal = 0;
+                            extraTotal = 0;
                           }
 
-                          var x = {
-                            "items":
-                                "[{\"item_variation_total\":0,\"item_extra_total\":0,\"item_variations\":[],\"item_extras\":[]},{\"item_id\":2,\"item_price\":350,\"branch_id\":1,\"instruction\":\"\",\"quantity\":1,\"discount\":0,\"total_price\":350,\"item_variation_total\":0,\"item_extra_total\":0,\"item_variations\":[{\"id\":1,\"item_id\":2,\"item_attribute_id\":\"1\",\"variation_name\":\"Flavours\",\"name\":\"Less Fried Zinger\"}],\"item_extras\":[]}]"
-                          };
-
-                          print(itemList);
+                          if (kDebugMode) {
+                            print(itemList);
+                          }
 
                           var data = {
                             "dining_table_id": widget.id,
@@ -169,7 +186,11 @@ class _CartScreenState extends State<CartScreen> {
                             "source": 5,
                             "total": total,
                           };
-                          print(data);
+                          if (kDebugMode) {
+                            print(data);
+                          }
+
+                          // return;
 
                           var response = await http.post(
                             Uri.parse('$domain/api/table/dining-order'),
@@ -201,11 +222,15 @@ class _CartScreenState extends State<CartScreen> {
                               MaterialPageRoute(
                                 builder: (context) => OrderPlaced(
                                   user: widget.user,
+                                  table: widget.table,
+                                  id: widget.id,
                                 ),
                               ),
                             );
                           } else {
-                            print("order Not Placed......");
+                            if (kDebugMode) {
+                              print("order Not Placed......");
+                            }
                             setState(() {
                               isLoading = false;
                             });
@@ -224,9 +249,9 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
           appBar: AppBar(
-            title: Text("Cart"),
+            title: const Text("Cart"),
             leading: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
@@ -242,7 +267,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           floatingActionButton: FloatingActionButton(
               backgroundColor: Colors.red,
-              child: Icon(
+              child: const Icon(
                 Icons.delete,
                 color: whiteColor,
               ),
@@ -278,7 +303,9 @@ class _CartScreenState extends State<CartScreen> {
                       itemVariations: item['itemVariations'] ?? [],
                       instruction: item['instruction'] ?? "");
 
-                  print(item);
+                  if (kDebugMode) {
+                    print(item);
+                  }
 
                   return Dismissible(
                       key: UniqueKey(),
@@ -286,8 +313,8 @@ class _CartScreenState extends State<CartScreen> {
                       background: Container(
                         color: Colors.red,
                         alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Icon(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: const Icon(
                           Icons.delete,
                           color: whiteColor,
                         ),
@@ -309,7 +336,7 @@ class _CartScreenState extends State<CartScreen> {
                           },
                           title: Text(
                             cartObject.name,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 10, fontWeight: FontWeight.bold),
                           ),
                           subtitle: Column(
@@ -317,32 +344,32 @@ class _CartScreenState extends State<CartScreen> {
                             children: [
                               Text(
                                 cartObject.desc,
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 'Price: ${cartObject.price}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 'Instructions: ${cartObject.instruction}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 'Variations: ${cartObject.itemVariations!.map((v) => v['variation_name']).join(', ')}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 'Extras: ${cartObject.itemExtras!.map((e) => e['name']).join(', ')}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 'Addons: ${cartObject.addons!.map((a) => a['addon_item_name']).join(', ')}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
                             ],
                           ),
@@ -350,12 +377,29 @@ class _CartScreenState extends State<CartScreen> {
                             cartObject.image,
                             width: 60,
                             height: 60,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                // If the image is fully loaded, return the Image widget
+                                return child;
+                              } else {
+                                // If the image is still loading, return a CircularProgressIndicator
+                                return const CircularProgressIndicator();
+                              }
+                            },
+                            errorBuilder: (BuildContext context,
+                                Object exception, StackTrace? stackTrace) {
+                              // Return a fallback image in case of an error
+                              return Image.asset(
+                                'assets/images/imageNotFound.png', // Provide the path to your fallback image
+                              );
+                            },
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.remove),
+                                icon: const Icon(Icons.remove),
                                 onPressed: () {
                                   setState(() {
                                     cartController.decreaseQty(cartObject);
@@ -364,10 +408,11 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                               Text(
                                 cartObject.qty.toString(),
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
                               IconButton(
-                                icon: Icon(Icons.add),
+                                icon: const Icon(Icons.add),
                                 onPressed: () {
                                   setState(() {
                                     cartController.increaseQty(cartObject);

@@ -1,43 +1,47 @@
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanopos/controller/adminController.dart';
-import 'package:nanopos/controller/printController.dart';
+import 'package:nanopos/controller/admin_controller.dart';
+import 'package:nanopos/controller/auth_controller.dart';
+import 'package:nanopos/controller/print_controller.dart';
 import 'package:nanopos/views/Admin/Orders.dart';
-import 'package:nanopos/views/Print/testprint.dart';
-import 'package:nanopos/views/Todo/todos_Screen.dart';
-import 'package:nanopos/views/Cashier/cashier.dart';
 import 'package:nanopos/views/Auth/login.dart';
 import 'dart:convert';
-import 'package:flutter/services.dart';
-
 import 'package:nanopos/views/Home/order.dart';
-import 'package:nanopos/views/r.dart';
-import 'package:nanopos/views/ringtones.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:nanopos/consts/consts.dart';
 
 class MyHomePage extends StatefulWidget {
-  final loginUser user;
+  final LoginUser user;
+  final bool isLogin;
 
-  MyHomePage({Key? key, required this.user}) : super(key: key);
+  const MyHomePage({Key? key, required this.user, required this.isLogin})
+      : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
+class MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
   late Stream<List<dynamic>> _tablesStream;
   final AdminController adminController = Get.find();
+  final AuthController _authController = Get.find();
   int call = 0;
 
   final PrintController printController = Get.find();
+  final Connectivity _connectivity = Connectivity();
+  // Define a getter for connectionStatus
+  ConnectivityResult get connectionStatus => _connectionStatus;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+
+  // Define a getter for isConnected
+  bool get isConnected => _connectionStatus != ConnectivityResult.none;
 
   @override
   void initState() {
@@ -45,11 +49,11 @@ class _MyHomePageState extends State<MyHomePage>
     _tablesStream = _fetchActiveTables();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
     );
 
     _colorAnimation =
-        ColorTween(begin: Color(0xffa14716), end: Color(0xfff3b98a))
+        ColorTween(begin: const Color(0xffa14716), end: const Color(0xfff3b98a))
             .animate(_controller)
           ..addListener(() {
             setState(() {});
@@ -58,12 +62,37 @@ class _MyHomePageState extends State<MyHomePage>
     _controller!.repeat(reverse: true);
 
     printController.initPlatformState();
+
+    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
   @override
   void dispose() {
     _controller!.dispose();
     super.dispose();
+  }
+
+  void _updateConnectionStatus(ConnectivityResult connectivityResult) {
+    _connectionStatus = connectivityResult; // Update connectionStatus
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.rawSnackbar(
+          messageText: const Text('PLEASE CONNECT TO THE INTERNET',
+              style: TextStyle(color: whiteColor, fontSize: 14)),
+          isDismissible: false,
+          duration: const Duration(days: 1),
+          backgroundColor: redColorLight,
+          icon: const Icon(
+            Icons.wifi_off,
+            color: whiteColor,
+            size: 35,
+          ),
+          margin: EdgeInsets.zero,
+          snackStyle: SnackStyle.GROUNDED);
+    } else {
+      if (Get.isSnackbarOpen) {
+        Get.closeCurrentSnackbar();
+      }
+    }
   }
 
   Stream<List<dynamic>> _fetchActiveTables() async* {
@@ -130,6 +159,11 @@ class _MyHomePageState extends State<MyHomePage>
           }
 
           yield tablesData;
+
+          if (widget.isLogin) {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('tables', json.encode(tablesData));
+          }
         } else {
           throw Exception('Failed to parse table data');
         }
@@ -159,14 +193,37 @@ class _MyHomePageState extends State<MyHomePage>
           actions: [
             InkWell(
               onTap: () {
-                _showLogoutDialog();
+                _authController.showLogoutDialog(context);
               },
               child: Padding(
-                padding: const EdgeInsets.only(right: 10.0),
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(widget.user.image),
-                ),
+              padding: const EdgeInsets.only(right: 10.0),
+              child: Image.network(
+                widget.user.image,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    // If the image is fully loaded, return the CircleAvatar
+                    return CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        widget.user.image,
+                      ),
+                    );
+                  } else {
+                    // If the image is still loading, return a CircularProgressIndicator
+                    return const CircularProgressIndicator();
+                  }
+                },
+                errorBuilder: (BuildContext context, Object exception,
+                    StackTrace? stackTrace) {
+                  // Return a fallback image in case of an error
+                  return const CircleAvatar(
+                    backgroundImage: AssetImage(
+                      'assets/images/profile.png', // Provide the path to your fallback image
+                    ),
+                  );
+                },
               ),
+            ),
             ),
           ],
           toolbarHeight: 70,
@@ -270,12 +327,12 @@ class _MyHomePageState extends State<MyHomePage>
                         color: table['is_calling'] == true
                             ? (_colorAnimation as Animation<Color?>).value
                             : table['isActive'] == true
-                                ? Color(0xfff3b98a)
-                                : Color(0xffffffff),
+                                ? const Color(0xfff3b98a)
+                                : const Color(0xffffffff),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                               10.0), // Adjust the border radius as needed
-                          side: BorderSide(
+                          side: const BorderSide(
                               color: Color(0xfff3b98a),
                               width: 1.0), // Add border side color & width
                         ),
@@ -323,7 +380,7 @@ class _MyHomePageState extends State<MyHomePage>
                                     top: 0,
                                     right: 5,
                                     child: Container(
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Color(0xffa14716),
                                       ),
@@ -331,7 +388,7 @@ class _MyHomePageState extends State<MyHomePage>
                                         padding: const EdgeInsets.all(6.0),
                                         child: Text(
                                           "${table['newOrders']}",
-                                          style: TextStyle(color: whiteColor),
+                                          style: const TextStyle(color: whiteColor),
                                         ),
                                       ),
                                     ))
@@ -409,7 +466,7 @@ class _MyHomePageState extends State<MyHomePage>
           child: SingleChildScrollView(
             child: Column(
               children: [
-                DrawerHeader(
+                const DrawerHeader(
                   decoration: BoxDecoration(
                     color: mainLightColor,
                   ),
@@ -441,19 +498,28 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
                 ListTile(
                   onTap: () async {
+                    if (kDebugMode) {
+
                     print("Print Last Bill ${printController.connected.value}");
+                    }
                     Order? order = await adminController.getLocal();
                     if (order != null) {
                       printController.printDialog(
-                          order: order, context: context, user: widget.user,billStatus: "Paid");
+                          order: order,
+                          context: context,
+                          user: widget.user,
+                          billStatus: "Paid");
                     } else {
+                      if (kDebugMode) {
+
                       print("No Last Order");
+                      }
                       printController.showToast(
                           context: context, message: "No Order Yet");
                     }
                   },
-                  title: Text("Print Last Bill"),
-                  leading: Icon(
+                  title: const Text("Print Last Bill"),
+                  leading: const Icon(
                     Icons.print,
                     color: mainColor,
                   ),
@@ -461,13 +527,16 @@ class _MyHomePageState extends State<MyHomePage>
                 const Divider(),
                 ListTile(
                   onTap: () {
+                    if (kDebugMode) {
+
                     print("All Orders");
+                    }
                     Get.to(AllOrdersScreen(
                       user: widget.user,
                     ));
                   },
-                  title: Text("See Paid Orders"),
-                  leading: Icon(
+                  title: const Text("See Paid Orders"),
+                  leading: const Icon(
                     Icons.document_scanner,
                     color: mainColor,
                   ),
@@ -515,118 +584,5 @@ class _MyHomePageState extends State<MyHomePage>
       }
       throw Exception('Error occurred: $error');
     }
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Profile"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.image),
-                radius: 40,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                widget.user.name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                widget.user.email,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              IconButton(
-                onPressed: () {
-                  Get.offAll(
-                    LoginScreen(),
-                  );
-                },
-                icon: const Icon(Icons.logout, size: 40, color: redColor),
-              ),
-              Row(
-                children: [
-                  // IconButton(
-                  //   onPressed: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => const TodosScreen(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   icon: const Icon(Icons.add, size: 40, color: Colors.brown),
-                  // ),
-                  // IconButton(
-                  //   onPressed: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => CheckboxListScreen(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   icon: const Icon(Icons.calculate_outlined,
-                  //       size: 40, color: Color(0xFFFF2C2C)),
-                  // ),
-                  // IconButton(
-                  //   onPressed: () {
-                  //     HapticFeedback.vibrate();
-                  //   },
-                  //   icon: const Icon(Icons.calculate_outlined,
-                  //       size: 40, color: Colors.yellow),
-                  // ),
-                  // IconButton(
-                  //   onPressed: () {
-                  //     Vibration.vibrate(duration: 2000);
-                  //   },
-                  //   icon:
-                  //       const Icon(Icons.soap, size: 40, color: Colors.yellow),
-                  // ),
-                  // IconButton(
-                  //   onPressed: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => const RingTonee(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   icon: const Icon(Icons.g_translate,
-                  //       size: 40, color: Colors.pink),
-                  // ),
-                ],
-              )
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12), // Adjust the radius as needed
-                ),
-                foregroundColor: const Color(0xfff3b98a),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Perform logout action here
-              },
-              child: const Text("Cancel"),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

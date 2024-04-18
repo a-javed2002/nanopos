@@ -1,15 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class NativeFunctionScreen extends StatelessWidget {
-  final MethodChannel _channel = MethodChannel('TopSdkMethods');
+  const NativeFunctionScreen({Key? key}): super(key: key);
+  final MethodChannel _channel = const MethodChannel('TopSdkMethods');
 
   Future<void> callNativeFunction(String name) async {
     try {
       final String result = await _channel.invokeMethod(name);
-      print('Result from native: $result');
+      if (kDebugMode) {
+        print('Result from native: $result');
+      }
     } on PlatformException catch (e) {
-      print('Error: ${e.message}');
+      if (kDebugMode) {
+        print('Error: ${e.message}');
+      }
     }
   }
 
@@ -17,28 +23,28 @@ class NativeFunctionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Native Function Screen'),
+        title: const Text('Native Function Screen'),
       ),
       body: Column(
         children: [
           Center(
             child: ElevatedButton(
-              onPressed: (){
+              onPressed: () {
                 callNativeFunction('PrintSlip');
               },
-              child: Text('Print Slip'),
+              child: const Text('Print Slip'),
             ),
           ),
           Center(
             child: ElevatedButton(
-              onPressed: (){
+              onPressed: () {
                 callNativeFunction('ScanCard');
               },
-              child: Text('scan Card'),
+              child: const Text('scan Card'),
             ),
           ),
         ],
-      ),  
+      ),
     );
   }
 }
